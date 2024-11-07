@@ -1,0 +1,16 @@
+{
+  "deploy": {
+    "project": "171b286e-8663-4239-89ef-601feb31b09a",
+    "exclude": [
+      "**/node_modules"
+    ],
+    "include": [],
+    "entrypoint": "main.ts"
+  },
+  "imports": {
+    "@hono/hono": "jsr:@hono/hono@^4.6.9"
+  },
+  "fmt": {
+    "singleQuote": true
+  }
+}
