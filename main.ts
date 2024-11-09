@@ -6,7 +6,7 @@ import { AuthDenoKVRepository } from './models/auth/deno-kv-repository.ts';
 import { ReaderDenoKVRepository } from './models/reader/deno-kv-repository.ts';
 import { LoginPayload } from './payload-types.ts';
 import { AWSSESEmailService } from './services/email/aws-ses-email-service.ts';
-import { logMessage } from './utils/log-message.ts';
+import { logInfo } from './utils/logger.ts';
 
 const app = new Hono();
 
@@ -53,13 +53,13 @@ app.use((c, next) => {
 });
 
 app.get('/', (c) => {
-  logMessage(`hello world request`);
+  logInfo(`hello world request`);
   return c.text('Hello, world!');
 });
 
 app.post('/login', async (c) => {
   const payload = await c.req.json<LoginPayload>();
-  logMessage(`login request for ${payload.email}`);
+  logInfo(`login request for ${payload.email}`);
   authController.login(payload.email);
 });
 

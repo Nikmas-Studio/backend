@@ -1,4 +1,4 @@
-import { Branded, UUID } from '../../general-types.ts';
+import { Branded, UUID } from '../../global-types.ts';
 
 export type AuthTokenId = Branded<UUID, 'AuthTokenId'>;
 

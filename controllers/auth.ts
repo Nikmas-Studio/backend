@@ -1,4 +1,4 @@
-import { Email } from '../general-types.ts';
+import { Email } from '../global-types.ts';
 import { AuthRepository } from '../models/auth/repository-interface.ts';
 import { ReaderRepository } from '../models/reader/repository-interface.ts';
 import { EmailService } from '../services/email/email-service-interface.ts';

@@ -2,9 +2,9 @@ import { SendTemplatedEmailCommand, SESClient } from '@aws-sdk/client-ses';
 import { LOGIN_LINK_TEMPLATE_NAME, STUDIO_EMAIL } from '../../constants.ts';
 import { SendLoginLinkEmailError } from '../../errors.ts';
 import { getAWSSESClientConfig } from '../../utils/get-aws-ses-client-config.ts';
-import { logMessage } from '../../utils/log-message.ts';
 import { EmailService } from './email-service-interface.ts';
 import { SendLoginLinkDTO } from './types.ts';
+import { logError } from '../../utils/logger.ts';
 
 export class AWSSESEmailService implements EmailService {
   private client: SESClient;
@@ -28,7 +28,7 @@ export class AWSSESEmailService implements EmailService {
     try {
       await this.client.send(sendEmailCommand);
     } catch (e) {
-      logMessage(`Failed to send login link email to ${readerEmail}: ${e}`);
+      logError(`Failed to send login link email to ${readerEmail}: ${e}`);
       throw new SendLoginLinkEmailError(readerEmail, e as Error);
     }
   }

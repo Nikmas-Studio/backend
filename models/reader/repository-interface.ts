@@ -1,4 +1,4 @@
-import { Email } from '../../general-types.ts';
+import { Email } from '../../global-types.ts';
 import { CreateReaderDTO, Reader } from './types.ts';
 
 export interface ReaderRepository {

@@ -1,6 +1,6 @@
 import { AUTH_TOKEN_TIME_TO_LIVE } from '../../constants.ts';
 import { generateUUID } from '../../utils/generate-uuid.ts';
-import { logMessage } from '../../utils/log-message.ts';
+import { logInfo } from '../../utils/logger.ts';
 import { ReaderId } from '../reader/types.ts';
 import { AuthRepository } from './repository-interface.ts';
 import { AuthToken, AuthTokenId } from './types.ts';
@@ -22,7 +22,7 @@ export class AuthDenoKVRepository implements AuthRepository {
 
     await this.kv.set(primaryKey, authToken);
 
-    logMessage(`auth token created: ${authToken}`);
+    logInfo(`auth token created: ${authToken}`);
 
     return authToken;
   }
