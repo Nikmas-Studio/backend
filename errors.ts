@@ -9,8 +9,9 @@ export class ReaderExistsError extends Error {
 
 export class SendLoginLinkEmailError extends Error {
   constructor(recieverEmail: Email, originalError: Error) {
-    super(`Failed to send login link email to ${recieverEmail}`, { cause: originalError});
+    super(`Failed to send login link email to ${recieverEmail}`, {
+      cause: originalError,
+    });
     this.name = 'SendLoginLinkEmailError';
   }
 }
-

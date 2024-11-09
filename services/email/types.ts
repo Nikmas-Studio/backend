@@ -4,6 +4,6 @@ export type EmailSubject = string;
 export type EmailBody = string;
 
 export interface SendLoginLinkDTO {
-  recieverEmail: Email;
+  readerEmail: Email;
   link: URL;
 }

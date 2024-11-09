@@ -1,12 +1,16 @@
 import { Email } from '../general-types.ts';
 import { AuthRepository } from '../models/auth/repository-interface.ts';
 import { ReaderRepository } from '../models/reader/repository-interface.ts';
-import { generateLoginLink } from '../utils/generateLoginLink.ts';
+import { EmailService } from '../services/email/email-service-interface.ts';
+import { generateLoginLink } from '../utils/generate-login-link.ts';
+import { HTTPException } from 'hono/http-exception';
+import { STATUS_CODE } from '@std/http';
 
 export class AuthController {
   constructor(
     private authRepository: AuthRepository,
     private readerRepository: ReaderRepository,
+    private emailService: EmailService,
   ) {}
 
   async login(readerEmail: Email): Promise<void> {
@@ -16,6 +20,12 @@ export class AuthController {
       hasFullAccess: false,
     });
     const authToken = await this.authRepository.createAuthToken(reader.id);
-    const _loginLink = generateLoginLink(authToken.id);
+    const loginLink = generateLoginLink(authToken.id);
+
+    try {
+      await this.emailService.sendLoginLink({ readerEmail, link: loginLink });
+    } catch (_e) {
+      throw new HTTPException(STATUS_CODE.InternalServerError);
+    }
   }
 }

@@ -1,6 +1,6 @@
-import { v1 as uuid } from 'npm:uuid';
+import * as uuid from '@std/uuid';
 import { UUID } from '../general-types.ts';
 
 export function generateUUID(): UUID {
-  return uuid();
+  return uuid.v1.generate();
 }

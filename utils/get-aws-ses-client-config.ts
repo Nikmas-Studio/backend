@@ -1,4 +1,4 @@
-import { SESClientConfig } from 'https://esm.sh/@aws-sdk/client-ses@3.687.0';
+import { SESClientConfig } from '@aws-sdk/client-ses';
 
 export function getAWSSESClientConfig(): SESClientConfig {
   return {

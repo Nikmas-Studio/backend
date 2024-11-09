@@ -22,7 +22,6 @@ const input = {
   },
 };
 
-
 const createTemplateCommand = new CreateTemplateCommand(input);
 const createTemplateResponse = await client.send(createTemplateCommand);
 console.log('create template response:', createTemplateResponse);

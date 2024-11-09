@@ -1,12 +1,10 @@
-import {
-  SendTemplatedEmailCommand,
-  SESClient,
-} from 'https://esm.sh/@aws-sdk/client-ses@3.687.0';
+import { SendTemplatedEmailCommand, SESClient } from '@aws-sdk/client-ses';
 import { LOGIN_LINK_TEMPLATE_NAME, STUDIO_EMAIL } from '../../constants.ts';
+import { SendLoginLinkEmailError } from '../../errors.ts';
 import { getAWSSESClientConfig } from '../../utils/get-aws-ses-client-config.ts';
+import { logMessage } from '../../utils/log-message.ts';
 import { EmailService } from './email-service-interface.ts';
 import { SendLoginLinkDTO } from './types.ts';
-import { SendLoginLinkEmailError } from '../../errors.ts';
 
 export class AWSSESEmailService implements EmailService {
   private client: SESClient;
@@ -16,12 +14,12 @@ export class AWSSESEmailService implements EmailService {
   }
 
   async sendLoginLink(
-    { recieverEmail, link }: SendLoginLinkDTO,
+    { readerEmail, link }: SendLoginLinkDTO,
   ): Promise<void> {
     const sendEmailCommand = new SendTemplatedEmailCommand({
       Source: STUDIO_EMAIL,
       Destination: {
-        ToAddresses: [recieverEmail],
+        ToAddresses: [readerEmail],
       },
       Template: LOGIN_LINK_TEMPLATE_NAME,
       TemplateData: JSON.stringify({ link }),
@@ -30,8 +28,8 @@ export class AWSSESEmailService implements EmailService {
     try {
       await this.client.send(sendEmailCommand);
     } catch (e) {
-      console.log('Failed to send login link email to', recieverEmail, e);
-      throw new SendLoginLinkEmailError(recieverEmail, e as Error);
+      logMessage(`Failed to send login link email to ${readerEmail}: ${e}`);
+      throw new SendLoginLinkEmailError(readerEmail, e as Error);
     }
   }
 }

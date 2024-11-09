@@ -1,12 +1,13 @@
 import { ReaderExistsError } from '../../errors.ts';
-import { generateUUID } from '../../utils/generateUUID.ts';
+import { Email } from '../../general-types.ts';
+import { generateUUID } from '../../utils/generate-uuid.ts';
+import { logMessage } from '../../utils/log-message.ts';
 import { ReaderRepository } from './repository-interface.ts';
 import {
   CreateReaderDTO,
   FullAccessReader,
   Investor,
   Reader,
-  ReaderEmail,
   ReaderId,
 } from './types.ts';
 
@@ -61,14 +62,17 @@ export class ReaderDenoKVRepository implements ReaderRepository {
     const res = await atomicOp.commit();
 
     if (!res.ok) {
+      console.log(`reader exists kv error: ${email}`);
       throw new ReaderExistsError(reader.email);
     }
+
+    logMessage(`reader created: ${reader}`);
 
     return reader;
   }
 
   async getReaderByEmail(
-    email: ReaderEmail,
+    email: Email,
   ): Promise<Reader | null> {
     const reader = await this.kv.get<Reader>(['readers_by_email', email]);
 
@@ -79,6 +83,7 @@ export class ReaderDenoKVRepository implements ReaderRepository {
     const reader = await this.getReaderByEmail(createReaderDTO.email);
 
     if (reader) {
+      logMessage(`found reader: ${reader}`);
       return reader;
     }
 
