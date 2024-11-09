@@ -9,7 +9,7 @@ import { LoginDTO } from '../route-payload-dtos/login.ts';
 import { ValidateAuthTokenDTO } from '../route-payload-dtos/validate-auth-token.ts';
 import { EmailService } from '../services/email/email-service-interface.ts';
 import { generateLoginLink } from '../utils/generate-login-link.ts';
-import { logInfo } from '../utils/logger.ts';
+import { logError, logInfo } from '../utils/logger.ts';
 import { MAX_READER_SESSIONS } from '../constants.ts';
 
 export class AuthController {
@@ -54,18 +54,25 @@ export class AuthController {
     const authToken = await this.authRepository.getAuthTokenById(authTokenId);
 
     if (authToken === null) {
+      logError(`auth token ${authTokenId} not found`);
       throw new HTTPException(STATUS_CODE.Unauthorized);
     }
 
     if (new Date() > authToken.expiresAt) {
+      logError(`auth token ${authTokenId} has expired`);
       throw new HTTPException(STATUS_CODE.Unauthorized);
     }
+    
+    await this.authRepository.removeAuthToken(authTokenId);
 
     const allReaderSessions = await this.authRepository.getAllReaderSessions(
       authToken.readerId,
     );
+
     if (allReaderSessions.length === MAX_READER_SESSIONS) {
-      await this.authRepository.removeSession(allReaderSessions[0]);
+      logInfo(`reader ${authToken.readerId} has reached the maximum number of sessions`);
+      logInfo(`session id to remove: ${allReaderSessions[0]}`);
+      await this.authRepository.removeSession(allReaderSessions[0], authToken.readerId);
     }
 
     const newSession = await this.authRepository.createSession(
@@ -77,8 +84,10 @@ export class AuthController {
       sameSite: 'Lax',
       secure: true,
       path: '/',
-      expires: new Date('9999-12-31T23:59:59Z'),
+      maxAge: 34560000,
     });
+    
+    logInfo(`session ${newSession.id} created for reader ${authToken.readerId} and cookie set`);
 
     return c.json({
       message: 'auth token validated successfully',

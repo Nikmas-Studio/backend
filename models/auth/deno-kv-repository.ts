@@ -34,6 +34,10 @@ export class AuthDenoKVRepository implements AuthRepository {
     ]);
     return authToken.value;
   }
+  
+  async removeAuthToken(authTokenId: AuthTokenId): Promise<void> {
+    await this.kv.delete(['auth_tokens', authTokenId]);
+  }
 
   async createSession(readerId: ReaderId): Promise<Session> {
     const sessionId = generateUUID() as SessionId;
@@ -60,16 +64,19 @@ export class AuthDenoKVRepository implements AuthRepository {
   async getAllReaderSessions(readerId: ReaderId): Promise<SessionId[]> {
     const sessions: SessionId[] = [];
     for await (
-      const { key: _, value } of this.kv.list<SessionId>({
+      const { key, value: _ } of this.kv.list<SessionId>({
         prefix: ['sessions_by_reader', readerId],
       })
     ) {
-      sessions.push(value);
+      sessions.push(key[2] as SessionId);
     }
     return sessions;
   }
 
-  async removeSession(sessionId: SessionId): Promise<void> {
-    await this.kv.delete(['sessions', sessionId]);
+  async removeSession(sessionId: SessionId, readerId: ReaderId): Promise<void> {
+    await this.kv.atomic()
+      .delete(['sessions', sessionId])
+      .delete(['sessions_by_reader', readerId, sessionId])
+      .commit();
   }
 }

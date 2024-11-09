@@ -70,7 +70,7 @@ app.post(
   '/validate-auth-token',
   zValidator('json', ValidateAuthTokenDTOSchema),
   (c) => {
-    return authController.validateAuthToken(c);
+    return authController.validateAuthToken(c, c.req.valid('json'));
   },
 );
 

@@ -4,7 +4,8 @@ import { AuthToken, AuthTokenId, Session, SessionId } from './types.ts';
 export interface AuthRepository {
   createAuthToken(readerId: ReaderId): Promise<AuthToken>;
   getAuthTokenById(authTokenId: AuthTokenId): Promise<AuthToken | null>;
+  removeAuthToken(authTokenId: AuthTokenId): Promise<void>;
   createSession(readerId: ReaderId): Promise<Session>;
   getAllReaderSessions(readerId: ReaderId): Promise<SessionId[]>;
-  removeSession(sessionId: SessionId): Promise<void>;
+  removeSession(sessionId: SessionId, readerId: ReaderId): Promise<void>;
 }
