@@ -8,9 +8,16 @@
     "entrypoint": "main.ts"
   },
   "imports": {
-    "@hono/hono": "jsr:@hono/hono@^4.6.9"
+    "@hono/hono": "jsr:@hono/hono@^4.6.9",
+    "@std/uuid": "jsr:@std/uuid@^1.0.4"
   },
   "fmt": {
     "singleQuote": true
+  },
+  "lint": {
+    "rules": {
+      "tags": ["recommended"],
+      "include": ["explicit-function-return-type"]
+    }
   }
 }
