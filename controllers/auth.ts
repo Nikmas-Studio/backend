@@ -62,7 +62,7 @@ export class AuthController {
       logError(`auth token ${authTokenId} has expired`);
       throw new HTTPException(STATUS_CODE.Unauthorized);
     }
-    
+
     await this.authRepository.removeAuthToken(authTokenId);
 
     const allReaderSessions = await this.authRepository.getAllReaderSessions(
@@ -70,9 +70,14 @@ export class AuthController {
     );
 
     if (allReaderSessions.length === MAX_READER_SESSIONS) {
-      logInfo(`reader ${authToken.readerId} has reached the maximum number of sessions`);
+      logInfo(
+        `reader ${authToken.readerId} has reached the maximum number of sessions`,
+      );
       logInfo(`session id to remove: ${allReaderSessions[0]}`);
-      await this.authRepository.removeSession(allReaderSessions[0], authToken.readerId);
+      await this.authRepository.removeSession(
+        allReaderSessions[0],
+        authToken.readerId,
+      );
     }
 
     const newSession = await this.authRepository.createSession(
@@ -86,8 +91,10 @@ export class AuthController {
       path: '/',
       maxAge: 34560000,
     });
-    
-    logInfo(`session ${newSession.id} created for reader ${authToken.readerId} and cookie set`);
+
+    logInfo(
+      `session ${newSession.id} created for reader ${authToken.readerId} and cookie set`,
+    );
 
     return c.json({
       message: 'auth token validated successfully',

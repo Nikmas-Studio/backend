@@ -34,7 +34,7 @@ export class AuthDenoKVRepository implements AuthRepository {
     ]);
     return authToken.value;
   }
-  
+
   async removeAuthToken(authTokenId: AuthTokenId): Promise<void> {
     await this.kv.delete(['auth_tokens', authTokenId]);
   }
