@@ -1,11 +1,15 @@
+import { zValidator } from '@hono/zod-validator';
 import { Hono } from 'hono';
 import { requestId } from 'hono/request-id';
 import { asyncLocalStorage } from './context.ts';
 import { AuthController } from './controllers/auth.ts';
 import { AuthDenoKVRepository } from './models/auth/deno-kv-repository.ts';
 import { ReaderDenoKVRepository } from './models/reader/deno-kv-repository.ts';
-import { LoginPayload } from './payload-types.ts';
-import { AWSSESEmailService } from './services/email/aws-ses-email-service.ts';
+import { LoginDTOSchema } from './route-payload-dtos/login.ts';
+import {
+  ValidateAuthTokenDTOSchema,
+} from './route-payload-dtos/validate-auth-token.ts';
+import { TestEmailService } from './services/email/test-email-service.ts';
 import { logInfo } from './utils/logger.ts';
 
 const app = new Hono();
@@ -14,7 +18,8 @@ const kv = await Deno.openKv();
 
 const readerRepository = new ReaderDenoKVRepository(kv);
 const authRepository = new AuthDenoKVRepository(kv);
-const emailService = new AWSSESEmailService();
+// const emailService = new AWSSESEmailService();
+const emailService = new TestEmailService();
 
 const authController = new AuthController(
   authRepository,
@@ -57,10 +62,16 @@ app.get('/', (c) => {
   return c.text('Hello, world!');
 });
 
-app.post('/login', async (c) => {
-  const payload = await c.req.json<LoginPayload>();
-  logInfo(`login request for ${payload.email}`);
-  authController.login(payload.email);
+app.post('/login', zValidator('json', LoginDTOSchema), (c) => {
+  return authController.login(c, c.req.valid('json'));
 });
+
+app.post(
+  '/validate-auth-token',
+  zValidator('json', ValidateAuthTokenDTOSchema),
+  (c) => {
+    return authController.validateAuthToken(c);
+  },
+);
 
 Deno.serve(app.fetch);

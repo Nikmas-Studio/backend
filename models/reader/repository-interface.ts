@@ -1,8 +1,9 @@
 import { Email } from '../../global-types.ts';
-import { CreateReaderDTO, Reader } from './types.ts';
+import { CreateReaderDTO, Reader, ReaderId } from './types.ts';
 
 export interface ReaderRepository {
-  getReaderByEmail(email: Email): Promise<Reader | null>;
+  getReaderByEmail(readerEmail: Email): Promise<Reader | null>;
+  getReaderById(readerId: ReaderId): Promise<Reader | null>;
 
   /**
    * @throws {ReaderExistsError} if a reader with the given email already exists

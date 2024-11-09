@@ -32,10 +32,10 @@ export class ReaderDenoKVRepository implements ReaderRepository {
     const primaryKey = ['readers', reader.id];
     const byEmailKey = ['readers_by_email', reader.email];
 
-    const atomicOp = await this.kv.atomic()
+    const atomicOp = this.kv.atomic()
       .check({ key: byEmailKey, versionstamp: null })
       .set(primaryKey, reader)
-      .set(byEmailKey, reader);
+      .set(byEmailKey, reader.id);
 
     if (isInvestor) {
       const investor: Investor = {
@@ -66,24 +66,33 @@ export class ReaderDenoKVRepository implements ReaderRepository {
       throw new ReaderExistsError(reader.email);
     }
 
-    logInfo(`reader created: ${reader}`);
+    logInfo(`reader created: ${JSON.stringify(reader)}`);
 
     return reader;
+  }
+
+  async getReaderById(readerId: ReaderId): Promise<Reader | null> {
+    const reader = await this.kv.get<Reader>(['readers', readerId]);
+    return reader.value;
   }
 
   async getReaderByEmail(
     email: Email,
   ): Promise<Reader | null> {
-    const reader = await this.kv.get<Reader>(['readers_by_email', email]);
+    const reader = await this.kv.get<ReaderId>(['readers_by_email', email]);
 
-    return reader.value;
+    if (reader.value === null) {
+      return null;
+    }
+
+    return this.getReaderById(reader.value);
   }
 
   async getOrCreateReader(createReaderDTO: CreateReaderDTO): Promise<Reader> {
     const reader = await this.getReaderByEmail(createReaderDTO.email);
 
-    if (reader) {
-      logInfo(`found reader: ${reader}`);
+    if (reader !== null) {
+      logInfo(`found reader: ${JSON.stringify(reader)}`);
       return reader;
     }
 

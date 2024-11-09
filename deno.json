@@ -8,13 +8,17 @@
     "entrypoint": "main.ts"
   },
   "tasks": {
-    "dev": "deno run --allow-net --allow-env --env-file --unstable-kv --watch main.ts"
+    "dev": "deno run --allow-net --allow-env --env-file --unstable-kv --watch main.ts",
+    "check_kv": "deno run --unstable-kv scripts/checkKv.ts",
+    "clean_kv": "deno run --unstable-kv scripts/cleanKv.ts"
   },
   "imports": {
+    "@hono/zod-validator": "npm:@hono/zod-validator@^0.4.1",
     "@std/http": "jsr:@std/http@^1.0.9",
-    "hono": "jsr:@hono/hono",
+    "hono": "npm:hono@^4.6.9",
     "@aws-sdk/client-ses": "https://esm.sh/@aws-sdk/client-ses@3.687.0",
-    "@std/uuid": "jsr:@std/uuid"
+    "@std/uuid": "jsr:@std/uuid",
+    "zod": "npm:zod@^3.23.8"
   },
   "fmt": {
     "singleQuote": true
