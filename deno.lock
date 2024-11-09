@@ -1,33 +1,20 @@
 {
-  "version": "4",
-  "specifiers": {
-    "jsr:@hono/hono@^4.6.9": "4.6.9",
-    "jsr:@std/bytes@^1.0.2": "1.0.3",
-    "jsr:@std/crypto@^1.0.3": "1.0.3",
-    "jsr:@std/uuid@^1.0.4": "1.0.4"
-  },
-  "jsr": {
-    "@hono/hono@4.6.9": {
-      "integrity": "4d4975f5c023d4416d26e6dd4a498c56e59958561733f56f55a9be57f023603b"
+  "version": "3",
+  "packages": {
+    "specifiers": {
+      "npm:hono": "npm:hono@4.6.9",
+      "npm:uuid": "npm:uuid@11.0.2"
     },
-    "@std/bytes@1.0.3": {
-      "integrity": "e5d5b9e685966314e4edb4be60dfc4bd7624a075bfd4ec8109252b4320f76452"
-    },
-    "@std/crypto@1.0.3": {
-      "integrity": "a2a32f51ddef632d299e3879cd027c630dcd4d1d9a5285d6e6788072f4e51e7f"
-    },
-    "@std/uuid@1.0.4": {
-      "integrity": "f4233149cc8b4753cc3763fd83a7c4101699491f55c7be78dc7b30281946d7a0",
-      "dependencies": [
-        "jsr:@std/bytes",
-        "jsr:@std/crypto"
-      ]
+    "npm": {
+      "hono@4.6.9": {
+        "integrity": "sha512-p/pN5yZLuZaHzyAOT2nw2/Ud6HhJHYmDNGH6Ck1OWBhPMVeM1r74jbCRwNi0gyFRjjbsGgoHbOyj7mT1PDNbTw==",
+        "dependencies": {}
+      },
+      "uuid@11.0.2": {
+        "integrity": "sha512-14FfcOJmqdjbBPdDjFQyk/SdT4NySW4eM0zcG+HqbHP5jzuH56xO3J1DGhgs/cEMCfwYi3HQI1gnTO62iaG+tQ==",
+        "dependencies": {}
+      }
     }
   },
-  "workspace": {
-    "dependencies": [
-      "jsr:@hono/hono@^4.6.9",
-      "jsr:@std/uuid@^1.0.4"
-    ]
-  }
+  "remote": {}
 }

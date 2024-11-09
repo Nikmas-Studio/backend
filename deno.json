@@ -7,9 +7,8 @@
     "include": [],
     "entrypoint": "main.ts"
   },
-  "imports": {
-    "@hono/hono": "jsr:@hono/hono@^4.6.9",
-    "@std/uuid": "jsr:@std/uuid@^1.0.4"
+  "tasks": {
+    "dev": "deno run --allow-net --unstable-kv --watch main.ts"
   },
   "fmt": {
     "singleQuote": true

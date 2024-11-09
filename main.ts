@@ -1,4 +1,4 @@
-import { Hono } from 'jsr:@hono/hono';
+import { Hono } from 'npm:hono';
 import { LoginPayload } from './payload-types.ts';
 import { ReaderDenoKVRepository } from './models/reader/deno-kv-repository.ts';
 import { AuthDenoKVRepository } from './models/auth/deno-kv-repository.ts';
@@ -12,6 +12,10 @@ const readerRepository = new ReaderDenoKVRepository(kv);
 const authRepository = new AuthDenoKVRepository(kv);
 
 const authController = new AuthController(authRepository, readerRepository);
+
+app.get('/', (c) => {
+  return c.text('Hello, world!');
+});
 
 app.post('/login', async (c) => {
   const payload = await c.req.json<LoginPayload>();
