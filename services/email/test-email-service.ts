@@ -1,8 +1,8 @@
 import { EmailService } from './email-service-interface.ts';
-import { SendLoginLinkDTO } from './types.ts';
+import { SendLinkDTO } from './types.ts';
 
 export class TestEmailService implements EmailService {
-  sendLoginLink(_sendLoginLinkDTO: SendLoginLinkDTO): Promise<void> {
+  sendLink(_sendLoginLinkDTO: SendLinkDTO): Promise<void> {
     return Promise.resolve();
   }
 }

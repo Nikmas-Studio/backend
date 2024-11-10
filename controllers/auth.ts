@@ -2,15 +2,16 @@ import { STATUS_CODE } from '@std/http';
 import { Context, TypedResponse } from 'hono';
 import { setCookie } from 'hono/cookie';
 import { HTTPException } from 'hono/http-exception';
+import { IS_INVESTOR_BY_DEFAULT, MAX_READER_SESSIONS } from '../constants.ts';
 import { AuthRepository } from '../models/auth/repository-interface.ts';
 import { AuthTokenId } from '../models/auth/types.ts';
 import { ReaderRepository } from '../models/reader/repository-interface.ts';
-import { LoginDTO } from '../route-payload-dtos/login.ts';
-import { ValidateAuthTokenDTO } from '../route-payload-dtos/validate-auth-token.ts';
+import { LoginDTO } from '../routes-dtos/login.ts';
+import { ValidateAuthTokenDTO } from '../routes-dtos/validate-auth-token.ts';
 import { EmailService } from '../services/email/email-service-interface.ts';
 import { generateLoginLink } from '../utils/generate-login-link.ts';
 import { logError, logInfo } from '../utils/logger.ts';
-import { MAX_READER_SESSIONS } from '../constants.ts';
+import { LinkType } from '../services/email/types.ts';
 
 export class AuthController {
   constructor(
@@ -25,15 +26,19 @@ export class AuthController {
 
     const reader = await this.readerRepository.getOrCreateReader({
       email: readerEmail,
-      isInvestor: true,
+      isInvestor: IS_INVESTOR_BY_DEFAULT,
       hasFullAccess: false,
     });
     const authToken = await this.authRepository.createAuthToken(reader.id);
     const loginLink = generateLoginLink(authToken.id);
 
     try {
-      await this.emailService.sendLoginLink({ readerEmail, link: loginLink });
-    } catch (_e) {
+      await this.emailService.sendLink({
+        readerEmail,
+        link: loginLink,
+        linkType: LinkType.LOGIN,
+      });
+    } catch (_) {
       throw new HTTPException(STATUS_CODE.InternalServerError);
     }
 

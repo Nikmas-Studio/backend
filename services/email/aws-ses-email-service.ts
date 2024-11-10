@@ -1,9 +1,13 @@
 import { SendTemplatedEmailCommand, SESClient } from '@aws-sdk/client-ses';
-import { LOGIN_LINK_TEMPLATE_NAME, STUDIO_EMAIL } from '../../constants.ts';
-import { SendLoginLinkEmailError } from '../../errors.ts';
+import {
+  LOGIN_LINK_TEMPLATE_NAME,
+  PAYMENT_LINK_TEMPLATE_NAME,
+  STUDIO_EMAIL,
+} from '../../constants.ts';
+import { SendLinkEmailError } from '../../errors.ts';
 import { getAWSSESClientConfig } from '../../utils/get-aws-ses-client-config.ts';
 import { EmailService } from './email-service-interface.ts';
-import { SendLoginLinkDTO } from './types.ts';
+import { LinkType, SendLinkDTO } from './types.ts';
 import { logError } from '../../utils/logger.ts';
 
 export class AWSSESEmailService implements EmailService {
@@ -13,23 +17,43 @@ export class AWSSESEmailService implements EmailService {
     this.client = new SESClient(getAWSSESClientConfig());
   }
 
-  async sendLoginLink(
-    { readerEmail, link }: SendLoginLinkDTO,
+  async sendLink(
+    { readerEmail, link, linkType }: SendLinkDTO,
   ): Promise<void> {
+    let template;
+
+    switch (linkType) {
+      case LinkType.LOGIN: {
+        template = LOGIN_LINK_TEMPLATE_NAME;
+        break;
+      }
+      case LinkType.PAYMENT: {
+        template = PAYMENT_LINK_TEMPLATE_NAME;
+        break;
+      }
+      default: {
+        const _exhaustiveCheck: never = linkType;
+      }
+    }
+
     const sendEmailCommand = new SendTemplatedEmailCommand({
       Source: STUDIO_EMAIL,
       Destination: {
         ToAddresses: [readerEmail],
       },
-      Template: LOGIN_LINK_TEMPLATE_NAME,
-      TemplateData: JSON.stringify({ link }),
+      Template: template,
+      TemplateData: JSON.stringify({
+        link,
+        year: new Date().getFullYear(),
+      }),
     });
 
     try {
-      await this.client.send(sendEmailCommand);
+      const res = await this.client.send(sendEmailCommand);
+      console.log('send email response:', res);
     } catch (e) {
-      logError(`Failed to send login link email to ${readerEmail}: ${e}`);
-      throw new SendLoginLinkEmailError(readerEmail, e as Error);
+      logError(`Failed to send ${linkType} link email to ${readerEmail}: ${e}`);
+      throw new SendLinkEmailError(readerEmail, e as Error);
     }
   }
 }

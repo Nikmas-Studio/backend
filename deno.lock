@@ -12,7 +12,11 @@
     "jsr:@std/path@^1.0.7": "1.0.8",
     "jsr:@std/streams@^1.0.7": "1.0.8",
     "jsr:@std/uuid@*": "1.0.4",
+    "npm:@hono-rate-limiter/redis@~0.1.4": "0.1.4_hono-rate-limiter@0.2.3__hono@4.6.9_hono@4.6.9",
     "npm:@hono/zod-validator@~0.4.1": "0.4.1_hono@4.6.9_zod@3.23.8",
+    "npm:@types/node@*": "22.5.4",
+    "npm:@vercel/kv@3": "3.0.0",
+    "npm:hono-rate-limiter@0.4": "0.4.0_hono@4.6.9",
     "npm:hono@^4.6.9": "4.6.9",
     "npm:zod@^3.23.8": "3.23.8"
   },
@@ -65,6 +69,12 @@
     }
   },
   "npm": {
+    "@hono-rate-limiter/redis@0.1.4_hono-rate-limiter@0.2.3__hono@4.6.9_hono@4.6.9": {
+      "integrity": "sha512-RSrVX5N2Oo/xXApskegu667cBVHyr8RXGWnbRDGjU2py8pN4BttEKSHA0iKi3BAwh1xSkENgDRng4tpFD9DbKg==",
+      "dependencies": [
+        "hono-rate-limiter@0.2.3_hono@4.6.9"
+      ]
+    },
     "@hono/zod-validator@0.4.1_hono@4.6.9_zod@3.23.8": {
       "integrity": "sha512-I8LyfeJfvVmC5hPjZ2Iij7RjexlgSBT7QJudZ4JvNPLxn0JQ3sqclz2zydlwISAnw21D2n4LQ0nfZdoiv9fQQA==",
       "dependencies": [
@@ -72,14 +82,67 @@
         "zod"
       ]
     },
+    "@types/node@22.5.4": {
+      "integrity": "sha512-FDuKUJQm/ju9fT/SeX/6+gBzoPzlVCzfzmGkwKvRHQVxi4BntVbyIwf6a4Xn62mrvndLiml6z/UBXIdEVjQLXg==",
+      "dependencies": [
+        "undici-types"
+      ]
+    },
+    "@upstash/redis@1.34.3": {
+      "integrity": "sha512-VT25TyODGy/8ljl7GADnJoMmtmJ1F8d84UXfGonRRF8fWYJz7+2J6GzW+a6ETGtk4OyuRTt7FRSvFG5GvrfSdQ==",
+      "dependencies": [
+        "crypto-js"
+      ]
+    },
+    "@vercel/kv@3.0.0": {
+      "integrity": "sha512-pKT8fRnfyYk2MgvyB6fn6ipJPCdfZwiKDdw7vB+HL50rjboEBHDVBEcnwfkEpVSp2AjNtoaOUH7zG+bVC/rvSg==",
+      "dependencies": [
+        "@upstash/redis"
+      ]
+    },
+    "crypto-js@4.2.0": {
+      "integrity": "sha512-KALDyEYgpY+Rlob/iriUtjV6d5Eq+Y191A5g4UqLAi8CyGP9N1+FdVbkc1SxKc2r4YAYqG8JzO2KGL+AizD70Q=="
+    },
+    "hono-rate-limiter@0.2.3_hono@4.6.9": {
+      "integrity": "sha512-/pQIJWMd8saoySMoM3rhHNiC3XtZuZDkxBvtnPmRKrpNBZIG38k0cs+nVmBW5pc8HAmkS+I/14rbHfRObekWmw==",
+      "dependencies": [
+        "hono"
+      ]
+    },
+    "hono-rate-limiter@0.4.0_hono@4.6.9": {
+      "integrity": "sha512-7RWU2HZvxPtfBrvjXKDiQ3F6ZH8k49JhxVkHquUz5UZKjauj5PrP29MvISykThtfpy4mGG6kqxFBHW1ed9wwnA==",
+      "dependencies": [
+        "hono"
+      ]
+    },
     "hono@4.6.9": {
       "integrity": "sha512-p/pN5yZLuZaHzyAOT2nw2/Ud6HhJHYmDNGH6Ck1OWBhPMVeM1r74jbCRwNi0gyFRjjbsGgoHbOyj7mT1PDNbTw=="
+    },
+    "undici-types@6.19.8": {
+      "integrity": "sha512-ve2KP6f/JnbPBFyobGHuerC9g1FYGn/F8n1LWTwNxCEzd6IfqTwUQcNXgEtmmQ6DlRrC1hrSrBnCZPokRrDHjw=="
     },
     "zod@3.23.8": {
       "integrity": "sha512-XBx9AXhXktjUqnepgTiE5flcKIYWi/rme0Eaj+5Y0lftuGBq+jyRu/md4WnuxqgP1ubdpNCsYEYPxrzVHD8d6g=="
     }
   },
+  "redirects": {
+    "https://deno.land/std/encoding/base64.ts": "https://deno.land/std@0.224.0/encoding/base64.ts"
+  },
   "remote": {
+    "https://deno.land/std@0.224.0/encoding/_util.ts": "beacef316c1255da9bc8e95afb1fa56ed69baef919c88dc06ae6cb7a6103d376",
+    "https://deno.land/std@0.224.0/encoding/base64.ts": "dd59695391584c8ffc5a296ba82bcdba6dd8a84d41a6a539fbee8e5075286eaf",
+    "https://deno.land/x/base64@v0.2.1/base.ts": "47dc8d68f07dc91524bdd6db36eccbe59cf4d935b5fc09f27357a3944bb3ff7b",
+    "https://deno.land/x/base64@v0.2.1/base64url.ts": "18bbf879b31f1f32cca8adaa2b6885ae325c2cec6a66c5817b684ca12c46ad5e",
+    "https://deno.land/x/base64@v0.2.1/mod.ts": "1cbdc4ba7229d3c6d1763fecdb9d46844777c7e153abb6dabea8b0dd01448db4",
+    "https://deno.land/x/hmac@v2.0.1/deps.ts": "c2cb0fb44389a76b253cc27a1cadfbe9f03ede2ddea0d940b5389d683940217c",
+    "https://deno.land/x/hmac@v2.0.1/mod.ts": "83590b95de468d0cf5398b7631b4fb62a64226786247fe265482045d799e8f97",
+    "https://denopkg.com/chiefbiiko/sha1@v2.0.0/deps.ts": "434b70f37ed145ca5259353c96fdee1e7d1cd8c6a32baad9dce2aedc79d0a3bc",
+    "https://denopkg.com/chiefbiiko/sha1@v2.0.0/mod.ts": "146a101c9776cc9c807053c93f23e4b321ade5251f65745df418f4a75d5fd27b",
+    "https://denopkg.com/chiefbiiko/sha256@v2.0.0/deps.ts": "434b70f37ed145ca5259353c96fdee1e7d1cd8c6a32baad9dce2aedc79d0a3bc",
+    "https://denopkg.com/chiefbiiko/sha256@v2.0.0/mod.ts": "f109aa5eeb201a0cbfaf44950b70a429838b187e8a84c5b810c1ac84953427cc",
+    "https://denopkg.com/chiefbiiko/sha512@v2.0.0/deps.ts": "434b70f37ed145ca5259353c96fdee1e7d1cd8c6a32baad9dce2aedc79d0a3bc",
+    "https://denopkg.com/chiefbiiko/sha512@v2.0.0/mod.ts": "33190babd4c0e748bb2568fd003444487c8798c8c3a618f6593098c12805fe15",
+    "https://denopkg.com/chiefbiiko/std-encoding@v1.1.1/mod.ts": "e61017da4cef146863d614a961b4e61f1df14b72c906092bd02161f913e76522",
     "https://esm.sh/@aws-sdk/client-ses@3.687.0": "a68f2d8370517c5db60386681fecb667586a656fa3ade6f538fe6877d835eabb",
     "https://esm.sh/v135/@aws-crypto/sha256-browser@5.2.0/denonext/sha256-browser.mjs": "84e59b20eb4974a23fafdcf5fcd6513757ad195ca809b80d19a389602cff335a",
     "https://esm.sh/v135/@aws-crypto/sha256-js@5.2.0/denonext/sha256-js.mjs": "2e1014e03baf7b5eb5d773c8409af836dacbec2c0a522b789774f76d3eb2e5ad",
@@ -145,7 +208,10 @@
     "dependencies": [
       "jsr:@std/http@^1.0.9",
       "jsr:@std/uuid@*",
+      "npm:@hono-rate-limiter/redis@~0.1.4",
       "npm:@hono/zod-validator@~0.4.1",
+      "npm:@vercel/kv@3",
+      "npm:hono-rate-limiter@0.4",
       "npm:hono@^4.6.9",
       "npm:zod@^3.23.8"
     ]

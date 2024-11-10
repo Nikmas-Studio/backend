@@ -11,7 +11,7 @@ import {
   ReaderId,
 } from './types.ts';
 
-export class ReaderDenoKVRepository implements ReaderRepository {
+export class ReaderDenoKvRepository implements ReaderRepository {
   constructor(private kv: Deno.Kv) {}
 
   async createReader(

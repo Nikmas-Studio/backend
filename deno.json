@@ -10,14 +10,19 @@
   "tasks": {
     "dev": "deno run --allow-net --allow-env --env-file --unstable-kv --watch main.ts",
     "check_kv": "deno run --unstable-kv scripts/checkKv.ts",
-    "clean_kv": "deno run --unstable-kv scripts/cleanKv.ts"
+    "clean_kv": "deno run --unstable-kv scripts/cleanKv.ts",
+    "create_ses_template": "deno run --allow-env --env-file --allow-net scripts/createSESTemplate.ts",
+    "delete_ses_template": "deno run --allow-env --env-file --allow-net scripts/deleteSESTemplate.ts"
   },
   "imports": {
+    "@hono-rate-limiter/redis": "npm:@hono-rate-limiter/redis@^0.1.4",
     "@hono/zod-validator": "npm:@hono/zod-validator@^0.4.1",
     "@std/http": "jsr:@std/http@^1.0.9",
+    "@vercel/kv": "npm:@vercel/kv@^3.0.0",
     "hono": "npm:hono@^4.6.9",
     "@aws-sdk/client-ses": "https://esm.sh/@aws-sdk/client-ses@3.687.0",
     "@std/uuid": "jsr:@std/uuid",
+    "hono-rate-limiter": "npm:hono-rate-limiter@^0.4.0",
     "zod": "npm:zod@^3.23.8"
   },
   "fmt": {

@@ -1,8 +1,8 @@
-import { SendLoginLinkDTO } from './types.ts';
+import { SendLinkDTO } from './types.ts';
 
 export interface EmailService {
   /**
-   * @throws {SendLoginLinkEmailError} if the email could not be sent
+   * @throws {SendLinkEmailError} if the email could not be sent
    */
-  sendLoginLink(sendLoginLinkDTO: SendLoginLinkDTO): Promise<void>;
+  sendLink(sendLinkDTO: SendLinkDTO): Promise<void>;
 }

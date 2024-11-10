@@ -5,7 +5,7 @@ import { ReaderId } from '../reader/types.ts';
 import { AuthRepository } from './repository-interface.ts';
 import { AuthToken, AuthTokenId, Session, SessionId } from './types.ts';
 
-export class AuthDenoKVRepository implements AuthRepository {
+export class AuthDenoKvRepository implements AuthRepository {
   constructor(private kv: Deno.Kv) {}
 
   async createAuthToken(readerId: ReaderId): Promise<AuthToken> {
