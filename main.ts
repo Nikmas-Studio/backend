@@ -1,5 +1,7 @@
 import { zValidator } from '@hono/zod-validator';
+import { STATUS_CODE } from '@std/http/status';
 import { Hono } from 'hono';
+import { cors } from 'hono/cors';
 import { requestId } from 'hono/request-id';
 import { asyncLocalStorage } from './context.ts';
 import { AuthController } from './controllers/auth.ts';
@@ -19,8 +21,6 @@ import {
 } from './routes-dtos/validate-auth-token.ts';
 import { AWSSESEmailService } from './services/email/aws-ses-email-service.ts';
 import { WayforpayPaymentService } from './services/payment/wayforpay-payment-service.ts';
-import { cors } from 'hono/cors';
-import { STATUS_CODE } from '@std/http/status';
 
 const app = new Hono();
 
@@ -54,9 +54,8 @@ app.use('*', async (c, next) => {
   req.headers.set('origin', c.req.header('origin')! || c.req.header('host')!);
   c.req.raw = req;
   const origin = c.req.header('origin')!;
-  console.log('origin', origin);
-  
-  if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
+
+  if (origin.includes('localhost') || origin.includes('127.0.0.1') || origin.includes('api.nikmas.studio')) {
     return c.text('Access Forbidden', STATUS_CODE.Forbidden);
   }
 
