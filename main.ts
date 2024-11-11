@@ -51,6 +51,16 @@ const purchaseBookController = new PurchaseBookController(
 app.use('*', cors({
   origin: ['https://nikmas.studio', 'https://secure.wayforpay.com', 'https://wayforpay.com/']
 }));
+app.use('*', async (c, next) => {
+  const origin = c.req.header('Origin');
+  
+  // Block requests from localhost origins
+  if (origin && (origin.includes('localhost') || origin.includes('127.0.0.1'))) {
+    return c.text('Access Forbidden', 403);
+  }
+  
+  await next();
+});
 app.use('*', requestId());
 app.use('*', async (c, next) => {
   const id = c.get('requestId' as never);
