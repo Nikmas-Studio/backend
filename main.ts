@@ -19,7 +19,8 @@ import {
 } from './routes-dtos/validate-auth-token.ts';
 import { AWSSESEmailService } from './services/email/aws-ses-email-service.ts';
 import { WayforpayPaymentService } from './services/payment/wayforpay-payment-service.ts';
-import { cors } from 'hono/cors'
+import { cors } from 'hono/cors';
+import { STATUS_CODE } from '@std/http/status';
 
 const app = new Hono();
 
@@ -48,9 +49,30 @@ const purchaseBookController = new PurchaseBookController(
   emailService,
 );
 
-app.use('*', cors({
-  origin: ['https://nikmas.studio', 'https://secure.wayforpay.com', 'https://wayforpay.com/']
-}));
+app.use('*', async (c, next) => {
+  const req = new Request(c.req.raw);
+  req.headers.set('origin', c.req.header('origin')! || c.req.header('host')!);
+  c.req.raw = req;
+  const origin = c.req.header('origin')!;
+  
+  if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
+    return c.text('Access Forbidden', STATUS_CODE.Forbidden);
+  }
+
+  await next();
+});
+
+app.use(
+  '*',
+  cors({
+    origin: [
+      'https://nikmas.studio',
+      'https://secure.wayforpay.com',
+      'https://wayforpay.com/',
+    ],
+  }),
+);
+
 app.use('*', requestId());
 app.use('*', async (c, next) => {
   const id = c.get('requestId' as never);
