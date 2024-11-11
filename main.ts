@@ -9,17 +9,17 @@ import { BookDenoKvRepository } from './models/book/deno-kv-repository.ts';
 import { ReaderDenoKvRepository } from './models/reader/deno-kv-repository.ts';
 import { SubscriptionDenoKvRepository } from './models/subscription/deno-kv-repository.ts';
 import { LoginDTOSchema } from './routes-dtos/login.ts';
+import { PaymentSuccessAuthenticatedDTOSchema } from './routes-dtos/payment-success-authenticated.ts';
+import { PaymentSuccessGuestDTOSchema } from './routes-dtos/payment-success-guest.ts';
+import { PaymentSuccessWayforpayDTOSchema } from './routes-dtos/payment-success-wayforpay.ts';
 import { PurchaseBookAuthenticatedDTOSchema } from './routes-dtos/purchase-book-authenticated.ts';
 import { PurchaseBookGuestDTOSchema } from './routes-dtos/purchase-book-guest.ts';
-import { PaymentSuccessGuestDTOSchema } from './routes-dtos/payment-success-guest.ts';
 import {
   ValidateAuthTokenDTOSchema,
 } from './routes-dtos/validate-auth-token.ts';
 import { AWSSESEmailService } from './services/email/aws-ses-email-service.ts';
 import { WayforpayPaymentService } from './services/payment/wayforpay-payment-service.ts';
-import { logInfo } from './utils/logger.ts';
-import { PaymentSuccessAuthenticatedDTOSchema } from './routes-dtos/payment-success-authenticated.ts';
-import { PaymentSuccessWayforpayDTOSchema } from './routes-dtos/payment-success-wayforpay.ts';
+import { cors } from 'hono/cors'
 
 const app = new Hono();
 
@@ -48,6 +48,9 @@ const purchaseBookController = new PurchaseBookController(
   emailService,
 );
 
+app.use(cors({
+  origin: ['https://nikmas.studio', 'https://secure.wayforpay.com', 'https://wayforpay.com/']
+}));
 app.use('*', requestId());
 app.use('*', async (c, next) => {
   const id = c.get('requestId' as never);
@@ -78,9 +81,8 @@ app.use((c, next) => {
   });
 });
 
-app.get('/', (c) => {
-  logInfo(`hello world request`);
-  return c.text('Hello, world!');
+app.get('/health-check', (c) => {
+  return c.json({ status: 'ok' });
 });
 
 app.post('/login', zValidator('json', LoginDTOSchema), (c) => {
@@ -136,7 +138,7 @@ app.post(
 );
 
 app.post('/logout', (c) => {
-  
-})
+  return authController.logout(c);
+});
 
 Deno.serve(app.fetch);

@@ -77,8 +77,6 @@ export class AuthController {
     this.authRepository.removeSession(session.id, session.readerId);
     deleteCookie(c, SESSION_ID_COOKIE_NAME);
 
-    return c.json({
-      message: 'logout successful',
-    }, STATUS_CODE.OK);
+    return c.json(STATUS_CODE.OK);
   }
 }
