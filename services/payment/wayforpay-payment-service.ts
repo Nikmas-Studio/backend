@@ -26,7 +26,7 @@ export class WayforpayPaymentService implements PaymentService {
       orderDate,
       amount: String(book.mainPrice),
       currency: CURRENCY,
-      'productName[]': book.title,
+      'productName[]': `[Early Access] Interactive E-Book «${book.title}»`,
       'productCount[]': '1',
       'productPrice[]': String(book.mainPrice),
       clientEmail: readerEmail,

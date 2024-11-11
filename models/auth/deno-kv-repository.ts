@@ -61,6 +61,11 @@ export class AuthDenoKvRepository implements AuthRepository {
     return session;
   }
 
+  async getSessionById(sessionId: SessionId): Promise<Session | null> {
+    const session = await this.kv.get<Session>(['sessions', sessionId]);
+    return session.value;
+  }
+
   async getAllReaderSessions(readerId: ReaderId): Promise<SessionId[]> {
     const sessions: SessionId[] = [];
     for await (

@@ -7,15 +7,19 @@ import { PurchaseBookController } from './controllers/purchase-book.ts';
 import { AuthDenoKvRepository } from './models/auth/deno-kv-repository.ts';
 import { BookDenoKvRepository } from './models/book/deno-kv-repository.ts';
 import { ReaderDenoKvRepository } from './models/reader/deno-kv-repository.ts';
+import { SubscriptionDenoKvRepository } from './models/subscription/deno-kv-repository.ts';
 import { LoginDTOSchema } from './routes-dtos/login.ts';
+import { PurchaseBookAuthenticatedDTOSchema } from './routes-dtos/purchase-book-authenticated.ts';
 import { PurchaseBookGuestDTOSchema } from './routes-dtos/purchase-book-guest.ts';
+import { PaymentSuccessGuestDTOSchema } from './routes-dtos/payment-success-guest.ts';
 import {
   ValidateAuthTokenDTOSchema,
 } from './routes-dtos/validate-auth-token.ts';
 import { AWSSESEmailService } from './services/email/aws-ses-email-service.ts';
 import { WayforpayPaymentService } from './services/payment/wayforpay-payment-service.ts';
 import { logInfo } from './utils/logger.ts';
-import { SubscriptionDenoKvRepository } from './models/subscription/deno-kv-repository.ts';
+import { PaymentSuccessAuthenticatedDTOSchema } from './routes-dtos/payment-success-authenticated.ts';
+import { PaymentSuccessWayforpayDTOSchema } from './routes-dtos/payment-success-wayforpay.ts';
 
 const app = new Hono();
 
@@ -95,7 +99,39 @@ app.post(
   '/purchase-book-guest',
   zValidator('json', PurchaseBookGuestDTOSchema),
   (c) => {
-    return purchaseBookController.purchaseBookGuest(c, c.req.valid('json'));
+    return purchaseBookController.purchaseBook(c, c.req.valid('json'));
+  },
+);
+
+app.post(
+  '/purchase-book-authenticated',
+  zValidator('json', PurchaseBookAuthenticatedDTOSchema),
+  (c) => {
+    return purchaseBookController.purchaseBook(c, c.req.valid('json'));
+  },
+);
+
+app.post(
+  '/purchase-success-guest',
+  zValidator('json', PaymentSuccessGuestDTOSchema),
+  (c) => {
+    return purchaseBookController.paymentSuccess(c, c.req.valid('json'));
+  },
+);
+
+app.post(
+  '/purchase-success-authenticated',
+  zValidator('json', PaymentSuccessAuthenticatedDTOSchema),
+  (c) => {
+    return purchaseBookController.paymentSuccess(c, c.req.valid('json'));
+  },
+);
+
+app.post(
+  '/purchase-success-wayforpay',
+  zValidator('json', PaymentSuccessWayforpayDTOSchema),
+  (c) => {
+    return purchaseBookController.paymentSuccess(c, c.req.valid('json'));
   },
 );
 

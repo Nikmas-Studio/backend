@@ -4,6 +4,7 @@ export const PAYMENT_LINK_TEMPLATE_NAME = 'paymentLink';
 export const STUDIO_EMAIL = '"Nikmas Studio" <team@nikmas.studio>';
 export const MAX_READER_SESSIONS = 3;
 export const IS_INVESTOR_BY_DEFAULT = true;
+export const SESSION_ID_COOKIE_NAME = 'session_id';
 
 // payment
 export const MERCHANT_ACCOUNT = 'MERCHANT_ACCOUNT';

@@ -1,5 +1,6 @@
 import { SubscriptionExistsError } from '../../errors.ts';
 import { generateUUID } from '../../utils/generate-uuid.ts';
+import { ReaderId } from '../reader/types.ts';
 import { SubscriptionRepository } from './repository-interface.ts';
 import {
   CreateSubscriptionDTO,
@@ -7,6 +8,7 @@ import {
   SubscriptionHistory,
   SubscriptionHistoryId,
   SubscriptionId,
+  SubscriptionStatus,
 } from './types.ts';
 
 export class SubscriptionDenoKvRepository implements SubscriptionRepository {
@@ -28,11 +30,17 @@ export class SubscriptionDenoKvRepository implements SubscriptionRepository {
 
     const primaryKey = ['subscriptions', subscription.id];
     const byOrderIdKey = ['subscriptions_by_order_id', subscription.orderId];
+    const byReaderKey = [
+      'subscriptions_by_reader',
+      subscription.readerId,
+      subscription.id,
+    ];
 
     const res = await this.kv.atomic()
       .check({ key: byOrderIdKey, versionstamp: null })
       .set(primaryKey, subscription)
       .set(byOrderIdKey, subscription.id)
+      .set(byReaderKey, null)
       .commit();
 
     if (!res.ok) {
@@ -65,6 +73,24 @@ export class SubscriptionDenoKvRepository implements SubscriptionRepository {
     }
 
     return this.getSubscriptionById(subscriptionId.value);
+  }
+
+  async getSubscriptionsByReaderId(
+    readerId: ReaderId,
+  ): Promise<Subscription[]> {
+    const subscriptions: Subscription[] = [];
+
+    for await (
+      const { key, value: _ } of this.kv.list<SubscriptionId>({
+        prefix: ['subscriptions_by_reader', readerId],
+      })
+    ) {
+      const subscriptionId = key[2] as SubscriptionId;
+      const subscription = await this.getSubscriptionById(subscriptionId);
+      subscriptions.push(subscription!);
+    }
+
+    return subscriptions;
   }
 
   async createSubscriptionHistory(
@@ -120,5 +146,12 @@ export class SubscriptionDenoKvRepository implements SubscriptionRepository {
     }
 
     return subscriptionHistories;
+  }
+
+  async activateSubscription(subscription: Subscription): Promise<void> {
+    await this.kv.set(['subscriptions', subscription.id], {
+      ...subscription,
+      status: SubscriptionStatus.ACTIVE,
+    });
   }
 }

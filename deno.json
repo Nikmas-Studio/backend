@@ -11,6 +11,7 @@
     "dev": "deno run --allow-net --allow-env --env-file --unstable-kv --watch main.ts",
     "check_kv": "deno run --unstable-kv scripts/checkKv.ts",
     "clean_kv": "deno run --unstable-kv scripts/cleanKv.ts",
+    "create_book": "deno run --unstable-kv scripts/createBook.ts",
     "create_ses_template": "deno run --allow-env --env-file --allow-net scripts/createSESTemplate.ts",
     "delete_ses_template": "deno run --allow-env --env-file --allow-net scripts/deleteSESTemplate.ts"
   },

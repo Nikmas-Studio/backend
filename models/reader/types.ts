@@ -23,3 +23,8 @@ export interface CreateReaderDTO {
   isInvestor: boolean;
   hasFullAccess: boolean;
 }
+
+export enum ReaderStatus {
+  GUEST = 'GUEST',
+  AUTHENTICATED = 'AUTHENTICATED',
+}
