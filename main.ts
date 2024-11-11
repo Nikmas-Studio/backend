@@ -135,4 +135,8 @@ app.post(
   },
 );
 
+app.post('/logout', (c) => {
+  
+})
+
 Deno.serve(app.fetch);

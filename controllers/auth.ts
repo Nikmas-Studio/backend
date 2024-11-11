@@ -1,7 +1,11 @@
 import { STATUS_CODE } from '@std/http';
 import { Context, TypedResponse } from 'hono';
+import { deleteCookie } from 'hono/cookie';
 import { HTTPException } from 'hono/http-exception';
-import { IS_INVESTOR_BY_DEFAULT } from '../constants.ts';
+import {
+  IS_INVESTOR_BY_DEFAULT,
+  SESSION_ID_COOKIE_NAME,
+} from '../constants.ts';
 import { AuthRepository } from '../models/auth/repository-interface.ts';
 import { AuthTokenId } from '../models/auth/types.ts';
 import { ReaderRepository } from '../models/reader/repository-interface.ts';
@@ -10,6 +14,7 @@ import { ValidateAuthTokenDTO } from '../routes-dtos/validate-auth-token.ts';
 import { EmailService } from '../services/email/email-service-interface.ts';
 import { LinkType } from '../services/email/types.ts';
 import { generateLoginLink } from '../utils/generate-login-link.ts';
+import { getAndValidateSession } from '../utils/get-and-validate-session.ts';
 import { logInfo } from '../utils/logger.ts';
 import { validateAuthTokenAndCreateSession } from '../utils/validate-auth-token-and-create-session.ts';
 
@@ -64,6 +69,16 @@ export class AuthController {
 
     return c.json({
       message: 'auth token validated successfully',
+    }, STATUS_CODE.OK);
+  }
+
+  async logout(c: Context): Promise<TypedResponse> {
+    const session = await getAndValidateSession(c, this.authRepository);
+    this.authRepository.removeSession(session.id, session.readerId);
+    deleteCookie(c, SESSION_ID_COOKIE_NAME);
+
+    return c.json({
+      message: 'logout successful',
     }, STATUS_CODE.OK);
   }
 }
