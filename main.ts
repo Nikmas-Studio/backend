@@ -54,6 +54,7 @@ app.use('*', async (c, next) => {
   req.headers.set('origin', c.req.header('origin')! || c.req.header('host')!);
   c.req.raw = req;
   const origin = c.req.header('origin')!;
+  console.log('origin', origin);
   
   if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
     return c.text('Access Forbidden', STATUS_CODE.Forbidden);
