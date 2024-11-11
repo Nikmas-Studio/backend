@@ -48,7 +48,7 @@ const purchaseBookController = new PurchaseBookController(
   emailService,
 );
 
-app.use(cors({
+app.use('*', cors({
   origin: ['https://nikmas.studio', 'https://secure.wayforpay.com', 'https://wayforpay.com/']
 }));
 app.use('*', requestId());
