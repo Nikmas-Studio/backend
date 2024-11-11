@@ -54,6 +54,8 @@ app.use('*', cors({
 app.use('*', async (c, next) => {
   const origin = c.req.header('Origin');
   
+  console.log('origin', origin);
+  
   // Block requests from localhost origins
   if (origin && (origin.includes('localhost') || origin.includes('127.0.0.1'))) {
     return c.text('Access Forbidden', 403);
