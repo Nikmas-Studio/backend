@@ -8,6 +8,11 @@ export interface Reader {
   createdAt: Date;
 }
 
+export interface ReaderStatuses {
+  isInvestor: boolean;
+  hasFullAccess: boolean;
+}
+
 export interface Investor {
   readerId: ReaderId;
   createdAt: Date;

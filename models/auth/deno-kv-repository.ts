@@ -1,4 +1,7 @@
-import { AUTH_TOKEN_TIME_TO_LIVE } from '../../constants.ts';
+import {
+  AUTH_TOKEN_TIME_TO_LIVE,
+  SESSION_MAX_AGE_MILLISECONDS,
+} from '../../constants.ts';
 import { generateUUID } from '../../utils/generate-uuid.ts';
 import { logInfo } from '../../utils/logger.ts';
 import { ReaderId } from '../reader/types.ts';
@@ -52,8 +55,8 @@ export class AuthDenoKvRepository implements AuthRepository {
     const byReaderKey = ['sessions_by_reader', readerId, sessionId];
 
     await this.kv.atomic()
-      .set(primaryKey, session)
-      .set(byReaderKey, null)
+      .set(primaryKey, session, { expireIn: SESSION_MAX_AGE_MILLISECONDS })
+      .set(byReaderKey, null, { expireIn: SESSION_MAX_AGE_MILLISECONDS })
       .commit();
 
     logInfo(`session created: ${JSON.stringify(session)}`);

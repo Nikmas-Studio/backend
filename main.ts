@@ -1,5 +1,4 @@
 import { zValidator } from '@hono/zod-validator';
-import { STATUS_CODE } from '@std/http/status';
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { requestId } from 'hono/request-id';
@@ -21,6 +20,7 @@ import {
 } from './routes-dtos/validate-auth-token.ts';
 import { AWSSESEmailService } from './services/email/aws-ses-email-service.ts';
 import { WayforpayPaymentService } from './services/payment/wayforpay-payment-service.ts';
+import { BooksController } from './controllers/books.ts';
 
 const app = new Hono();
 
@@ -49,15 +49,16 @@ const purchaseBookController = new PurchaseBookController(
   emailService,
 );
 
+const booksController = new BooksController(
+  authRepository,
+  subscriptionRepository,
+  bookRepository,
+);
+
 app.use('*', async (c, next) => {
   const req = new Request(c.req.raw);
   req.headers.set('origin', c.req.header('origin')! || c.req.header('host')!);
   c.req.raw = req;
-  const origin = c.req.header('origin')!;
-
-  if (origin.includes('localhost') || origin.includes('127.0.0.1') || origin.includes('api.nikmas.studio')) {
-    return c.text('Access Forbidden', STATUS_CODE.Forbidden);
-  }
 
   await next();
 });
@@ -68,7 +69,7 @@ app.use(
     origin: [
       'https://nikmas.studio',
       'https://secure.wayforpay.com',
-      'https://wayforpay.com/',
+      'https://wayforpay.com',
     ],
   }),
 );
@@ -158,6 +159,14 @@ app.post(
     return purchaseBookController.paymentSuccess(c, c.req.valid('json'));
   },
 );
+
+app.get('/books/:uri/access', (c) => {
+  return booksController.checkAccessToBook(c);
+});
+
+app.get('/session', (c) => {
+  return authController.getSession(c);
+});
 
 app.post('/logout', (c) => {
   return authController.logout(c);

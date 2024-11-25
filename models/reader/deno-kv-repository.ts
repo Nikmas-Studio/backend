@@ -9,6 +9,7 @@ import {
   Investor,
   Reader,
   ReaderId,
+  ReaderStatuses,
 } from './types.ts';
 
 export class ReaderDenoKvRepository implements ReaderRepository {
@@ -97,5 +98,21 @@ export class ReaderDenoKvRepository implements ReaderRepository {
     }
 
     return this.createReader(createReaderDTO);
+  }
+
+  async getReaderStatuses(readerId: ReaderId): Promise<ReaderStatuses | null> {
+    const reader = await this.getReaderById(readerId);
+    
+    if (reader === null) {
+      return null;
+    }
+    
+    const isInvestor = await this.kv.get<Investor>(['investors', readerId]);
+    const hasFullAccess = await this.kv.get<FullAccessReader>(['full_access_readers', readerId]);
+    
+    return {
+      isInvestor: isInvestor.value !== null,
+      hasFullAccess: hasFullAccess.value !== null,
+    }
   }
 }

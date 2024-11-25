@@ -79,4 +79,14 @@ export class AuthController {
 
     return c.json(STATUS_CODE.OK);
   }
+
+  async getSession(c: Context): Promise<TypedResponse> {
+    const session = await getAndValidateSession(c, this.authRepository);
+    const readerStatuses = await this.readerRepository.getReaderStatuses(session.readerId);
+
+    return c.json({
+      isInvestor: readerStatuses!.isInvestor,
+      hasFullAccess: readerStatuses!.hasFullAccess,
+    }, STATUS_CODE.OK);
+  }
 }

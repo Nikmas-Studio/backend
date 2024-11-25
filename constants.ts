@@ -5,6 +5,8 @@ export const STUDIO_EMAIL = '"Nikmas Studio" <team@nikmas.studio>';
 export const MAX_READER_SESSIONS = 3;
 export const IS_INVESTOR_BY_DEFAULT = true;
 export const SESSION_ID_COOKIE_NAME = 'session_id';
+export const SESSION_MAX_AGE_SECONDS = 34560000; // 400 days (in seconds)
+export const SESSION_MAX_AGE_MILLISECONDS = SESSION_MAX_AGE_SECONDS * 1000; // 400 days (in milliseconds)
 
 // payment
 export const MERCHANT_ACCOUNT = 'MERCHANT_ACCOUNT';
