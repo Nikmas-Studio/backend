@@ -3,6 +3,7 @@ import { Context, TypedResponse } from 'hono';
 import { deleteCookie } from 'hono/cookie';
 import { HTTPException } from 'hono/http-exception';
 import {
+  CAPTCHA_VERIFICATION_URL,
   IS_INVESTOR_BY_DEFAULT,
   SESSION_ID_COOKIE_NAME,
 } from '../constants.ts';
@@ -17,6 +18,8 @@ import { generateLoginLink } from '../utils/generate-login-link.ts';
 import { getAndValidateSession } from '../utils/get-and-validate-session.ts';
 import { logInfo } from '../utils/logger.ts';
 import { validateAuthTokenAndCreateSession } from '../utils/validate-auth-token-and-create-session.ts';
+import { verifyCaptcha } from '../utils/verify-captcha.ts';
+import { verifyHoneypot } from '../utils/verify-honeypot.ts';
 
 export class AuthController {
   constructor(
@@ -26,6 +29,14 @@ export class AuthController {
   ) {}
 
   async login(c: Context, payload: LoginDTO): Promise<TypedResponse> {
+    const { valid: honeypotIsValid } = verifyHoneypot(payload.readerName);
+    if (!honeypotIsValid) {
+      return c.json({
+        message: 'Login link sent successfully!',
+      }, STATUS_CODE.OK);
+    }
+    await verifyCaptcha(payload.captchaToken);
+
     const readerEmail = payload.email;
     logInfo(`login request for ${readerEmail}`);
 
@@ -82,7 +93,9 @@ export class AuthController {
 
   async getSession(c: Context): Promise<TypedResponse> {
     const session = await getAndValidateSession(c, this.authRepository);
-    const readerStatuses = await this.readerRepository.getReaderStatuses(session.readerId);
+    const readerStatuses = await this.readerRepository.getReaderStatuses(
+      session.readerId,
+    );
 
     return c.json({
       isInvestor: readerStatuses!.isInvestor,

@@ -7,6 +7,7 @@ export const IS_INVESTOR_BY_DEFAULT = true;
 export const SESSION_ID_COOKIE_NAME = 'session_id';
 export const SESSION_MAX_AGE_SECONDS = 34560000; // 400 days (in seconds)
 export const SESSION_MAX_AGE_MILLISECONDS = SESSION_MAX_AGE_SECONDS * 1000; // 400 days (in milliseconds)
+export const CAPTCHA_VERIFICATION_URL = 'https://www.google.com/recaptcha/api/siteverify';
 
 // payment
 export const MERCHANT_ACCOUNT = 'MERCHANT_ACCOUNT';

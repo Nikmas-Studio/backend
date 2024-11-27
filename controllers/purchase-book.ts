@@ -29,6 +29,8 @@ import { getAndValidateSession } from '../utils/get-and-validate-session.ts';
 import { logInfo } from '../utils/logger.ts';
 import { validateAuthTokenAndCreateSession } from '../utils/validate-auth-token-and-create-session.ts';
 import { generateHMACMD5 } from '../utils/generate-hmac-md5.ts';
+import { verifyCaptcha } from '../utils/verify-captcha.ts';
+import { verifyHoneypot } from '../utils/verify-honeypot.ts';
 
 export class PurchaseBookController {
   constructor(
@@ -46,6 +48,9 @@ export class PurchaseBookController {
   ): Promise<TypedResponse> {
     let reader;
     if (isPurchaseBookGuestInitiator(purchaseBookDTO)) {
+      verifyHoneypot(purchaseBookDTO.readerName);
+      verifyCaptcha(purchaseBookDTO.captchaToken);
+
       const readerEmail = purchaseBookDTO.email;
       logInfo(`purchase book request for ${readerEmail}`);
 

@@ -21,6 +21,7 @@ import {
 import { AWSSESEmailService } from './services/email/aws-ses-email-service.ts';
 import { WayforpayPaymentService } from './services/payment/wayforpay-payment-service.ts';
 import { BooksController } from './controllers/books.ts';
+import { Env } from './global-types.ts';
 
 const app = new Hono();
 
@@ -70,6 +71,7 @@ app.use(
       'https://nikmas.studio',
       'https://secure.wayforpay.com',
       'https://wayforpay.com',
+      Deno.env.get('ENV') === Env.DEVELOPMENT ? 'http://localhost:3000' : '',
     ],
   }),
 );
