@@ -3,7 +3,6 @@ import { Context, TypedResponse } from 'hono';
 import { deleteCookie } from 'hono/cookie';
 import { HTTPException } from 'hono/http-exception';
 import {
-  CAPTCHA_VERIFICATION_URL,
   IS_INVESTOR_BY_DEFAULT,
   SESSION_ID_COOKIE_NAME,
 } from '../constants.ts';

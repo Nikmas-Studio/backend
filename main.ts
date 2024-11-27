@@ -22,6 +22,8 @@ import { AWSSESEmailService } from './services/email/aws-ses-email-service.ts';
 import { WayforpayPaymentService } from './services/payment/wayforpay-payment-service.ts';
 import { BooksController } from './controllers/books.ts';
 import { Env } from './global-types.ts';
+import { LogErrorDTOSchema } from './routes-dtos/log-error.ts';
+import { LogErrorController } from './controllers/log-error.ts';
 
 const app = new Hono();
 
@@ -55,6 +57,8 @@ const booksController = new BooksController(
   subscriptionRepository,
   bookRepository,
 );
+
+const logErrorController = new LogErrorController();
 
 app.use('*', async (c, next) => {
   const req = new Request(c.req.raw);
@@ -172,6 +176,10 @@ app.get('/session', (c) => {
 
 app.post('/logout', (c) => {
   return authController.logout(c);
+});
+
+app.post('/log-error', zValidator('json', LogErrorDTOSchema), (c) => {
+  return logErrorController.logError(c, c.req.valid('json'));
 });
 
 Deno.serve(app.fetch);
