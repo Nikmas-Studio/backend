@@ -8,5 +8,6 @@ export type Branded<T, B> = T & Brand<B>;
 
 export enum Env {
   DEVELOPMENT = 'development',
+  STAGING = 'staging',
   PRODUCTION = 'production',
 }
