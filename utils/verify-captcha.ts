@@ -2,6 +2,7 @@ import { RecaptchaEnterpriseServiceClient } from '@google-cloud/recaptcha-enterp
 import { STATUS_CODE } from '@std/http';
 import { HTTPException } from 'hono/http-exception';
 import { logError, logInfo } from './logger.ts';
+import { Env } from '../global-types.ts';
 
 export async function verifyCaptcha(token: string): Promise<void> {
   const credentials = JSON.parse(
@@ -19,12 +20,14 @@ export async function verifyCaptcha(token: string): Promise<void> {
     assessment: {
       event: {
         token,
-        siteKey: Deno.env.get('RECAPTCHA_SITE_KEY')!,
+        siteKey: Deno.env.get('ENV') === Env.DEVELOPMENT
+          ? Deno.env.get('RECAPTCHA_TEST_SITE_KEY')!
+          : Deno.env.get('RECAPTCHA_SITE_KEY')!,
       },
     },
     parent: projectPath,
   };
-  
+
   let tokenIsValid = false;
   let tokenInvalidReason: string | undefined;
 
@@ -37,12 +40,12 @@ export async function verifyCaptcha(token: string): Promise<void> {
       logError('token properties are undefined or null');
       throw new HTTPException(STATUS_CODE.InternalServerError);
     }
-    
+
     if (tokenProperties.valid === undefined || tokenProperties.valid === null) {
       logError('token properties valid field is undefined or null');
       throw new HTTPException(STATUS_CODE.InternalServerError);
     }
-    
+
     tokenIsValid = tokenProperties.valid;
     tokenInvalidReason = tokenProperties.invalidReason?.toString();
   } catch (error) {
@@ -51,7 +54,6 @@ export async function verifyCaptcha(token: string): Promise<void> {
     );
     throw new HTTPException(STATUS_CODE.InternalServerError);
   }
-
 
   if (!tokenIsValid) {
     logError(
