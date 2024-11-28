@@ -26,7 +26,7 @@ import { generatePaymentAuthenticatedReturnURL } from '../utils/generate-payment
 import { generatePaymentGuestReturnURL } from '../utils/generate-payment-guest-return-url.ts';
 import { generateUUID } from '../utils/generate-uuid.ts';
 import { getAndValidateSession } from '../utils/get-and-validate-session.ts';
-import { logInfo } from '../utils/logger.ts';
+import { logDebug, logInfo } from '../utils/logger.ts';
 import { validateAuthTokenAndCreateSession } from '../utils/validate-auth-token-and-create-session.ts';
 import { generateHMACMD5 } from '../utils/generate-hmac-md5.ts';
 import { verifyCaptcha } from '../utils/verify-captcha.ts';
@@ -48,12 +48,14 @@ export class PurchaseBookController {
   ): Promise<TypedResponse> {
     let reader;
     if (isPurchaseBookGuestInitiator(purchaseBookDTO)) {
+      logDebug('purchase book guest verify honeypot');
       const { valid: honeypotIsValid } = verifyHoneypot(purchaseBookDTO.readerName);
       if (!honeypotIsValid) {
         return c.json({
           message: 'Login link sent successfully!',
         }, STATUS_CODE.OK);
       }
+      logDebug('purchase book guest verify captcha');
       verifyCaptcha(purchaseBookDTO.captchaToken);
 
       const readerEmail = purchaseBookDTO.email;
