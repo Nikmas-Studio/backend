@@ -24,6 +24,7 @@ import { BooksController } from './controllers/books.ts';
 import { Env } from './global-types.ts';
 import { LogErrorDTOSchema } from './routes-dtos/log-error.ts';
 import { LogErrorController } from './controllers/log-error.ts';
+import { logDebug } from './utils/logger.ts';
 
 const app = new Hono();
 
@@ -131,6 +132,7 @@ app.post(
   '/purchase-book-guest',
   zValidator('json', PurchaseBookGuestDTOSchema),
   (c) => {
+    logDebug('purchase book guest start');
     return purchaseBookController.purchaseBook(c, c.req.valid('json'));
   },
 );

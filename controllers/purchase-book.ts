@@ -48,14 +48,12 @@ export class PurchaseBookController {
   ): Promise<TypedResponse> {
     let reader;
     if (isPurchaseBookGuestInitiator(purchaseBookDTO)) {
-      logDebug('purchase book guest verify honeypot');
       const { valid: honeypotIsValid } = verifyHoneypot(purchaseBookDTO.readerName);
       if (!honeypotIsValid) {
         return c.json({
           message: 'Login link sent successfully!',
         }, STATUS_CODE.OK);
       }
-      logDebug('purchase book guest verify captcha');
       verifyCaptcha(purchaseBookDTO.captchaToken);
 
       const readerEmail = purchaseBookDTO.email;
