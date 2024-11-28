@@ -2,7 +2,6 @@ import { RecaptchaEnterpriseServiceClient } from '@google-cloud/recaptcha-enterp
 import { STATUS_CODE } from '@std/http';
 import { HTTPException } from 'hono/http-exception';
 import { logError, logInfo } from './logger.ts';
-import { Env } from '../global-types.ts';
 
 export async function verifyCaptcha(token: string): Promise<void> {
   const credentials = JSON.parse(
@@ -20,9 +19,7 @@ export async function verifyCaptcha(token: string): Promise<void> {
     assessment: {
       event: {
         token,
-        siteKey: Deno.env.get('ENV') === Env.DEVELOPMENT
-          ? Deno.env.get('RECAPTCHA_TEST_SITE_KEY')!
-          : Deno.env.get('RECAPTCHA_SITE_KEY')!,
+        siteKey: Deno.env.get('RECAPTCHA_SITE_KEY')!,
       },
     },
     parent: projectPath,
