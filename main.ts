@@ -75,6 +75,7 @@ app.use(
       'https://nikmas.studio',
       'https://secure.wayforpay.com',
       'https://wayforpay.com',
+      'https://frontend-staging-11nms11.vercel.app',
       Deno.env.get('ENV') === Env.DEVELOPMENT ? 'http://localhost:3000' : '',
     ],
   }),
