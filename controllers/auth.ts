@@ -101,7 +101,7 @@ export class AuthController {
 
     return c.json({
       readerId: reader!.id,
-      email: reader!.email,
+      readerEmail: reader!.email,
       isInvestor: readerStatuses!.isInvestor,
       hasFullAccess: readerStatuses!.hasFullAccess,
     }, STATUS_CODE.OK);

@@ -11,6 +11,8 @@ export async function getAndValidateSession(
   authRepository: AuthRepository,
 ): Promise<Session> {
   const sessionId = getCookie(c, SESSION_ID_COOKIE_NAME);
+  console.log('got cookie: ', sessionId);
+
   if (sessionId === undefined) {
     throw new HTTPException(STATUS_CODE.Unauthorized);
   }

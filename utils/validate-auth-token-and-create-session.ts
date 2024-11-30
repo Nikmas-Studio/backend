@@ -46,7 +46,7 @@ export async function validateAuthTokenAndCreateSession(
 
   setCookie(c, SESSION_ID_COOKIE_NAME, newSession.id, {
     httpOnly: true,
-    sameSite: 'Lax',
+    sameSite: 'None',
     secure: true,
     path: '/',
     maxAge: SESSION_MAX_AGE_SECONDS,

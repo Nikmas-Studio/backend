@@ -24,7 +24,7 @@ export interface ReaderRepository {
   removeReader(readerId: ReaderId): Promise<void>;
   createOrUpdateReaderProfile(
     readerId: ReaderId,
-    createOrUpdaetReaderProfileDTO: CreateOrUpdateReaderProfileDTO,
+    createOrUpdateReaderProfileDTO: CreateOrUpdateReaderProfileDTO,
   ): Promise<ReaderProfile>;
   getReaderProfile(readerId: ReaderId): Promise<ReaderProfile | null>;
   updateReaderFullName(readerId: ReaderId, fullName: string): Promise<void>;

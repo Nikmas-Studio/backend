@@ -22,13 +22,13 @@ import {
   isPaymentSuccessWayforpayInitiator,
   isPurchaseBookGuestInitiator,
 } from '../services/payment/types.ts';
+import { generateHMACMD5 } from '../utils/generate-hmac-md5.ts';
 import { generatePaymentAuthenticatedReturnURL } from '../utils/generate-payment-authenticated-return-url.ts';
 import { generatePaymentGuestReturnURL } from '../utils/generate-payment-guest-return-url.ts';
 import { generateUUID } from '../utils/generate-uuid.ts';
 import { getAndValidateSession } from '../utils/get-and-validate-session.ts';
-import { logDebug, logInfo } from '../utils/logger.ts';
+import { logInfo } from '../utils/logger.ts';
 import { validateAuthTokenAndCreateSession } from '../utils/validate-auth-token-and-create-session.ts';
-import { generateHMACMD5 } from '../utils/generate-hmac-md5.ts';
 import { verifyCaptcha } from '../utils/verify-captcha.ts';
 import { verifyHoneypot } from '../utils/verify-honeypot.ts';
 
@@ -48,7 +48,9 @@ export class PurchaseBookController {
   ): Promise<TypedResponse> {
     let reader;
     if (isPurchaseBookGuestInitiator(purchaseBookDTO)) {
-      const { valid: honeypotIsValid } = verifyHoneypot(purchaseBookDTO.readerName);
+      const { valid: honeypotIsValid } = verifyHoneypot(
+        purchaseBookDTO.readerName,
+      );
       if (!honeypotIsValid) {
         return c.json({
           message: 'Login link sent successfully!',
@@ -191,7 +193,7 @@ export class PurchaseBookController {
     if (subscription === null) {
       throw new HTTPException(STATUS_CODE.BadRequest);
     }
-    
+
     this.readerRepository.confirmReaderEmail(subscription.readerId);
 
     const book = await this.bookRepository.getBookById(subscription.bookId);

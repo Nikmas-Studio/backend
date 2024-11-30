@@ -27,6 +27,7 @@ import { LogErrorController } from './controllers/log-error.ts';
 import { logDebug } from './utils/logger.ts';
 import { removeUnconfirmedReaders } from './cron/remove-unconfirmed-readers.ts';
 import { UpdateReaderFullNameDTOSchema } from './routes-dtos/update-reader-full-name.ts';
+import { ReadersController } from './controllers/readers.ts';
 
 const app = new Hono();
 
@@ -61,6 +62,11 @@ const booksController = new BooksController(
   bookRepository,
 );
 
+const readersController = new ReadersController(
+  readerRepository,
+  authRepository,
+);
+
 const logErrorController = new LogErrorController();
 
 app.use('*', async (c, next) => {
@@ -81,6 +87,7 @@ app.use(
       'https://frontend-staging-11nms11.vercel.app',
       Deno.env.get('ENV') === Env.DEVELOPMENT ? 'http://localhost:3000' : '',
     ],
+    credentials: true,
   }),
 );
 
@@ -180,9 +187,10 @@ app.get('/session', (c) => {
 });
 
 app.patch(
-  '/readers/:id/full-name',
+  '/readers/full-name',
   zValidator('json', UpdateReaderFullNameDTOSchema),
   (c) => {
+    return readersController.updateReaderFullName(c, c.req.valid('json'));
   },
 );
 
