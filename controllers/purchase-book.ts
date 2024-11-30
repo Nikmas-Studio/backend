@@ -191,6 +191,8 @@ export class PurchaseBookController {
     if (subscription === null) {
       throw new HTTPException(STATUS_CODE.BadRequest);
     }
+    
+    this.readerRepository.confirmReaderEmail(subscription.readerId);
 
     const book = await this.bookRepository.getBookById(subscription.bookId);
 

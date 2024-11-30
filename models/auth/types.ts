@@ -7,7 +7,6 @@ export interface AuthToken {
   id: AuthTokenId;
   readerId: ReaderId;
   createdAt: Date;
-  expiresAt: Date;
 }
 
 export type SessionId = Branded<UUID, 'SessionId'>;

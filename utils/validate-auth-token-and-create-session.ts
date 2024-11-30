@@ -23,11 +23,6 @@ export async function validateAuthTokenAndCreateSession(
     throw new HTTPException(STATUS_CODE.Unauthorized);
   }
 
-  if (new Date() > authToken.expiresAt) {
-    logError(`auth token ${authTokenId} has expired`);
-    throw new HTTPException(STATUS_CODE.Unauthorized);
-  }
-
   await authRepository.removeAuthToken(authTokenId);
 
   const allReaderSessions = await authRepository.getAllReaderSessions(

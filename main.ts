@@ -25,6 +25,8 @@ import { Env } from './global-types.ts';
 import { LogErrorDTOSchema } from './routes-dtos/log-error.ts';
 import { LogErrorController } from './controllers/log-error.ts';
 import { logDebug } from './utils/logger.ts';
+import { removeUnconfirmedReaders } from './cron/remove-unconfirmed-readers.ts';
+import { UpdateReaderFullNameDTOSchema } from './routes-dtos/update-reader-full-name.ts';
 
 const app = new Hono();
 
@@ -177,6 +179,13 @@ app.get('/session', (c) => {
   return authController.getSession(c);
 });
 
+app.patch(
+  '/readers/:id/full-name',
+  zValidator('json', UpdateReaderFullNameDTOSchema),
+  (c) => {
+  },
+);
+
 app.post('/logout', (c) => {
   return authController.logout(c);
 });
@@ -184,5 +193,11 @@ app.post('/logout', (c) => {
 app.post('/log-error', zValidator('json', LogErrorDTOSchema), (c) => {
   return logErrorController.logError(c, c.req.valid('json'));
 });
+
+Deno.cron(
+  'remove unconfirmed readers',
+  '0 0 1 * *', // Run on the first of the month at midnight
+  () => removeUnconfirmedReaders(readerRepository),
+);
 
 Deno.serve(app.fetch);

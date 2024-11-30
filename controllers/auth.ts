@@ -71,11 +71,13 @@ export class AuthController {
     const authTokenId = payload.authToken as AuthTokenId;
     logInfo(`validate auth token request for ${authTokenId}`);
 
-    await validateAuthTokenAndCreateSession(
+    const session = await validateAuthTokenAndCreateSession(
       c,
       authTokenId,
       this.authRepository,
     );
+    
+    this.readerRepository.confirmReaderEmail(session.readerId);
 
     return c.json({
       message: 'auth token validated successfully',
@@ -92,11 +94,14 @@ export class AuthController {
 
   async getSession(c: Context): Promise<TypedResponse> {
     const session = await getAndValidateSession(c, this.authRepository);
+    const reader = await this.readerRepository.getReaderById(session.readerId);
     const readerStatuses = await this.readerRepository.getReaderStatuses(
       session.readerId,
     );
 
     return c.json({
+      readerId: reader!.id,
+      email: reader!.email,
       isInvestor: readerStatuses!.isInvestor,
       hasFullAccess: readerStatuses!.hasFullAccess,
     }, STATUS_CODE.OK);

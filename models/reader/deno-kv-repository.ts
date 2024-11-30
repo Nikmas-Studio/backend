@@ -1,14 +1,20 @@
-import { ReaderExistsError } from '../../errors.ts';
+import {
+  ReaderExistsError,
+  ReaderNotFoundError,
+  RemoveReaderError,
+} from '../../errors.ts';
 import { Email } from '../../global-types.ts';
 import { generateUUID } from '../../utils/generate-uuid.ts';
-import { logError, logInfo } from '../../utils/logger.ts';
+import { logDebug, logError, logInfo } from '../../utils/logger.ts';
 import { ReaderRepository } from './repository-interface.ts';
 import {
+  CreateOrUpdateReaderProfileDTO,
   CreateReaderDTO,
   FullAccessReader,
   Investor,
   Reader,
   ReaderId,
+  ReaderProfile,
   ReaderStatuses,
 } from './types.ts';
 
@@ -27,6 +33,7 @@ export class ReaderDenoKvRepository implements ReaderRepository {
     const reader: Reader = {
       id: readerId,
       email,
+      emailConfirmed: false,
       createdAt,
     };
 
@@ -39,25 +46,15 @@ export class ReaderDenoKvRepository implements ReaderRepository {
       .set(byEmailKey, reader.id);
 
     if (isInvestor) {
-      const investor: Investor = {
-        readerId: reader.id,
-        createdAt,
-      };
-
       const investorKey = ['investors', reader.id];
 
-      atomicOp.set(investorKey, investor);
+      atomicOp.set(investorKey, true);
     }
 
     if (hasFullAccess) {
-      const fullAccessReader: FullAccessReader = {
-        readerId: reader.id,
-        createdAt,
-      };
-
       const fullAccessReaderKey = ['full_access_readers', reader.id];
 
-      atomicOp.set(fullAccessReaderKey, fullAccessReader);
+      atomicOp.set(fullAccessReaderKey, true);
     }
 
     const res = await atomicOp.commit();
@@ -102,17 +99,114 @@ export class ReaderDenoKvRepository implements ReaderRepository {
 
   async getReaderStatuses(readerId: ReaderId): Promise<ReaderStatuses | null> {
     const reader = await this.getReaderById(readerId);
-    
+
     if (reader === null) {
       return null;
     }
-    
+
     const isInvestor = await this.kv.get<Investor>(['investors', readerId]);
-    const hasFullAccess = await this.kv.get<FullAccessReader>(['full_access_readers', readerId]);
-    
+    const hasFullAccess = await this.kv.get<FullAccessReader>([
+      'full_access_readers',
+      readerId,
+    ]);
+
     return {
       isInvestor: isInvestor.value !== null,
       hasFullAccess: hasFullAccess.value !== null,
+    };
+  }
+
+  async confirmReaderEmail(readerId: ReaderId): Promise<void> {
+    const reader = await this.getReaderById(readerId);
+
+    if (reader === null) {
+      logError(`confirmReaderEmail: reader not found: ${readerId}`);
+      throw new ReaderNotFoundError(readerId);
     }
+
+    const key = ['readers', readerId];
+    const updatedReader: Reader = { ...reader, emailConfirmed: true };
+
+    await this.kv.set(key, updatedReader);
+  }
+
+  async getAllReaders(): Promise<Reader[]> {
+    const iter = this.kv.list<Reader>({ prefix: ['readers'] });
+    const readers: Reader[] = [];
+    for await (const reader of iter) {
+      readers.push(reader.value);
+    }
+
+    return readers;
+  }
+
+  async removeReader(readerId: ReaderId): Promise<void> {
+    const reader = await this.getReaderById(readerId);
+
+    if (reader === null) {
+      logDebug(`removeReader: reader not found: ${readerId}`);
+      return;
+    }
+
+    const primaryKey = ['readers', readerId];
+    const byEmailKey = ['readers_by_email', reader.email];
+    const investorKey = ['investors', readerId];
+    const fullAccessReaderKey = ['full_access_readers', readerId];
+
+    const res = await this.kv.atomic()
+      .delete(primaryKey)
+      .delete(byEmailKey)
+      .delete(investorKey)
+      .delete(fullAccessReaderKey)
+      .commit();
+
+    if (!res.ok) {
+      logError(`removeReader kv atomicOp error: ${readerId}`);
+      throw new RemoveReaderError(readerId);
+    }
+  }
+
+  async createOrUpdateReaderProfile(
+    readerId: ReaderId,
+    createReaderProfileDTO: CreateOrUpdateReaderProfileDTO,
+  ): Promise<ReaderProfile> {
+    const reader = await this.getReaderById(readerId);
+
+    if (reader === null) {
+      logError(`createReaderProfile: reader not found: ${readerId}`);
+      throw new ReaderNotFoundError(readerId);
+    }
+    
+    const existingReaderProfile = await this.getReaderProfile(readerId);
+    
+    let readerProfile: ReaderProfile;
+    
+    if (existingReaderProfile !== null) {
+      readerProfile = { ...existingReaderProfile, fullName: createReaderProfileDTO.fullName };
+    } else {
+      readerProfile = {
+        fullName: createReaderProfileDTO.fullName,
+        createdAt: new Date(),
+      };
+    }
+
+    await this.kv.set(['reader_profiles', readerId], readerProfile);
+
+    return readerProfile;
+  }
+
+  async getReaderProfile(readerId: ReaderId): Promise<ReaderProfile | null> {
+    const readerProfile = await this.kv.get<ReaderProfile>([
+      'reader_profiles',
+      readerId,
+    ]);
+    return readerProfile.value;
+  }
+
+  async updateReaderFullName(
+    readerId: ReaderId,
+    fullName: string,
+  ): Promise<void> {
+    await this.createOrUpdateReaderProfile(readerId, { fullName });
   }
 }

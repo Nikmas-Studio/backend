@@ -1,5 +1,5 @@
 import {
-  AUTH_TOKEN_TIME_TO_LIVE,
+  AUTH_TOKEN_TTL,
   SESSION_MAX_AGE_MILLISECONDS,
 } from '../../constants.ts';
 import { generateUUID } from '../../utils/generate-uuid.ts';
@@ -18,12 +18,11 @@ export class AuthDenoKvRepository implements AuthRepository {
       id: authTokenId,
       readerId,
       createdAt: new Date(),
-      expiresAt: new Date(Date.now() + AUTH_TOKEN_TIME_TO_LIVE),
     };
 
     const primaryKey = ['auth_tokens', authToken.id];
 
-    await this.kv.set(primaryKey, authToken);
+    await this.kv.set(primaryKey, authToken, { expireIn: AUTH_TOKEN_TTL });
 
     logInfo(`auth token created: ${JSON.stringify(authToken)}`);
 

@@ -1,11 +1,26 @@
 import { Email } from './global-types.ts';
 import { BookURI } from './models/book/types.ts';
+import { ReaderId } from './models/reader/types.ts';
 import { OrderId } from './models/subscription/types.ts';
 
 export class ReaderExistsError extends Error {
   constructor(email: Email) {
     super(`reader with email ${email} already exists`);
     this.name = 'ReaderExistsError';
+  }
+}
+
+export class ReaderNotFoundError extends Error {
+  constructor(readerId: ReaderId) {
+    super(`reader with id ${readerId} not found`);
+    this.name = 'ReaderNotFoundError';
+  }
+}
+
+export class RemoveReaderError extends Error {
+  constructor(readerId: ReaderId) {
+    super(`reader with id ${readerId} wasn't removed`);
+    this.name = 'RemoveReaderError';
   }
 }
 
