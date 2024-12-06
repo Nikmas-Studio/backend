@@ -77,6 +77,7 @@ export class AuthController {
     this.readerRepository.confirmReaderEmail(session.readerId);
 
     return c.json({
+      session,
       message: 'auth token validated successfully',
     }, STATUS_CODE.OK);
   }
