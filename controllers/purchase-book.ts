@@ -176,7 +176,7 @@ export class PurchaseBookController {
     }
 
     logInfo(`payment success body: ${JSON.stringify(body)}`);
-    const wfpOrderReference = body.orderReference ?? null;
+    const wfpOrderReference = body?.orderReference ?? null;
 
     const authTokenId = c.req.query('authToken') ?? null;
     logInfo(`auth token id from query: ${authTokenId}`);
