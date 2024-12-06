@@ -151,9 +151,8 @@ app.post(
 
 app.post(
   '/payment-success-wayforpay',
-  zValidator('json', PaymentSuccessWayforpayDTOSchema),
   (c) => {
-    return purchaseBookController.paymentSuccess(c, c.req.valid('json'));
+    return purchaseBookController.paymentSuccess(c);
   },
 );
 

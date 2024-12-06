@@ -1,41 +1,30 @@
 import { STATUS_CODE } from '@std/http/status';
 import { Context, TypedResponse } from 'hono';
 import { HTTPException } from 'hono/http-exception';
-import {
-  IS_INVESTOR_AFTER_PURCHASE,
-  WAYFORPAY_SERVICE_URL,
-} from '../constants.ts';
+import { IS_INVESTOR_AFTER_PURCHASE } from '../constants.ts';
 import { AuthRepository } from '../models/auth/repository-interface.ts';
 import { AuthToken, AuthTokenId } from '../models/auth/types.ts';
 import { BookRepository } from '../models/book/repository-interface.ts';
 import { ReaderRepository } from '../models/reader/repository-interface.ts';
 import { SubscriptionRepository } from '../models/subscription/repository-interface.ts';
 import { OrderId, SubscriptionStatus } from '../models/subscription/types.ts';
-import { PaymentSuccessAuthenticatedDTO } from '../routes-dtos/payment-success-authenticated.ts';
-import { PaymentSuccessGuestDTO } from '../routes-dtos/payment-success-guest.ts';
-import { PaymentSuccessWayforpayDTO } from '../routes-dtos/payment-success-wayforpay.ts';
 import { PurchaseBookAuthenticatedDTO } from '../routes-dtos/purchase-book-authenticated.ts';
 import { PurchaseBookGuestDTO } from '../routes-dtos/purchase-book-guest.ts';
 import { EmailService } from '../services/email/email-service-interface.ts';
 import { LinkType } from '../services/email/types.ts';
 import { PaymentService } from '../services/payment/payment-service-interface.ts';
-import {
-  isPaymentSuccessAuthenticatedInitiator,
-  isPaymentSuccessGuestInitiator,
-  isPaymentSuccessWayforpayInitiator,
-  isPurchaseBookGuestInitiator,
-} from '../services/payment/types.ts';
+import { isPurchaseBookGuestInitiator } from '../services/payment/types.ts';
+import { generateBookReadUrl } from '../utils/generate-book-read-url.ts';
 import { generateHMACMD5 } from '../utils/generate-hmac-md5.ts';
 import { generatePaymentAuthenticatedReturnURL } from '../utils/generate-payment-authenticated-return-url.ts';
 import { generatePaymentGuestReturnURL } from '../utils/generate-payment-guest-return-url.ts';
 import { generateUUID } from '../utils/generate-uuid.ts';
+import { generateWfpServiceUrl } from '../utils/generate-wfp-service-url.ts';
 import { getAndValidateSession } from '../utils/get-and-validate-session.ts';
 import { logError, logInfo } from '../utils/logger.ts';
 import { validateAuthTokenAndCreateSession } from '../utils/validate-auth-token-and-create-session.ts';
 import { verifyCaptcha } from '../utils/verify-captcha.ts';
 import { verifyHoneypot } from '../utils/verify-honeypot.ts';
-import { generateWfpServiceUrl } from '../utils/generate-wfp-service-url.ts';
-import { generateBookReadUrl } from '../utils/generate-book-read-url.ts';
 
 export class PurchaseBookController {
   constructor(
@@ -178,9 +167,13 @@ export class PurchaseBookController {
 
   async paymentSuccess(
     c: Context,
-    paymentSuccessDTO?: PaymentSuccessWayforpayDTO,
   ): Promise<TypedResponse> {
+    const body = await c.req.json();
+    logInfo(`payment success body: ${JSON.stringify(body)}`);
+    const wfpOrderReference = body.orderReference ?? null;
+
     const authTokenId = c.req.query('authToken') ?? null;
+    logInfo(`auth token id from query: ${authTokenId}`);
 
     if (authTokenId !== null) {
       await validateAuthTokenAndCreateSession(
@@ -190,17 +183,18 @@ export class PurchaseBookController {
       );
     }
 
-    if (authTokenId === null && paymentSuccessDTO === undefined) {
+    if (authTokenId === null && wfpOrderReference === null) {
       await getAndValidateSession(c, this.authRepository);
     }
 
     let orderId: OrderId;
 
-    if (paymentSuccessDTO !== undefined) {
-      orderId = paymentSuccessDTO.orderReference as OrderId;
-      logInfo(`wayforpay order reference: ${orderId}`); 
+    if (wfpOrderReference !== null) {
+      orderId = wfpOrderReference as OrderId;
+      logInfo(`wayforpay order reference: ${orderId}`);
     } else {
       orderId = c.req.query('order') as OrderId;
+      logInfo(`order id from query: ${orderId}`);
     }
 
     const subscription = await this.subscriptionRepository
@@ -228,7 +222,7 @@ export class PurchaseBookController {
       );
     }
 
-    if (paymentSuccessDTO !== undefined) {
+    if (wfpOrderReference !== null) {
       const responseToWayforpay = {
         orderReference: orderId,
         status: 'accept',
