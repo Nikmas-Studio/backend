@@ -176,13 +176,16 @@ export class ReaderDenoKvRepository implements ReaderRepository {
       logError(`createReaderProfile: reader not found: ${readerId}`);
       throw new ReaderNotFoundError(readerId);
     }
-    
+
     const existingReaderProfile = await this.getReaderProfile(readerId);
-    
+
     let readerProfile: ReaderProfile;
-    
+
     if (existingReaderProfile !== null) {
-      readerProfile = { ...existingReaderProfile, fullName: createReaderProfileDTO.fullName };
+      readerProfile = {
+        ...existingReaderProfile,
+        fullName: createReaderProfileDTO.fullName,
+      };
     } else {
       readerProfile = {
         fullName: createReaderProfileDTO.fullName,
@@ -208,5 +211,20 @@ export class ReaderDenoKvRepository implements ReaderRepository {
     fullName: string,
   ): Promise<void> {
     await this.createOrUpdateReaderProfile(readerId, { fullName });
+  }
+
+  async setInvestorStatus(readerId: ReaderId, isInvestor: boolean): Promise<void> {
+    const investorKey = ['investors', readerId];
+
+    await this.kv.set(investorKey, isInvestor);
+  }
+
+  async setFullAccessStatus(
+    readerId: ReaderId,
+    hasFullAccess: boolean,
+  ): Promise<void> {
+    const fullAccessReaderKey = ['full_access_readers', readerId];
+
+    await this.kv.set(fullAccessReaderKey, hasFullAccess);
   }
 }

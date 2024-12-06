@@ -1,33 +1,32 @@
 import { zValidator } from '@hono/zod-validator';
 import { Hono } from 'hono';
-import { cors } from 'hono/cors';
 import { requestId } from 'hono/request-id';
 import { asyncLocalStorage } from './context.ts';
 import { AuthController } from './controllers/auth.ts';
+import { BooksController } from './controllers/books.ts';
+import { LogErrorController } from './controllers/log-error.ts';
 import { PurchaseBookController } from './controllers/purchase-book.ts';
+import { ReadersController } from './controllers/readers.ts';
+import { removeUnconfirmedReaders } from './cron/remove-unconfirmed-readers.ts';
 import { AuthDenoKvRepository } from './models/auth/deno-kv-repository.ts';
 import { BookDenoKvRepository } from './models/book/deno-kv-repository.ts';
 import { ReaderDenoKvRepository } from './models/reader/deno-kv-repository.ts';
 import { SubscriptionDenoKvRepository } from './models/subscription/deno-kv-repository.ts';
+import { LogErrorDTOSchema } from './routes-dtos/log-error.ts';
 import { LoginDTOSchema } from './routes-dtos/login.ts';
 import { PaymentSuccessAuthenticatedDTOSchema } from './routes-dtos/payment-success-authenticated.ts';
 import { PaymentSuccessGuestDTOSchema } from './routes-dtos/payment-success-guest.ts';
 import { PaymentSuccessWayforpayDTOSchema } from './routes-dtos/payment-success-wayforpay.ts';
 import { PurchaseBookAuthenticatedDTOSchema } from './routes-dtos/purchase-book-authenticated.ts';
 import { PurchaseBookGuestDTOSchema } from './routes-dtos/purchase-book-guest.ts';
+import { UpdateReaderFullNameDTOSchema } from './routes-dtos/update-reader-full-name.ts';
 import {
   ValidateAuthTokenDTOSchema,
 } from './routes-dtos/validate-auth-token.ts';
 import { AWSSESEmailService } from './services/email/aws-ses-email-service.ts';
 import { WayforpayPaymentService } from './services/payment/wayforpay-payment-service.ts';
-import { BooksController } from './controllers/books.ts';
-import { Env } from './global-types.ts';
-import { LogErrorDTOSchema } from './routes-dtos/log-error.ts';
-import { LogErrorController } from './controllers/log-error.ts';
 import { logDebug } from './utils/logger.ts';
-import { removeUnconfirmedReaders } from './cron/remove-unconfirmed-readers.ts';
-import { UpdateReaderFullNameDTOSchema } from './routes-dtos/update-reader-full-name.ts';
-import { ReadersController } from './controllers/readers.ts';
+import { cors } from 'hono/cors'
 
 const app = new Hono();
 
@@ -60,6 +59,7 @@ const booksController = new BooksController(
   authRepository,
   subscriptionRepository,
   bookRepository,
+  readerRepository,
 );
 
 const readersController = new ReadersController(
@@ -69,25 +69,13 @@ const readersController = new ReadersController(
 
 const logErrorController = new LogErrorController();
 
-app.use('*', async (c, next) => {
-  const req = new Request(c.req.raw);
-  req.headers.set('origin', c.req.header('origin')! || c.req.header('host')!);
-  c.req.raw = req;
-
-  await next();
-});
-
 app.use(
   '*',
   cors({
     origin: [
-      'https://nikmas.studio',
       'https://secure.wayforpay.com',
       'https://wayforpay.com',
-      'https://frontend-staging-11nms11.vercel.app',
-      Deno.env.get('ENV') === Env.DEVELOPMENT ? 'http://localhost:3000' : '',
     ],
-    credentials: true,
   }),
 );
 
@@ -155,7 +143,7 @@ app.post(
 );
 
 app.post(
-  '/purchase-success-guest',
+  '/payment-success-guest',
   zValidator('json', PaymentSuccessGuestDTOSchema),
   (c) => {
     return purchaseBookController.paymentSuccess(c, c.req.valid('json'));
@@ -163,7 +151,7 @@ app.post(
 );
 
 app.post(
-  '/purchase-success-authenticated',
+  '/payment-success-authenticated',
   zValidator('json', PaymentSuccessAuthenticatedDTOSchema),
   (c) => {
     return purchaseBookController.paymentSuccess(c, c.req.valid('json'));
@@ -171,7 +159,7 @@ app.post(
 );
 
 app.post(
-  '/purchase-success-wayforpay',
+  '/payment-success-wayforpay',
   zValidator('json', PaymentSuccessWayforpayDTOSchema),
   (c) => {
     return purchaseBookController.paymentSuccess(c, c.req.valid('json'));

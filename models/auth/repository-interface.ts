@@ -8,5 +8,6 @@ export interface AuthRepository {
   createSession(readerId: ReaderId): Promise<Session>;
   getSessionById(sessionId: SessionId): Promise<Session | null>;
   getAllReaderSessions(readerId: ReaderId): Promise<SessionId[]>;
+  updateSession(newSession: Session): Promise<void>;
   removeSession(sessionId: SessionId, readerId: ReaderId): Promise<void>;
 }

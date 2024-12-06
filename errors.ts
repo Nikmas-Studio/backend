@@ -1,4 +1,5 @@
 import { Email } from './global-types.ts';
+import { SessionId } from './models/auth/types.ts';
 import { BookURI } from './models/book/types.ts';
 import { ReaderId } from './models/reader/types.ts';
 import { OrderId } from './models/subscription/types.ts';
@@ -21,6 +22,13 @@ export class RemoveReaderError extends Error {
   constructor(readerId: ReaderId) {
     super(`reader with id ${readerId} wasn't removed`);
     this.name = 'RemoveReaderError';
+  }
+}
+
+export class SessionNotFoundError extends Error {
+  constructor(sessionId: SessionId) {
+    super(`sessioin with id ${sessionId} not found`);
+    this.name = 'SessionNotFoundError';
   }
 }
 

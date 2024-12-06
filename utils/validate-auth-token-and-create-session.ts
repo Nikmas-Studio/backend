@@ -4,6 +4,7 @@ import { setCookie } from 'hono/cookie';
 import { HTTPException } from 'hono/http-exception';
 import {
   MAX_READER_SESSIONS,
+  SESSION_ACCESS_TOKEN_COOKIE_NAME,
   SESSION_ID_COOKIE_NAME,
   SESSION_MAX_AGE_SECONDS,
 } from '../constants.ts';
@@ -28,6 +29,9 @@ export async function validateAuthTokenAndCreateSession(
   const allReaderSessions = await authRepository.getAllReaderSessions(
     authToken.readerId,
   );
+  
+  console.log('allReaderSessions:', allReaderSessions);
+  console.log('allReaderSessions.length:', allReaderSessions.length);
 
   if (allReaderSessions.length === MAX_READER_SESSIONS) {
     logInfo(
@@ -46,7 +50,15 @@ export async function validateAuthTokenAndCreateSession(
 
   setCookie(c, SESSION_ID_COOKIE_NAME, newSession.id, {
     httpOnly: true,
-    sameSite: 'None',
+    sameSite: 'Lax',
+    secure: true,
+    path: '/',
+    maxAge: SESSION_MAX_AGE_SECONDS,
+  });
+
+  setCookie(c, SESSION_ACCESS_TOKEN_COOKIE_NAME, newSession.accessToken, {
+    httpOnly: true,
+    sameSite: 'Lax',
     secure: true,
     path: '/',
     maxAge: SESSION_MAX_AGE_SECONDS,

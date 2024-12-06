@@ -14,5 +14,7 @@ export type SessionId = Branded<UUID, 'SessionId'>;
 export interface Session {
   id: SessionId;
   readerId: ReaderId;
+  accessToken: UUID;
   createdAt: Date;
+  updatedAt: Date;
 }

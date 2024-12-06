@@ -1,9 +1,12 @@
 import { STATUS_CODE } from '@std/http/status';
 import { Context, TypedResponse } from 'hono';
 import { HTTPException } from 'hono/http-exception';
-import { IS_INVESTOR_BY_DEFAULT, WAYFORPAY_SERVICE_URL } from '../constants.ts';
+import {
+  IS_INVESTOR_AFTER_PURCHASE,
+  WAYFORPAY_SERVICE_URL,
+} from '../constants.ts';
 import { AuthRepository } from '../models/auth/repository-interface.ts';
-import { AuthTokenId } from '../models/auth/types.ts';
+import { AuthToken, AuthTokenId } from '../models/auth/types.ts';
 import { BookRepository } from '../models/book/repository-interface.ts';
 import { ReaderRepository } from '../models/reader/repository-interface.ts';
 import { SubscriptionRepository } from '../models/subscription/repository-interface.ts';
@@ -27,10 +30,11 @@ import { generatePaymentAuthenticatedReturnURL } from '../utils/generate-payment
 import { generatePaymentGuestReturnURL } from '../utils/generate-payment-guest-return-url.ts';
 import { generateUUID } from '../utils/generate-uuid.ts';
 import { getAndValidateSession } from '../utils/get-and-validate-session.ts';
-import { logInfo } from '../utils/logger.ts';
+import { logError, logInfo } from '../utils/logger.ts';
 import { validateAuthTokenAndCreateSession } from '../utils/validate-auth-token-and-create-session.ts';
 import { verifyCaptcha } from '../utils/verify-captcha.ts';
 import { verifyHoneypot } from '../utils/verify-honeypot.ts';
+import { generateWfpServiceUrl } from '../utils/generate-wfp-service-url.ts';
 
 export class PurchaseBookController {
   constructor(
@@ -63,7 +67,7 @@ export class PurchaseBookController {
 
       reader = await this.readerRepository.getOrCreateReader({
         email: readerEmail,
-        isInvestor: IS_INVESTOR_BY_DEFAULT,
+        isInvestor: IS_INVESTOR_AFTER_PURCHASE,
         hasFullAccess: false,
       });
     } else {
@@ -102,22 +106,28 @@ export class PurchaseBookController {
       }
     }
 
-    const authToken = await this.authRepository.createAuthToken(reader.id);
+    let authToken: AuthToken | null = null;
+    if (isPurchaseBookGuestInitiator(purchaseBookDTO)) {
+      authToken = await this.authRepository.createAuthToken(reader.id);
+    }
+
     const orderId = generateUUID() as OrderId;
+
 
     const book = await this.bookRepository.getBookByURI(bookURI);
 
     if (book === null) {
+      logError(`book not found: ${bookURI}`);
       throw new HTTPException(STATUS_CODE.BadRequest, {
         message: `book not found: ${bookURI}`,
       });
     }
 
     const returnURL = isPurchaseBookGuestInitiator(purchaseBookDTO)
-      ? generatePaymentGuestReturnURL(orderId, authToken.id)
+      ? generatePaymentGuestReturnURL(orderId, authToken!.id)
       : generatePaymentAuthenticatedReturnURL(orderId);
 
-    const serviceURL = new URL(WAYFORPAY_SERVICE_URL);
+    const serviceURL = new URL(generateWfpServiceUrl());
 
     let paymentLink: URL;
     try {
@@ -145,19 +155,26 @@ export class PurchaseBookController {
       }`,
     );
 
-    try {
-      await this.emailService.sendLink({
-        readerEmail: reader.email,
-        link: paymentLink,
-        linkType: LinkType.PAYMENT,
-      });
-    } catch (_) {
-      throw new HTTPException(STATUS_CODE.InternalServerError);
+    if (isPurchaseBookGuestInitiator(purchaseBookDTO)) {
+      try {
+        await this.emailService.sendLink({
+          readerEmail: reader.email,
+          link: paymentLink,
+          linkType: LinkType.PAYMENT,
+        });
+
+        return c.json({
+          message: 'payment link sent successfully',
+        }, STATUS_CODE.OK);
+      } catch (_) {
+        throw new HTTPException(STATUS_CODE.InternalServerError);
+      }
+    } else {
+      return c.json({
+        paymentLink: paymentLink.toString(),
+      }, STATUS_CODE.OK);
     }
 
-    return c.json({
-      message: 'payment link sent successfully',
-    }, STATUS_CODE.OK);
   }
 
   async paymentSuccess(
@@ -191,6 +208,7 @@ export class PurchaseBookController {
     const subscription = await this.subscriptionRepository
       .getSubscriptionByOrderId(orderId);
     if (subscription === null) {
+      logError(`subscription not found: ${orderId}`);
       throw new HTTPException(STATUS_CODE.BadRequest);
     }
 
@@ -201,6 +219,10 @@ export class PurchaseBookController {
     if (subscription.status === SubscriptionStatus.PENDING) {
       this.subscriptionRepository.activateSubscription(subscription);
       this.subscriptionRepository.createSubscriptionHistory(subscription.id);
+      this.readerRepository.setInvestorStatus(
+        subscription.readerId,
+        IS_INVESTOR_AFTER_PURCHASE,
+      );
     }
 
     if (isPaymentSuccessWayforpayInitiator(paymentSuccessDTO)) {

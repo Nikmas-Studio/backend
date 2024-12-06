@@ -10,12 +10,12 @@ export interface Reader {
 }
 
 export interface ReaderProfile {
-  fullName: string;
+  fullName: string | null;
   createdAt: Date;
 }
 
 export interface CreateOrUpdateReaderProfileDTO {
-  fullName: string;
+  fullName: string | null;
 }
 
 export interface ReaderStatuses {

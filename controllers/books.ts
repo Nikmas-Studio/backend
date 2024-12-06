@@ -6,17 +6,36 @@ import { getAndValidateSession } from '../utils/get-and-validate-session.ts';
 import { SubscriptionRepository } from '../models/subscription/repository-interface.ts';
 import { SubscriptionStatus } from '../models/subscription/types.ts';
 import { STATUS_CODE } from '@std/http';
+import { ReaderRepository } from '../models/reader/repository-interface.ts';
+import { HTTPException } from 'hono/http-exception';
+import { logError } from '../utils/logger.ts';
 
 export class BooksController {
   constructor(
     private authRepository: AuthRepository,
     private subscriptionRepository: SubscriptionRepository,
     private bookRepository: BookRepository,
+    private readerRepository: ReaderRepository,
   ) {}
 
   async checkAccessToBook(c: Context): Promise<TypedResponse> {
     const bookURI = c.req.param('uri');
     const session = await getAndValidateSession(c, this.authRepository);
+    const readerStatuses = await this.readerRepository.getReaderStatuses(
+      session.readerId,
+    );
+
+    if (readerStatuses === null) {
+      logError(`Reader statuses not found for readerId: ${session.readerId}`);
+      throw new HTTPException(STATUS_CODE.InternalServerError);
+    }
+
+    if (readerStatuses.hasFullAccess) {
+      return c.json({
+        accessGranted: false,
+      }, STATUS_CODE.OK);
+    }
+
     const readerSubscriptions = await this.subscriptionRepository
       .getSubscriptionsByReaderId(session.readerId);
 

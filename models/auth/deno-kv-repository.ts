@@ -1,7 +1,5 @@
-import {
-  AUTH_TOKEN_TTL,
-  SESSION_MAX_AGE_MILLISECONDS,
-} from '../../constants.ts';
+import { AUTH_TOKEN_TTL } from '../../constants.ts';
+import { SessionNotFoundError } from '../../errors.ts';
 import { generateUUID } from '../../utils/generate-uuid.ts';
 import { logInfo } from '../../utils/logger.ts';
 import { ReaderId } from '../reader/types.ts';
@@ -47,15 +45,17 @@ export class AuthDenoKvRepository implements AuthRepository {
     const session: Session = {
       id: sessionId,
       readerId,
+      accessToken: generateUUID(),
       createdAt: new Date(),
+      updatedAt: new Date(),
     };
 
     const primaryKey = ['sessions', session.id];
     const byReaderKey = ['sessions_by_reader', readerId, sessionId];
 
     await this.kv.atomic()
-      .set(primaryKey, session, { expireIn: SESSION_MAX_AGE_MILLISECONDS })
-      .set(byReaderKey, null, { expireIn: SESSION_MAX_AGE_MILLISECONDS })
+      .set(primaryKey, session)
+      .set(byReaderKey, null)
       .commit();
 
     logInfo(`session created: ${JSON.stringify(session)}`);
@@ -85,5 +85,20 @@ export class AuthDenoKvRepository implements AuthRepository {
       .delete(['sessions', sessionId])
       .delete(['sessions_by_reader', readerId, sessionId])
       .commit();
+  }
+
+  async updateSession(newSession: Session): Promise<void> {
+    const existingSession = await this.kv.get<Session>([
+      'sessions',
+      newSession.id,
+    ]);
+
+    if (existingSession.value === null) {
+      throw new SessionNotFoundError(newSession.id);
+    }
+
+    const primaryKey = ['sessions', newSession.id];
+
+    await this.kv.set(primaryKey, newSession);
   }
 }

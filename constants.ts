@@ -3,10 +3,13 @@ export const LOGIN_LINK_TEMPLATE_NAME = 'loginLink';
 export const PAYMENT_LINK_TEMPLATE_NAME = 'paymentLink';
 export const STUDIO_EMAIL = '"Nikmas Studio" <team@nikmas.studio>';
 export const MAX_READER_SESSIONS = 3;
-export const IS_INVESTOR_BY_DEFAULT = true;
+export const REUSE_DETECTION_THRESHOLD = 60 * 1000; // 1 minute (in milliseconds)
+export const IS_INVESTOR_AFTER_PURCHASE = true;
 export const SESSION_ID_COOKIE_NAME = 'session_id';
+export const SESSION_ACCESS_TOKEN_COOKIE_NAME = 'session_access_token';
 export const SESSION_MAX_AGE_SECONDS = 34560000; // 400 days (in seconds)
 export const SESSION_MAX_AGE_MILLISECONDS = SESSION_MAX_AGE_SECONDS * 1000; // 400 days (in milliseconds)
+export const SESSION_ACCESS_TOKEN_TTL = 15 * 60 * 1000; // 15 minutes (in milliseconds)
 export const CAPTCHA_VERIFICATION_URL =
   'https://www.google.com/recaptcha/api/siteverify';
 export const UNCONFIRMED_READER_TTL = 30; // in days

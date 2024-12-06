@@ -2,10 +2,7 @@ import { STATUS_CODE } from '@std/http';
 import { Context, TypedResponse } from 'hono';
 import { deleteCookie } from 'hono/cookie';
 import { HTTPException } from 'hono/http-exception';
-import {
-  IS_INVESTOR_BY_DEFAULT,
-  SESSION_ID_COOKIE_NAME,
-} from '../constants.ts';
+import { SESSION_ACCESS_TOKEN_COOKIE_NAME, SESSION_ID_COOKIE_NAME } from '../constants.ts';
 import { AuthRepository } from '../models/auth/repository-interface.ts';
 import { AuthTokenId } from '../models/auth/types.ts';
 import { ReaderRepository } from '../models/reader/repository-interface.ts';
@@ -41,7 +38,7 @@ export class AuthController {
 
     const reader = await this.readerRepository.getOrCreateReader({
       email: readerEmail,
-      isInvestor: IS_INVESTOR_BY_DEFAULT,
+      isInvestor: false,
       hasFullAccess: false,
     });
     const authToken = await this.authRepository.createAuthToken(reader.id);
@@ -76,7 +73,7 @@ export class AuthController {
       authTokenId,
       this.authRepository,
     );
-    
+
     this.readerRepository.confirmReaderEmail(session.readerId);
 
     return c.json({
@@ -88,6 +85,7 @@ export class AuthController {
     const session = await getAndValidateSession(c, this.authRepository);
     this.authRepository.removeSession(session.id, session.readerId);
     deleteCookie(c, SESSION_ID_COOKIE_NAME);
+    deleteCookie(c, SESSION_ACCESS_TOKEN_COOKIE_NAME);
 
     return c.json(STATUS_CODE.OK);
   }
@@ -98,10 +96,13 @@ export class AuthController {
     const readerStatuses = await this.readerRepository.getReaderStatuses(
       session.readerId,
     );
+    const readerProfile = await this.readerRepository.getReaderProfile(session.readerId);
+    const readerFullName = readerProfile?.fullName ?? null;
 
     return c.json({
       readerId: reader!.id,
       readerEmail: reader!.email,
+      readerFullName,
       isInvestor: readerStatuses!.isInvestor,
       hasFullAccess: readerStatuses!.hasFullAccess,
     }, STATUS_CODE.OK);

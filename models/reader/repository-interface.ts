@@ -16,7 +16,6 @@ export interface ReaderRepository {
    * @throws {ReaderExistsError} if a reader with the given email already exists
    */
   createReader(createReaderDTO: CreateReaderDTO): Promise<Reader>;
-
   getOrCreateReader(createReaderDTO: CreateReaderDTO): Promise<Reader>;
   getReaderStatuses(readerId: ReaderId): Promise<ReaderStatuses | null>;
   confirmReaderEmail(readerId: ReaderId): Promise<void>;
@@ -28,4 +27,6 @@ export interface ReaderRepository {
   ): Promise<ReaderProfile>;
   getReaderProfile(readerId: ReaderId): Promise<ReaderProfile | null>;
   updateReaderFullName(readerId: ReaderId, fullName: string): Promise<void>;
+  setInvestorStatus(readerId: ReaderId, isInvestor: boolean): Promise<void>;
+  setFullAccessStatus(readerId: ReaderId, hasFullAccess: boolean): Promise<void>;
 }
