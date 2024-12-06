@@ -41,6 +41,7 @@ export class PurchaseBookController {
     purchaseBookDTO: PurchaseBookGuestDTO | PurchaseBookAuthenticatedDTO,
   ): Promise<TypedResponse> {
     let reader;
+    let session;
     if (isPurchaseBookGuestInitiator(purchaseBookDTO)) {
       const { valid: honeypotIsValid } = verifyHoneypot(
         purchaseBookDTO.readerName,
@@ -61,7 +62,7 @@ export class PurchaseBookController {
         hasFullAccess: false,
       });
     } else {
-      const session = await getAndValidateSession(c, this.authRepository);
+      session = await getAndValidateSession(c, this.authRepository);
 
       const foundReader = await this.readerRepository.getReaderById(
         session.readerId,
@@ -114,7 +115,7 @@ export class PurchaseBookController {
 
     const returnURL = isPurchaseBookGuestInitiator(purchaseBookDTO)
       ? generatePaymentGuestReturnURL(orderId, authToken!.id)
-      : generatePaymentAuthenticatedReturnURL(orderId);
+      : generatePaymentAuthenticatedReturnURL(orderId, session!.id);
 
     const serviceURL = new URL(generateWfpServiceUrl());
 
@@ -190,7 +191,10 @@ export class PurchaseBookController {
     }
 
     if (authTokenId === null && wfpOrderReference === null) {
-      await getAndValidateSession(c, this.authRepository);
+      const sessionId = c.req.query('session');
+      await getAndValidateSession(c, this.authRepository, {
+        sessionId,
+      });
     }
 
     let orderId: OrderId;
