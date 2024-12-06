@@ -198,6 +198,7 @@ export class PurchaseBookController {
 
     if (paymentSuccessDTO !== undefined) {
       orderId = paymentSuccessDTO.orderReference as OrderId;
+      logInfo(`wayforpay order reference: ${orderId}`); 
     } else {
       orderId = c.req.query('order') as OrderId;
     }
