@@ -168,7 +168,13 @@ export class PurchaseBookController {
   async paymentSuccess(
     c: Context,
   ): Promise<TypedResponse> {
-    const body = await c.req.json();
+    let body;
+    try {
+      body = await c.req.json();
+    } catch (_error) {
+      body = null;
+    }
+
     logInfo(`payment success body: ${JSON.stringify(body)}`);
     const wfpOrderReference = body.orderReference ?? null;
 
