@@ -242,8 +242,12 @@ export class PurchaseBookController {
         ].join(';'),
         Deno.env.get('MERCHANT_SECRET_KEY')!,
       );
-      
-      logInfo(`payment success response for Wayforpay: ${JSON.stringify(responseToWayforpay)}`);
+
+      logInfo(
+        `payment success response for Wayforpay: ${
+          JSON.stringify(responseToWayforpay)
+        }`,
+      );
 
       return c.json({
         ...responseToWayforpay,

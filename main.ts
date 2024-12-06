@@ -143,14 +143,7 @@ app.post(
 );
 
 app.post(
-  '/payment-success-guest',
-  (c) => {
-    return purchaseBookController.paymentSuccess(c);
-  },
-);
-
-app.post(
-  '/payment-success-authenticated',
+  '/payment-success',
   (c) => {
     return purchaseBookController.paymentSuccess(c);
   },
