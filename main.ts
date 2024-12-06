@@ -144,17 +144,15 @@ app.post(
 
 app.post(
   '/payment-success-guest',
-  zValidator('json', PaymentSuccessGuestDTOSchema),
   (c) => {
-    return purchaseBookController.paymentSuccess(c, c.req.valid('json'));
+    return purchaseBookController.paymentSuccess(c);
   },
 );
 
 app.post(
   '/payment-success-authenticated',
-  zValidator('json', PaymentSuccessAuthenticatedDTOSchema),
   (c) => {
-    return purchaseBookController.paymentSuccess(c, c.req.valid('json'));
+    return purchaseBookController.paymentSuccess(c);
   },
 );
 

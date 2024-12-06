@@ -35,6 +35,7 @@ import { validateAuthTokenAndCreateSession } from '../utils/validate-auth-token-
 import { verifyCaptcha } from '../utils/verify-captcha.ts';
 import { verifyHoneypot } from '../utils/verify-honeypot.ts';
 import { generateWfpServiceUrl } from '../utils/generate-wfp-service-url.ts';
+import { generateBookReadUrl } from '../utils/generate-book-read-url.ts';
 
 export class PurchaseBookController {
   constructor(
@@ -113,7 +114,6 @@ export class PurchaseBookController {
 
     const orderId = generateUUID() as OrderId;
 
-
     const book = await this.bookRepository.getBookByURI(bookURI);
 
     if (book === null) {
@@ -174,35 +174,32 @@ export class PurchaseBookController {
         paymentLink: paymentLink.toString(),
       }, STATUS_CODE.OK);
     }
-
   }
 
   async paymentSuccess(
     c: Context,
-    paymentSuccessDTO:
-      | PaymentSuccessGuestDTO
-      | PaymentSuccessAuthenticatedDTO
-      | PaymentSuccessWayforpayDTO,
+    paymentSuccessDTO?: PaymentSuccessWayforpayDTO,
   ): Promise<TypedResponse> {
-    if (isPaymentSuccessGuestInitiator(paymentSuccessDTO)) {
-      const authTokenId = paymentSuccessDTO.authToken as AuthTokenId;
+    const authTokenId = c.req.query('authToken') ?? null;
+
+    if (authTokenId !== null) {
       await validateAuthTokenAndCreateSession(
         c,
-        authTokenId,
+        authTokenId as AuthTokenId,
         this.authRepository,
       );
     }
 
-    if (isPaymentSuccessAuthenticatedInitiator(paymentSuccessDTO)) {
+    if (authTokenId === null && paymentSuccessDTO === undefined) {
       await getAndValidateSession(c, this.authRepository);
     }
 
     let orderId: OrderId;
 
-    if (isPaymentSuccessWayforpayInitiator(paymentSuccessDTO)) {
+    if (paymentSuccessDTO !== undefined) {
       orderId = paymentSuccessDTO.orderReference as OrderId;
     } else {
-      orderId = paymentSuccessDTO.orderId as OrderId;
+      orderId = c.req.query('order') as OrderId;
     }
 
     const subscription = await this.subscriptionRepository
@@ -223,9 +220,14 @@ export class PurchaseBookController {
         subscription.readerId,
         IS_INVESTOR_AFTER_PURCHASE,
       );
+      logInfo(
+        `subscription ${subscription.id} to book ${
+          book!.uri
+        } for reader ${subscription.readerId} is activated`,
+      );
     }
 
-    if (isPaymentSuccessWayforpayInitiator(paymentSuccessDTO)) {
+    if (paymentSuccessDTO !== undefined) {
       const responseToWayforpay = {
         orderReference: orderId,
         status: 'accept',
@@ -240,15 +242,15 @@ export class PurchaseBookController {
         ].join(';'),
         Deno.env.get('MERCHANT_SECRET_KEY')!,
       );
+      
+      logInfo(`payment success response for Wayforpay: ${JSON.stringify(responseToWayforpay)}`);
 
       return c.json({
         ...responseToWayforpay,
         signature,
       }, STATUS_CODE.OK);
     } else {
-      return c.json({
-        'bookURI': book!.uri,
-      }, STATUS_CODE.OK);
+      return c.redirect(generateBookReadUrl(book!.uri));
     }
   }
 }

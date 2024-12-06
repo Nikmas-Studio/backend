@@ -29,9 +29,6 @@ export async function validateAuthTokenAndCreateSession(
   const allReaderSessions = await authRepository.getAllReaderSessions(
     authToken.readerId,
   );
-  
-  console.log('allReaderSessions:', allReaderSessions);
-  console.log('allReaderSessions.length:', allReaderSessions.length);
 
   if (allReaderSessions.length === MAX_READER_SESSIONS) {
     logInfo(
