@@ -63,6 +63,7 @@ export class PurchaseBookController {
       });
     } else {
       session = await getAndValidateSession(c, this.authRepository);
+      console.log('session of initiator', session);
 
       const foundReader = await this.readerRepository.getReaderById(
         session.readerId,
