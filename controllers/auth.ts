@@ -2,7 +2,10 @@ import { STATUS_CODE } from '@std/http';
 import { Context, TypedResponse } from 'hono';
 import { deleteCookie } from 'hono/cookie';
 import { HTTPException } from 'hono/http-exception';
-import { SESSION_ACCESS_TOKEN_COOKIE_NAME, SESSION_ID_COOKIE_NAME } from '../constants.ts';
+import {
+  SESSION_ACCESS_TOKEN_COOKIE_NAME,
+  SESSION_ID_COOKIE_NAME,
+} from '../constants.ts';
 import { AuthRepository } from '../models/auth/repository-interface.ts';
 import { AuthTokenId } from '../models/auth/types.ts';
 import { ReaderRepository } from '../models/reader/repository-interface.ts';
@@ -77,7 +80,6 @@ export class AuthController {
     this.readerRepository.confirmReaderEmail(session.readerId);
 
     return c.json({
-      session,
       message: 'auth token validated successfully',
     }, STATUS_CODE.OK);
   }
@@ -97,7 +99,9 @@ export class AuthController {
     const readerStatuses = await this.readerRepository.getReaderStatuses(
       session.readerId,
     );
-    const readerProfile = await this.readerRepository.getReaderProfile(session.readerId);
+    const readerProfile = await this.readerRepository.getReaderProfile(
+      session.readerId,
+    );
     const readerFullName = readerProfile?.fullName ?? null;
 
     return c.json({
