@@ -2,7 +2,7 @@ import { Email } from './global-types.ts';
 import { SessionId } from './models/auth/types.ts';
 import { BookURI } from './models/book/types.ts';
 import { ReaderId } from './models/reader/types.ts';
-import { OrderId } from './models/subscription/types.ts';
+import { OrderId, SubscriptionId } from './models/subscription/types.ts';
 
 export class ReaderExistsError extends Error {
   constructor(email: Email) {
@@ -61,5 +61,12 @@ export class SubscriptionExistsError extends Error {
   constructor(orderId: OrderId) {
     super(`subscription with order id ${orderId} already exists`);
     this.name = 'SubscriptionExistsError';
+  }
+}
+
+export class RemoveSubscriptionError extends Error {
+  constructor(subscriptionId: SubscriptionId) {
+    super(`subscription with id ${subscriptionId} wasn't removed`);
+    this.name = 'RemoveSubscriptionError';
   }
 }

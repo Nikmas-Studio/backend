@@ -1,5 +1,6 @@
 import { zValidator } from '@hono/zod-validator';
 import { Hono } from 'hono';
+import { cors } from 'hono/cors';
 import { requestId } from 'hono/request-id';
 import { asyncLocalStorage } from './context.ts';
 import { AuthController } from './controllers/auth.ts';
@@ -14,9 +15,6 @@ import { ReaderDenoKvRepository } from './models/reader/deno-kv-repository.ts';
 import { SubscriptionDenoKvRepository } from './models/subscription/deno-kv-repository.ts';
 import { LogErrorDTOSchema } from './routes-dtos/log-error.ts';
 import { LoginDTOSchema } from './routes-dtos/login.ts';
-import { PaymentSuccessAuthenticatedDTOSchema } from './routes-dtos/payment-success-authenticated.ts';
-import { PaymentSuccessGuestDTOSchema } from './routes-dtos/payment-success-guest.ts';
-import { PaymentSuccessWayforpayDTOSchema } from './routes-dtos/payment-success-wayforpay.ts';
 import { PurchaseBookAuthenticatedDTOSchema } from './routes-dtos/purchase-book-authenticated.ts';
 import { PurchaseBookGuestDTOSchema } from './routes-dtos/purchase-book-guest.ts';
 import { UpdateReaderFullNameDTOSchema } from './routes-dtos/update-reader-full-name.ts';
@@ -26,7 +24,7 @@ import {
 import { AWSSESEmailService } from './services/email/aws-ses-email-service.ts';
 import { WayforpayPaymentService } from './services/payment/wayforpay-payment-service.ts';
 import { logDebug } from './utils/logger.ts';
-import { cors } from 'hono/cors'
+import { removeExpiredPendingSubscriptions } from './cron/remove-expired-pending-subscriptions.ts';
 
 const app = new Hono();
 
@@ -184,6 +182,12 @@ Deno.cron(
   'remove unconfirmed readers',
   '0 0 1 * *', // Run on the first of the month at midnight
   () => removeUnconfirmedReaders(readerRepository),
+);
+
+Deno.cron(
+  'remove expired pending subscriptions',
+  '0 0 1 * *', // Run on the first of the month at midnight
+  () => removeExpiredPendingSubscriptions(subscriptionRepository),
 );
 
 Deno.serve(app.fetch);

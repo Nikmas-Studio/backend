@@ -7,7 +7,11 @@ import { AuthToken, AuthTokenId } from '../models/auth/types.ts';
 import { BookRepository } from '../models/book/repository-interface.ts';
 import { ReaderRepository } from '../models/reader/repository-interface.ts';
 import { SubscriptionRepository } from '../models/subscription/repository-interface.ts';
-import { OrderId, SubscriptionStatus } from '../models/subscription/types.ts';
+import {
+  OrderId,
+  Subscription,
+  SubscriptionStatus,
+} from '../models/subscription/types.ts';
 import { PurchaseBookAuthenticatedDTO } from '../routes-dtos/purchase-book-authenticated.ts';
 import { PurchaseBookGuestDTO } from '../routes-dtos/purchase-book-guest.ts';
 import { EmailService } from '../services/email/email-service-interface.ts';
@@ -85,6 +89,8 @@ export class PurchaseBookController {
         JSON.stringify(readerSubscriptions)
       }`,
     );
+
+    let existingPendingSubscription: Subscription | null = null;
     for (const subscription of readerSubscriptions) {
       const book = await this.bookRepository.getBookById(subscription.bookId);
       logInfo(`subscription book: ${JSON.stringify(book)}`);
@@ -95,6 +101,13 @@ export class PurchaseBookController {
         throw new HTTPException(STATUS_CODE.BadRequest, {
           message: `reader already has access to the book: ${bookURI}`,
         });
+      }
+
+      if (
+        book!.uri === bookURI &&
+        subscription.status === SubscriptionStatus.PENDING
+      ) {
+        existingPendingSubscription = subscription;
       }
     }
 
@@ -133,12 +146,13 @@ export class PurchaseBookController {
       throw new HTTPException(STATUS_CODE.InternalServerError);
     }
 
-    const subscription = await this.subscriptionRepository.createSubscription({
-      readerId: reader.id,
-      bookId: book.id,
-      status: SubscriptionStatus.PENDING,
-      orderId,
-    });
+    const subscription = await this.subscriptionRepository
+      .createSubscription({
+        readerId: reader.id,
+        bookId: book.id,
+        status: SubscriptionStatus.PENDING,
+        orderId,
+      }, existingPendingSubscription ?? undefined);
 
     logInfo(
       `pending subscription for reader ${reader.email} created: ${

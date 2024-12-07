@@ -12,7 +12,8 @@ export const SESSION_MAX_AGE_MILLISECONDS = SESSION_MAX_AGE_SECONDS * 1000; // 4
 export const SESSION_ACCESS_TOKEN_TTL = 15 * 60 * 1000; // 15 minutes (in milliseconds)
 export const CAPTCHA_VERIFICATION_URL =
   'https://www.google.com/recaptcha/api/siteverify';
-export const UNCONFIRMED_READER_TTL = 30; // in days
+export const UNCONFIRMED_READER_TTL = 27; // in days
+export const PEDNDING_SUBSCRIPTION_TTL = 27; // in days
 export const READER_FULL_NAME_MAX_LENGTH = 50;
 
 // payment
