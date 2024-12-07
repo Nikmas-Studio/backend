@@ -6,6 +6,6 @@ export function generatePaymentAuthenticatedReturnURL(
   sessionId: SessionId,
 ): URL {
   return new URL(
-    `${Deno.env.get('BACKEND_URL')}/payment-success?order=${orderId}&session=${sessionId}`,
+    `${Deno.env.get('FRONTEND_URL')}/api/payment-success?order=${orderId}&session=${sessionId}`,
   );
 }

@@ -6,6 +6,6 @@ export function generatePaymentGuestReturnURL(
   authTokenId: AuthTokenId,
 ): URL {
   return new URL(
-    `${Deno.env.get('BACKEND_URL')}/payment-success?order=${orderId}&authToken=${authTokenId}`,
+    `${Deno.env.get('FRONTEND_URL')}/api/payment-success?order=${orderId}&authToken=${authTokenId}`,
   );
 }
