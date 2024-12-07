@@ -5,6 +5,8 @@ export async function removeUnconfirmedReaders(
   readerRepository: ReaderRepository,
 ): Promise<void> {
   const allReaders = await readerRepository.getAllReaders();
+  
+  let numberOfRemovedReaders = 0;
   for (const reader of allReaders) {
     if (!reader.emailConfirmed) {
       const diffInMs = new Date().getTime() - reader.createdAt.getTime();
@@ -16,7 +18,14 @@ export async function removeUnconfirmedReaders(
             JSON.stringify(reader)
           }. Reader was created on ${reader.createdAt}: ${diffInDays} days ago.`,
         );
+        numberOfRemovedReaders += 1;
       }
     }
+  }
+  
+  if (numberOfRemovedReaders === 0) {
+    console.log('CRON: No unconfirmed readers found.');
+  } else {
+    console.log(`CRON: Removed ${numberOfRemovedReaders} unconfirmed readers.`);
   }
 }
