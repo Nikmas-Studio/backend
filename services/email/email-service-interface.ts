@@ -1,8 +1,11 @@
-import { SendLinkDTO } from './types.ts';
+import { SendLinkDTO, SendOrderSuccessLetterDTO } from './types.ts';
 
 export interface EmailService {
   /**
    * @throws {SendLinkEmailError} if the email could not be sent
    */
   sendLink(sendLinkDTO: SendLinkDTO): Promise<void>;
+  sendOrderSuccessLetter(
+    sendOrderSuccessLetterDTO: SendOrderSuccessLetterDTO,
+  ): Promise<void>;
 }

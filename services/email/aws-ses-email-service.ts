@@ -1,13 +1,14 @@
 import { SendTemplatedEmailCommand, SESClient } from '@aws-sdk/client-ses';
 import {
   LOGIN_LINK_TEMPLATE_NAME,
+  ORDER_SUCCESS_TEMPLATE_NAME,
   PAYMENT_LINK_TEMPLATE_NAME,
   STUDIO_EMAIL,
 } from '../../constants.ts';
 import { SendLinkEmailError } from '../../errors.ts';
 import { getAWSSESClientConfig } from '../../utils/get-aws-ses-client-config.ts';
 import { EmailService } from './email-service-interface.ts';
-import { LinkType, SendLinkDTO } from './types.ts';
+import { LinkType, SendLinkDTO, SendOrderSuccessLetterDTO } from './types.ts';
 import { logError } from '../../utils/logger.ts';
 
 export class AWSSESEmailService implements EmailService {
@@ -53,6 +54,28 @@ export class AWSSESEmailService implements EmailService {
       console.log('send email response:', res);
     } catch (e) {
       logError(`Failed to send ${linkType} link email to ${readerEmail}: ${e}`);
+      throw new SendLinkEmailError(readerEmail, e as Error);
+    }
+  }
+
+  async sendOrderSuccessLetter({ readerEmail }: SendOrderSuccessLetterDTO): Promise<void> {
+    const sendEmailCommand = new SendTemplatedEmailCommand({
+      Source: STUDIO_EMAIL,
+      Destination: {
+        ToAddresses: [readerEmail],
+      },
+      Template: ORDER_SUCCESS_TEMPLATE_NAME,
+      TemplateData: JSON.stringify({
+        readerEmail,
+        year: new Date().getFullYear(),
+      }),
+    });
+
+    try {
+      const res = await this.client.send(sendEmailCommand);
+      console.log('send email response:', res);
+    } catch (e) {
+      logError(`Failed to send order success email to ${readerEmail}: ${e}`);
       throw new SendLinkEmailError(readerEmail, e as Error);
     }
   }

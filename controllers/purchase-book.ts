@@ -161,6 +161,7 @@ export class PurchaseBookController {
     );
 
     if (isPurchaseBookGuestInitiator(purchaseBookDTO)) {
+      logInfo(`sending payment link to ${reader.email}`);
       try {
         await this.emailService.sendLink({
           readerEmail: reader.email,
@@ -240,11 +241,19 @@ export class PurchaseBookController {
         subscription.readerId,
         IS_INVESTOR_AFTER_PURCHASE,
       );
+
       logInfo(
         `subscription ${subscription.id} to book ${
           book!.uri
         } for reader ${subscription.readerId} is activated`,
       );
+      
+      const reader = await this.readerRepository.getReaderById(subscription.readerId);
+      
+      logInfo(`sending order success letter to ${reader!.email}`);
+      this.emailService.sendOrderSuccessLetter({
+        readerEmail: reader!.email,
+      }).catch(() => {});
     }
 
     if (wfpOrderReference !== null) {

@@ -9,6 +9,10 @@ export interface SendLinkDTO {
   linkType: LinkType;
 }
 
+export interface SendOrderSuccessLetterDTO {
+  readerEmail: Email;
+}
+
 export enum LinkType {
   LOGIN = 'LOGIN',
   PAYMENT = 'PAYMENT',

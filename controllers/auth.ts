@@ -48,6 +48,7 @@ export class AuthController {
     const loginLink = generateLoginLink(authToken.id);
 
     try {
+      logInfo(`sending login link to ${readerEmail}`);
       await this.emailService.sendLink({
         readerEmail,
         link: loginLink,

@@ -1,5 +1,6 @@
 export const AUTH_TOKEN_TTL = 30 * 60 * 1000; // 30 minutes (in milliseconds)
 export const LOGIN_LINK_TEMPLATE_NAME = 'loginLink';
+export const ORDER_SUCCESS_TEMPLATE_NAME = 'orderSuccess';
 export const PAYMENT_LINK_TEMPLATE_NAME = 'paymentLink';
 export const STUDIO_EMAIL = '"Nikmas Studio" <team@nikmas.studio>';
 export const MAX_READER_SESSIONS = 3;
