@@ -28,5 +28,5 @@ export interface ReaderRepository {
   getReaderProfile(readerId: ReaderId): Promise<ReaderProfile | null>;
   updateReaderFullName(readerId: ReaderId, fullName: string): Promise<void>;
   setInvestorStatus(readerId: ReaderId, isInvestor: boolean): Promise<void>;
-  setFullAccessStatus(readerId: ReaderId, hasFullAccess: boolean): Promise<void>;
+  setFullAccessStatus(readerEmail: ReaderId, hasFullAccess: boolean): Promise<void>;
 }

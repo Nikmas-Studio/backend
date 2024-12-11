@@ -32,7 +32,7 @@ export class BooksController {
 
     if (readerStatuses.hasFullAccess) {
       return c.json({
-        accessGranted: false,
+        accessGranted: true,
       }, STATUS_CODE.OK);
     }
 

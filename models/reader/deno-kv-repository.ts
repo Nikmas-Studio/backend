@@ -213,18 +213,27 @@ export class ReaderDenoKvRepository implements ReaderRepository {
     await this.createOrUpdateReaderProfile(readerId, { fullName });
   }
 
-  async setInvestorStatus(readerId: ReaderId, isInvestor: boolean): Promise<void> {
+  async setInvestorStatus(
+    readerId: ReaderId,
+    isInvestor: boolean,
+  ): Promise<void> {
     const investorKey = ['investors', readerId];
 
     await this.kv.set(investorKey, isInvestor);
   }
 
   async setFullAccessStatus(
-    readerId: ReaderId,
+    readerEmail: Email,
     hasFullAccess: boolean,
   ): Promise<void> {
-    const fullAccessReaderKey = ['full_access_readers', readerId];
+    const reader = await this.getReaderByEmail(readerEmail);
 
-    await this.kv.set(fullAccessReaderKey, hasFullAccess);
+    if (reader !== null) {
+      const fullAccessReaderKey = ['full_access_readers', reader.id];
+
+      await this.kv.set(fullAccessReaderKey, hasFullAccess);
+    } else {
+      logError(`setFullAccessStatus: reader not found: ${readerEmail}`);
+    }
   }
 }
