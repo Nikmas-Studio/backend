@@ -35,6 +35,8 @@ export class WayforpayPaymentService implements PaymentService {
       returnUrl: returnURL.toString(),
       serviceUrl: serviceURL.toString(),
     };
+    
+    console.log(params);
 
     const message = [
       params.merchantAccount,

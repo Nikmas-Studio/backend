@@ -100,7 +100,7 @@ const input = {
 
         <ul style="margin-top:0">
           <li><a href="https://t.me/nikmas_studio">Telegram</a></li>
-          <li><a href="https://www.instagram.com/nikmas.studio/">Instagram</a></li>
+          <li><a href="https://www.instagram.com/nikmas.studio">Instagram</a></li>
           <li><a href="https://www.facebook.com/nikmas.studio">Facebook</a></li>
           <li><a href="https://www.linkedin.com/company/nikmas-studio">LinkedIn</a></li>
         </ul>
