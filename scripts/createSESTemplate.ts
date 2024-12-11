@@ -80,7 +80,7 @@ const input = {
           </li>
 
           <li>
-            You're enrolled in&nbsp;the&nbsp;second part <a href="https://www.instagram.com/nikmas.studio">of&nbsp;the&nbsp;contest in&nbsp;honor
+            You're enrolled in&nbsp;the&nbsp;second part <a href="https://www.instagram.com/p/DDcPSorInxH/?igsh=NXRnMXh5cXg4ZWR5">of&nbsp;the&nbsp;contest in&nbsp;honor
             of&nbsp;the&nbsp;company launch</a>, with&nbsp;a&nbsp;chance to&nbsp;win one of&nbsp;ten free lifetime access
             passes to&nbsp;all studio books that&nbsp;will&nbsp;ever be&nbsp;published. To&nbsp;maximize your
             chances of&nbsp;winning, join the&nbsp;first part of&nbsp;the&nbsp;contest as&nbsp;well.
