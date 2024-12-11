@@ -11,8 +11,6 @@ export async function verifyCaptcha(token: string): Promise<void> {
   let tokenInvalidReasons;
 
   try {
-    console.log('siteKey', siteKey);
-    console.log('apiKey', apiKey);
     const response = await fetch(
       `https://recaptchaenterprise.googleapis.com/v1/projects/${projectID}/assessments?key=${apiKey}`,
       {
