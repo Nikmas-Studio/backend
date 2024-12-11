@@ -49,11 +49,15 @@ export class WayforpayPaymentService implements PaymentService {
       params['productCount[]'],
       params['productPrice[]'],
     ].join(';');
+    
+    console.log(message);
 
     const signature = generateHMACMD5(
       message,
       Deno.env.get('MERCHANT_SECRET_KEY')!,
     );
+    
+    console.log(signature);
 
     const formData = new URLSearchParams({
       ...params,
