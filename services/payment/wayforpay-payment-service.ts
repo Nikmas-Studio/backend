@@ -51,6 +51,8 @@ export class WayforpayPaymentService implements PaymentService {
     ].join(';');
     
     console.log(message);
+    
+    console.log(Deno.env.get('MERCHANT_SECRET_KEY'));
 
     const signature = generateHMACMD5(
       message,
