@@ -194,6 +194,39 @@ export class PurchaseBookController {
 
     logInfo(`payment success body: ${JSON.stringify(body)}`);
     const wfpOrderReference = body?.orderReference ?? null;
+    const transactionStatus = body?.transactionStatus ?? null;
+
+    if (transactionStatus !== null) {
+      if (transactionStatus !== 'Approved') {
+        const responseToWayforpay = {
+          orderReference: wfpOrderReference,
+          status: 'accept',
+          time: Math.floor(Date.now() / 1000),
+        };
+
+        const signature = generateHMACMD5(
+          [
+            responseToWayforpay.orderReference,
+            responseToWayforpay.status,
+            responseToWayforpay.time,
+          ].join(';'),
+          Deno.env.get('MERCHANT_SECRET_KEY')!,
+        );
+        
+        logInfo(`payment status: ${transactionStatus}`);
+
+        logInfo(
+          `payment isn't completed (${transactionStatus}) response for Wayforpay: ${
+            JSON.stringify(responseToWayforpay)
+          }`,
+        );
+
+        return c.json({
+          ...responseToWayforpay,
+          signature,
+        }, STATUS_CODE.OK);
+      }
+    }
 
     const authTokenId = c.req.query('authToken') ?? null;
     logInfo(`auth token id from query: ${authTokenId}`);
@@ -247,9 +280,11 @@ export class PurchaseBookController {
           book!.uri
         } for reader ${subscription.readerId} is activated`,
       );
-      
-      const reader = await this.readerRepository.getReaderById(subscription.readerId);
-      
+
+      const reader = await this.readerRepository.getReaderById(
+        subscription.readerId,
+      );
+
       logInfo(`sending order success letter to ${reader!.email}`);
       this.emailService.sendOrderSuccessLetter({
         readerEmail: reader!.email,
