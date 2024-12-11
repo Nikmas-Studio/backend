@@ -65,6 +65,8 @@ export class WayforpayPaymentService implements PaymentService {
       ...params,
       merchantSignature: signature,
     });
+    
+    console.log(formData);
 
     let res;
     try {
@@ -84,6 +86,9 @@ export class WayforpayPaymentService implements PaymentService {
       );
     }
 
+    console.log(res.body);
+    console.log(res.status);
+    console.log(res.headers);
     const paymentLink = res.headers.get('Location');
 
     if (!paymentLink) {
