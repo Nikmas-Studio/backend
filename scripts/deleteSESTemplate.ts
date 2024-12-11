@@ -6,8 +6,13 @@ import { getAWSSESClientConfig } from '../utils/get-aws-ses-client-config.ts';
 
 const client = new SESClient(getAWSSESClientConfig());
 
+const template = 'paymentLink';
 const deleteTemplateCommand = new DeleteTemplateCommand({
-  TemplateName: 'paymentLink',
+  TemplateName: template,
 });
 const createTemplateResponse = await client.send(deleteTemplateCommand);
-console.log('delete template response:', createTemplateResponse);
+console.log(
+  `delete template ${template} response: ${
+    JSON.stringify(createTemplateResponse)
+  }`,
+);

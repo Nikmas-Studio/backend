@@ -5,7 +5,22 @@ export type ReaderId = Branded<UUID, 'ReaderId'>;
 export interface Reader {
   id: ReaderId;
   email: Email;
+  emailConfirmed: boolean;
   createdAt: Date;
+}
+
+export interface ReaderProfile {
+  fullName: string | null;
+  createdAt: Date;
+}
+
+export interface CreateOrUpdateReaderProfileDTO {
+  fullName: string | null;
+}
+
+export interface ReaderStatuses {
+  isInvestor: boolean;
+  hasFullAccess: boolean;
 }
 
 export interface Investor {

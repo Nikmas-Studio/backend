@@ -10,6 +10,7 @@ import {
 export interface SubscriptionRepository {
   createSubscription(
     createSubscriptionDTO: CreateSubscriptionDTO,
+    existingPendingSubscription?: Subscription,
   ): Promise<Subscription>;
   getSubscriptionById(
     subscriptionId: SubscriptionId,
@@ -26,4 +27,6 @@ export interface SubscriptionRepository {
   getSubscriptionHistoriesBySubscriptionId(
     subscriptionId: SubscriptionId,
   ): Promise<SubscriptionHistory[]>;
+  getAllSubscriptions(): Promise<Subscription[]>;
+  removeSubscription(subscription: Subscription): Promise<void>;
 }

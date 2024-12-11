@@ -1,26 +1,30 @@
 import { zValidator } from '@hono/zod-validator';
-import { STATUS_CODE } from '@std/http/status';
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { requestId } from 'hono/request-id';
 import { asyncLocalStorage } from './context.ts';
 import { AuthController } from './controllers/auth.ts';
+import { BooksController } from './controllers/books.ts';
+import { LogErrorController } from './controllers/log-error.ts';
 import { PurchaseBookController } from './controllers/purchase-book.ts';
+import { ReadersController } from './controllers/readers.ts';
+import { removeUnconfirmedReaders } from './cron/remove-unconfirmed-readers.ts';
 import { AuthDenoKvRepository } from './models/auth/deno-kv-repository.ts';
 import { BookDenoKvRepository } from './models/book/deno-kv-repository.ts';
 import { ReaderDenoKvRepository } from './models/reader/deno-kv-repository.ts';
 import { SubscriptionDenoKvRepository } from './models/subscription/deno-kv-repository.ts';
+import { LogErrorDTOSchema } from './routes-dtos/log-error.ts';
 import { LoginDTOSchema } from './routes-dtos/login.ts';
-import { PaymentSuccessAuthenticatedDTOSchema } from './routes-dtos/payment-success-authenticated.ts';
-import { PaymentSuccessGuestDTOSchema } from './routes-dtos/payment-success-guest.ts';
-import { PaymentSuccessWayforpayDTOSchema } from './routes-dtos/payment-success-wayforpay.ts';
 import { PurchaseBookAuthenticatedDTOSchema } from './routes-dtos/purchase-book-authenticated.ts';
 import { PurchaseBookGuestDTOSchema } from './routes-dtos/purchase-book-guest.ts';
+import { UpdateReaderFullNameDTOSchema } from './routes-dtos/update-reader-full-name.ts';
 import {
   ValidateAuthTokenDTOSchema,
 } from './routes-dtos/validate-auth-token.ts';
 import { AWSSESEmailService } from './services/email/aws-ses-email-service.ts';
 import { WayforpayPaymentService } from './services/payment/wayforpay-payment-service.ts';
+import { logDebug } from './utils/logger.ts';
+import { removeExpiredPendingSubscriptions } from './cron/remove-expired-pending-subscriptions.ts';
 
 const app = new Hono();
 
@@ -49,26 +53,26 @@ const purchaseBookController = new PurchaseBookController(
   emailService,
 );
 
-app.use('*', async (c, next) => {
-  const req = new Request(c.req.raw);
-  req.headers.set('origin', c.req.header('origin')! || c.req.header('host')!);
-  c.req.raw = req;
-  const origin = c.req.header('origin')!;
+const booksController = new BooksController(
+  authRepository,
+  subscriptionRepository,
+  bookRepository,
+  readerRepository,
+);
 
-  if (origin.includes('localhost') || origin.includes('127.0.0.1') || origin.includes('api.nikmas.studio')) {
-    return c.text('Access Forbidden', STATUS_CODE.Forbidden);
-  }
+const readersController = new ReadersController(
+  readerRepository,
+  authRepository,
+);
 
-  await next();
-});
+const logErrorController = new LogErrorController();
 
 app.use(
   '*',
   cors({
     origin: [
-      'https://nikmas.studio',
       'https://secure.wayforpay.com',
-      'https://wayforpay.com/',
+      'https://wayforpay.com',
     ],
   }),
 );
@@ -112,7 +116,7 @@ app.post('/login', zValidator('json', LoginDTOSchema), (c) => {
 });
 
 app.post(
-  '/validate-auth-token',
+  '/auth-token/validate',
   zValidator('json', ValidateAuthTokenDTOSchema),
   (c) => {
     return authController.validateAuthToken(c, c.req.valid('json'));
@@ -123,6 +127,7 @@ app.post(
   '/purchase-book-guest',
   zValidator('json', PurchaseBookGuestDTOSchema),
   (c) => {
+    logDebug('purchase book guest start');
     return purchaseBookController.purchaseBook(c, c.req.valid('json'));
   },
 );
@@ -136,31 +141,53 @@ app.post(
 );
 
 app.post(
-  '/purchase-success-guest',
-  zValidator('json', PaymentSuccessGuestDTOSchema),
+  '/payment-success',
   (c) => {
-    return purchaseBookController.paymentSuccess(c, c.req.valid('json'));
+    return purchaseBookController.paymentSuccess(c);
   },
 );
 
 app.post(
-  '/purchase-success-authenticated',
-  zValidator('json', PaymentSuccessAuthenticatedDTOSchema),
+  '/payment-success-wayforpay',
   (c) => {
-    return purchaseBookController.paymentSuccess(c, c.req.valid('json'));
+    return purchaseBookController.paymentSuccess(c);
   },
 );
 
-app.post(
-  '/purchase-success-wayforpay',
-  zValidator('json', PaymentSuccessWayforpayDTOSchema),
+app.get('/books/:uri/access', (c) => {
+  return booksController.checkAccessToBook(c);
+});
+
+app.get('/session', (c) => {
+  return authController.getSession(c);
+});
+
+app.patch(
+  '/readers/full-name',
+  zValidator('json', UpdateReaderFullNameDTOSchema),
   (c) => {
-    return purchaseBookController.paymentSuccess(c, c.req.valid('json'));
+    return readersController.updateReaderFullName(c, c.req.valid('json'));
   },
 );
 
 app.post('/logout', (c) => {
   return authController.logout(c);
 });
+
+app.post('/log-error', zValidator('json', LogErrorDTOSchema), (c) => {
+  return logErrorController.logError(c, c.req.valid('json'));
+});
+
+Deno.cron(
+  'remove unconfirmed readers',
+  '0 0 1 * *', // Run on the first of the month at midnight
+  () => removeUnconfirmedReaders(readerRepository),
+);
+
+Deno.cron(
+  'remove expired pending subscriptions',
+  '0 0 1 * *', // Run on the first of the month at midnight
+  () => removeExpiredPendingSubscriptions(subscriptionRepository),
+);
 
 Deno.serve(app.fetch);

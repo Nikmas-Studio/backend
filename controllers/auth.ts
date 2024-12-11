@@ -3,7 +3,7 @@ import { Context, TypedResponse } from 'hono';
 import { deleteCookie } from 'hono/cookie';
 import { HTTPException } from 'hono/http-exception';
 import {
-  IS_INVESTOR_BY_DEFAULT,
+  SESSION_ACCESS_TOKEN_COOKIE_NAME,
   SESSION_ID_COOKIE_NAME,
 } from '../constants.ts';
 import { AuthRepository } from '../models/auth/repository-interface.ts';
@@ -17,6 +17,8 @@ import { generateLoginLink } from '../utils/generate-login-link.ts';
 import { getAndValidateSession } from '../utils/get-and-validate-session.ts';
 import { logInfo } from '../utils/logger.ts';
 import { validateAuthTokenAndCreateSession } from '../utils/validate-auth-token-and-create-session.ts';
+import { verifyCaptcha } from '../utils/verify-captcha.ts';
+import { verifyHoneypot } from '../utils/verify-honeypot.ts';
 
 export class AuthController {
   constructor(
@@ -26,18 +28,27 @@ export class AuthController {
   ) {}
 
   async login(c: Context, payload: LoginDTO): Promise<TypedResponse> {
+    const { valid: honeypotIsValid } = verifyHoneypot(payload.readerName);
+    if (!honeypotIsValid) {
+      return c.json({
+        message: 'Login link sent successfully!',
+      }, STATUS_CODE.OK);
+    }
+    await verifyCaptcha(payload.captchaToken);
+
     const readerEmail = payload.email;
     logInfo(`login request for ${readerEmail}`);
 
     const reader = await this.readerRepository.getOrCreateReader({
       email: readerEmail,
-      isInvestor: IS_INVESTOR_BY_DEFAULT,
+      isInvestor: false,
       hasFullAccess: false,
     });
     const authToken = await this.authRepository.createAuthToken(reader.id);
     const loginLink = generateLoginLink(authToken.id);
 
     try {
+      logInfo(`sending login link to ${readerEmail}`);
       await this.emailService.sendLink({
         readerEmail,
         link: loginLink,
@@ -61,11 +72,13 @@ export class AuthController {
     const authTokenId = payload.authToken as AuthTokenId;
     logInfo(`validate auth token request for ${authTokenId}`);
 
-    await validateAuthTokenAndCreateSession(
+    const session = await validateAuthTokenAndCreateSession(
       c,
       authTokenId,
       this.authRepository,
     );
+
+    this.readerRepository.confirmReaderEmail(session.readerId);
 
     return c.json({
       message: 'auth token validated successfully',
@@ -76,7 +89,28 @@ export class AuthController {
     const session = await getAndValidateSession(c, this.authRepository);
     this.authRepository.removeSession(session.id, session.readerId);
     deleteCookie(c, SESSION_ID_COOKIE_NAME);
+    deleteCookie(c, SESSION_ACCESS_TOKEN_COOKIE_NAME);
 
     return c.json(STATUS_CODE.OK);
+  }
+
+  async getSession(c: Context): Promise<TypedResponse> {
+    const session = await getAndValidateSession(c, this.authRepository);
+    const reader = await this.readerRepository.getReaderById(session.readerId);
+    const readerStatuses = await this.readerRepository.getReaderStatuses(
+      session.readerId,
+    );
+    const readerProfile = await this.readerRepository.getReaderProfile(
+      session.readerId,
+    );
+    const readerFullName = readerProfile?.fullName ?? null;
+
+    return c.json({
+      readerId: reader!.id,
+      readerEmail: reader!.email,
+      readerFullName,
+      isInvestor: readerStatuses!.isInvestor,
+      hasFullAccess: readerStatuses!.hasFullAccess,
+    }, STATUS_CODE.OK);
   }
 }

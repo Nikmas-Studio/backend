@@ -1,11 +1,16 @@
 import { STATUS_CODE } from '@std/http/status';
+import { Context } from 'hono';
+import { setCookie } from 'hono/cookie';
 import { HTTPException } from 'hono/http-exception';
-import { MAX_READER_SESSIONS, SESSION_ID_COOKIE_NAME } from '../constants.ts';
+import {
+  MAX_READER_SESSIONS,
+  SESSION_ACCESS_TOKEN_COOKIE_NAME,
+  SESSION_ID_COOKIE_NAME,
+  SESSION_MAX_AGE_SECONDS,
+} from '../constants.ts';
 import { AuthRepository } from '../models/auth/repository-interface.ts';
 import { AuthTokenId, Session } from '../models/auth/types.ts';
 import { logError, logInfo } from './logger.ts';
-import { setCookie } from 'hono/cookie';
-import { Context } from 'hono';
 
 export async function validateAuthTokenAndCreateSession(
   c: Context,
@@ -16,11 +21,6 @@ export async function validateAuthTokenAndCreateSession(
 
   if (authToken === null) {
     logError(`auth token ${authTokenId} not found`);
-    throw new HTTPException(STATUS_CODE.Unauthorized);
-  }
-
-  if (new Date() > authToken.expiresAt) {
-    logError(`auth token ${authTokenId} has expired`);
     throw new HTTPException(STATUS_CODE.Unauthorized);
   }
 
@@ -50,7 +50,15 @@ export async function validateAuthTokenAndCreateSession(
     sameSite: 'Lax',
     secure: true,
     path: '/',
-    maxAge: 34560000,
+    maxAge: SESSION_MAX_AGE_SECONDS,
+  });
+
+  setCookie(c, SESSION_ACCESS_TOKEN_COOKIE_NAME, newSession.accessToken, {
+    httpOnly: true,
+    sameSite: 'Lax',
+    secure: true,
+    path: '/',
+    maxAge: SESSION_MAX_AGE_SECONDS,
   });
 
   logInfo(

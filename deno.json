@@ -8,22 +8,25 @@
     "entrypoint": "main.ts"
   },
   "tasks": {
-    "dev": "deno run --allow-net --allow-env --env-file --unstable-kv --watch main.ts",
-    "check_kv": "deno run --unstable-kv scripts/checkKv.ts",
-    "clean_kv": "deno run --unstable-kv scripts/cleanKv.ts",
-    "create_book": "deno run --unstable-kv scripts/createBook.ts",
+    "dev": "deno run --allow-net --allow-env --env-file --unstable-kv --unstable-cron --watch main.ts",
+    "check_kv_local": "deno run --unstable-kv scripts/checkKvLocal.ts",
+    "clean_kv_local": "deno run --unstable-kv scripts/cleanKvLocal.ts",
+    "clean_kv_staging": "deno run --unstable-kv --allow-env --env-file --allow-net scripts/cleanKvStaging.ts",
+    "create_book_local": "deno run --unstable-kv scripts/createBookLocal.ts",
+    "create_book_staging": "deno run --unstable-kv --allow-env --env-file --allow-net scripts/createBookStaging.ts",
+    "create_book_production": "deno run --unstable-kv --allow-env --env-file --allow-net scripts/createBookProduction.ts",
+    "give_full_access_local": "deno run --unstable-kv scripts/giveFullAccessLocal.ts",
+    "give_full_access_staging": "deno run --unstable-kv --allow-env --env-file --allow-net scripts/giveFullAccessStaging.ts",
+    "give_full_access_production": "deno run --unstable-kv --allow-env --env-file --allow-net scripts/giveFullAccessProduction.ts",
     "create_ses_template": "deno run --allow-env --env-file --allow-net scripts/createSESTemplate.ts",
     "delete_ses_template": "deno run --allow-env --env-file --allow-net scripts/deleteSESTemplate.ts"
   },
   "imports": {
-    "@hono-rate-limiter/redis": "npm:@hono-rate-limiter/redis@^0.1.4",
     "@hono/zod-validator": "npm:@hono/zod-validator@^0.4.1",
     "@std/http": "jsr:@std/http@^1.0.9",
-    "@vercel/kv": "npm:@vercel/kv@^3.0.0",
     "hono": "npm:hono@^4.6.9",
     "@aws-sdk/client-ses": "https://esm.sh/@aws-sdk/client-ses@3.687.0",
     "@std/uuid": "jsr:@std/uuid",
-    "hono-rate-limiter": "npm:hono-rate-limiter@^0.4.0",
     "zod": "npm:zod@^3.23.8"
   },
   "fmt": {
@@ -34,5 +37,6 @@
       "tags": ["recommended"],
       "include": ["explicit-function-return-type"]
     }
-  }
+  },
+  "nodeModulesDir": "auto"
 }
