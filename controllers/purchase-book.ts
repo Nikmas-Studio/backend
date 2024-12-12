@@ -98,6 +98,7 @@ export class PurchaseBookController {
         book!.uri === bookURI &&
         subscription.status === SubscriptionStatus.ACTIVE
       ) {
+        logError(`reader ${reader.id} already has access to the book: ${bookURI}`);
         throw new HTTPException(STATUS_CODE.BadRequest, {
           message: `reader already has access to the book: ${bookURI}`,
         });
