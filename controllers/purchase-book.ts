@@ -353,7 +353,7 @@ export class PurchaseBookController {
         signature,
       }, STATUS_CODE.OK);
     } else {
-      return c.redirect(generateBookReadUrl(book!.uri));
+      return c.redirect(generateBookReadUrl(book!.uri, orderId));
     }
   }
 }

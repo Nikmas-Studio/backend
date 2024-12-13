@@ -1,6 +1,7 @@
 import { ReaderId } from '../reader/types.ts';
 import {
   CreateSubscriptionDTO,
+  OrderId,
   Subscription,
   SubscriptionHistory,
   SubscriptionHistoryId,
@@ -15,7 +16,7 @@ export interface SubscriptionRepository {
   getSubscriptionById(
     subscriptionId: SubscriptionId,
   ): Promise<Subscription | null>;
-  getSubscriptionByOrderId(orderId: string): Promise<Subscription | null>;
+  getSubscriptionByOrderId(orderId: OrderId): Promise<Subscription | null>;
   getSubscriptionsByReaderId(readerId: ReaderId): Promise<Subscription[]>;
   activateSubscription(subscription: Subscription): Promise<void>;
   createSubscriptionHistory(

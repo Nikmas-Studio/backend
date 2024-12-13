@@ -6,14 +6,16 @@ import { asyncLocalStorage } from './context.ts';
 import { AuthController } from './controllers/auth.ts';
 import { BooksController } from './controllers/books.ts';
 import { LogErrorController } from './controllers/log-error.ts';
+import { OrdersController } from './controllers/orders.ts';
 import { PurchaseBookController } from './controllers/purchase-book.ts';
 import { ReadersController } from './controllers/readers.ts';
+import { removeExpiredPendingSubscriptions } from './cron/remove-expired-pending-subscriptions.ts';
 import { removeUnconfirmedReaders } from './cron/remove-unconfirmed-readers.ts';
 import { AuthDenoKvRepository } from './models/auth/deno-kv-repository.ts';
 import { BookDenoKvRepository } from './models/book/deno-kv-repository.ts';
 import { ReaderDenoKvRepository } from './models/reader/deno-kv-repository.ts';
 import { SubscriptionDenoKvRepository } from './models/subscription/deno-kv-repository.ts';
-import { LogErrorDTOSchema } from './routes-dtos/log-error.ts';
+import { LogDTOSchema } from './routes-dtos/log-error.ts';
 import { LoginDTOSchema } from './routes-dtos/login.ts';
 import { PurchaseBookAuthenticatedDTOSchema } from './routes-dtos/purchase-book-authenticated.ts';
 import { PurchaseBookGuestDTOSchema } from './routes-dtos/purchase-book-guest.ts';
@@ -21,10 +23,10 @@ import { UpdateReaderFullNameDTOSchema } from './routes-dtos/update-reader-full-
 import {
   ValidateAuthTokenDTOSchema,
 } from './routes-dtos/validate-auth-token.ts';
+import { VerifyOrderIdDTOSchema } from './routes-dtos/verify-order-id.ts';
 import { AWSSESEmailService } from './services/email/aws-ses-email-service.ts';
 import { WayforpayPaymentService } from './services/payment/wayforpay-payment-service.ts';
 import { logDebug } from './utils/logger.ts';
-import { removeExpiredPendingSubscriptions } from './cron/remove-expired-pending-subscriptions.ts';
 
 const app = new Hono();
 
@@ -65,7 +67,9 @@ const readersController = new ReadersController(
   authRepository,
 );
 
-const logErrorController = new LogErrorController();
+const ordersController = new OrdersController(subscriptionRepository);
+
+const logController = new LogErrorController();
 
 app.use(
   '*',
@@ -158,6 +162,10 @@ app.get('/books/:uri/access', (c) => {
   return booksController.checkAccessToBook(c);
 });
 
+app.post('/orders/verify', zValidator('json', VerifyOrderIdDTOSchema), (c) => {
+  return ordersController.verifyOrder(c, c.req.valid('json'));
+});
+
 app.get('/session', (c) => {
   return authController.getSession(c);
 });
@@ -174,8 +182,12 @@ app.post('/logout', (c) => {
   return authController.logout(c);
 });
 
-app.post('/log-error', zValidator('json', LogErrorDTOSchema), (c) => {
-  return logErrorController.logError(c, c.req.valid('json'));
+app.post('/log-error', zValidator('json', LogDTOSchema), (c) => {
+  return logController.logError(c, c.req.valid('json'));
+});
+
+app.post('/log-info', zValidator('json', LogDTOSchema), (c) => {
+  return logController.logInfo(c, c.req.valid('json'));
 });
 
 Deno.cron(
