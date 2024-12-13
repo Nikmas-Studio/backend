@@ -4,6 +4,7 @@ import { ReaderId } from '../reader/types.ts';
 import { SubscriptionRepository } from './repository-interface.ts';
 import {
   CreateSubscriptionDTO,
+  OrderId,
   Subscription,
   SubscriptionHistory,
   SubscriptionHistoryId,
@@ -61,7 +62,7 @@ export class SubscriptionDenoKvRepository implements SubscriptionRepository {
   }
 
   async getSubscriptionByOrderId(
-    orderId: string,
+    orderId: OrderId,
   ): Promise<Subscription | null> {
     const subscriptionId = await this.kv.get<SubscriptionId>([
       'subscriptions_by_order_id',
