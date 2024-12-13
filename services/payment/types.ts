@@ -1,4 +1,4 @@
-import { Email } from '../../global-types.ts';
+import { Email } from '../../types/global-types.ts';
 import { Book } from '../../models/book/types.ts';
 import { OrderId } from '../../models/subscription/types.ts';
 import { PaymentSuccessAuthenticatedDTO } from '../../routes-dtos/payment-success-authenticated.ts';

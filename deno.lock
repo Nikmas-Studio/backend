@@ -170,6 +170,7 @@
   },
   "workspace": {
     "dependencies": [
+      "jsr:@std/encoding@^1.0.5",
       "jsr:@std/http@^1.0.9",
       "jsr:@std/uuid@*",
       "npm:@hono/zod-validator@~0.4.1",

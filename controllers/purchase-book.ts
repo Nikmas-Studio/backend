@@ -1,7 +1,10 @@
 import { STATUS_CODE } from '@std/http/status';
 import { Context, TypedResponse } from 'hono';
 import { HTTPException } from 'hono/http-exception';
-import { IS_INVESTOR_AFTER_PURCHASE } from '../constants.ts';
+import {
+  IS_INVESTOR_AFTER_PURCHASE,
+  MASTER_GIT_AND_GITHUB_BOOK_PROMO_PAGE_URL,
+} from '../constants.ts';
 import { AuthRepository } from '../models/auth/repository-interface.ts';
 import { AuthToken, AuthTokenId } from '../models/auth/types.ts';
 import { BookRepository } from '../models/book/repository-interface.ts';
@@ -29,6 +32,9 @@ import { logError, logInfo } from '../utils/logger.ts';
 import { validateAuthTokenAndCreateSession } from '../utils/validate-auth-token-and-create-session.ts';
 import { verifyCaptcha } from '../utils/verify-captcha.ts';
 import { verifyHoneypot } from '../utils/verify-honeypot.ts';
+import { notifyFbConversionsApi } from '../utils/notify-fb-conversions-api.ts';
+import { ActionSource, EventName } from '../types/fb-conversions-api.ts';
+import { Env } from '../types/global-types.ts';
 
 export class PurchaseBookController {
   constructor(
@@ -98,7 +104,9 @@ export class PurchaseBookController {
         book!.uri === bookURI &&
         subscription.status === SubscriptionStatus.ACTIVE
       ) {
-        logError(`reader ${reader.id} already has access to the book: ${bookURI}`);
+        logError(
+          `reader ${reader.id} already has access to the book: ${bookURI}`,
+        );
         throw new HTTPException(STATUS_CODE.BadRequest, {
           message: `reader already has access to the book: ${bookURI}`,
         });
@@ -213,7 +221,7 @@ export class PurchaseBookController {
           ].join(';'),
           Deno.env.get('MERCHANT_SECRET_KEY')!,
         );
-        
+
         logInfo(`payment status: ${transactionStatus}`);
 
         logInfo(
@@ -268,6 +276,10 @@ export class PurchaseBookController {
 
     const book = await this.bookRepository.getBookById(subscription.bookId);
 
+    const reader = await this.readerRepository.getReaderById(
+      subscription.readerId,
+    );
+
     if (subscription.status === SubscriptionStatus.PENDING) {
       this.subscriptionRepository.activateSubscription(subscription);
       this.subscriptionRepository.createSubscriptionHistory(subscription.id);
@@ -282,10 +294,6 @@ export class PurchaseBookController {
         } for reader ${subscription.readerId} is activated`,
       );
 
-      const reader = await this.readerRepository.getReaderById(
-        subscription.readerId,
-      );
-
       logInfo(`sending order success letter to ${reader!.email}`);
       this.emailService.sendOrderSuccessLetter({
         readerEmail: reader!.email,
@@ -293,6 +301,32 @@ export class PurchaseBookController {
     }
 
     if (wfpOrderReference !== null) {
+      if (Deno.env.get('ENV') === Env.PRODUCTION) {
+        const payload = {
+          eventName: EventName.PURCHASE,
+          actionSource: ActionSource.WEBSITE,
+          eventId: orderId,
+          eventSourceUrl: new URL(MASTER_GIT_AND_GITHUB_BOOK_PROMO_PAGE_URL),
+          readerEmail: reader!.email,
+          readerPhone: body.phone,
+          readerIpAddress: c.req.header('cf-connecting-ip')!,
+          readerUserAgent: c.req.header('user-agent')!,
+          bookPrice: book!.mainPrice,
+        };
+
+        notifyFbConversionsApi(payload).then(() => {
+          logInfo(
+            `successfully notified fb conversions api: ${
+              JSON.stringify(payload)
+            }`,
+          );
+        }).catch((error) => {
+          logError(
+            `error occured on fb conversions api notification: ${error}; payload: ${payload}`,
+          );
+        });
+      }
+
       const responseToWayforpay = {
         orderReference: orderId,
         status: 'accept',

@@ -1,4 +1,4 @@
-import { Email } from './global-types.ts';
+import { Email } from './types/global-types.ts';
 import { SessionId } from './models/auth/types.ts';
 import { BookURI } from './models/book/types.ts';
 import { ReaderId } from './models/reader/types.ts';

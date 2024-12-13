@@ -16,6 +16,7 @@ export const CAPTCHA_VERIFICATION_URL =
 export const UNCONFIRMED_READER_TTL = 27; // in days
 export const PEDNDING_SUBSCRIPTION_TTL = 27; // in days
 export const READER_FULL_NAME_MAX_LENGTH = 50;
+export const MASTER_GIT_AND_GITHUB_BOOK_PROMO_PAGE_URL = 'https://nikmas.studio/book-master-git-and-github'
 
 // payment
 export const MERCHANT_ACCOUNT = 'MERCHANT_ACCOUNT';
