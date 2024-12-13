@@ -17,7 +17,7 @@ export class OrdersController {
     const subscription = await this.subscriptionRepository
       .getSubscriptionByOrderId(orderId as OrderId);
       
-    logInfo(`Found subscription: ${subscription}`);
+    logInfo(`Found subscription: ${JSON.stringify(subscription)}`);
       
     if (subscription === null) {
       return c.json({
