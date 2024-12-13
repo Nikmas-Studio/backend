@@ -3,7 +3,6 @@ import { SubscriptionRepository } from '../models/subscription/repository-interf
 import { VerifyOrderIdDTO } from '../routes-dtos/verify-order-id.ts';
 import { OrderId } from '../models/subscription/types.ts';
 import { STATUS_CODE } from '@std/http';
-import { logInfo } from '../utils/logger.ts';
 
 export class OrdersController {
   constructor(
@@ -16,9 +15,7 @@ export class OrdersController {
   ): Promise<TypedResponse> {
     const subscription = await this.subscriptionRepository
       .getSubscriptionByOrderId(orderId as OrderId);
-      
-    logInfo(`Found subscription: ${JSON.stringify(subscription)}`);
-      
+
     if (subscription === null) {
       return c.json({
         isValid: false,
