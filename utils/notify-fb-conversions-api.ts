@@ -1,3 +1,4 @@
+import { encodeHex } from '@std/encoding/hex';
 import { CURRENCY } from '../constants.ts';
 import { BookMainPrice } from '../models/book/types.ts';
 import {
@@ -8,7 +9,6 @@ import {
   EventName,
 } from '../types/fb-conversions-api.ts';
 import { Email, Phone } from '../types/global-types.ts';
-import { encodeHex } from '@std/encoding/hex';
 
 export interface ConversionsApiNotificationPayload {
   eventName: EventName;
@@ -75,16 +75,18 @@ export async function notifyFbConversionsApi({
         },
       },
     ],
-    "test_event_code": "TEST61779"
   };
-  
+
   const accessToken = Deno.env.get('CONVERSIONS_API_ACCESS_TOKEN');
 
-  await fetch(`https://graph.facebook.com/v21.0/3555681048062939/events?access_token=${accessToken}`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
+  await fetch(
+    `https://graph.facebook.com/v21.0/3555681048062939/events?access_token=${accessToken}`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
     },
-    body: JSON.stringify(payload),
-  });
+  );
 }
