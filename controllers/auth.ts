@@ -35,6 +35,8 @@ export class AuthController {
       }, STATUS_CODE.OK);
     }
     await verifyCaptcha(payload.captchaToken);
+    
+    logInfo(`client ip address: ${c.req.header('cf-connecting-ip')}`);
 
     const readerEmail = payload.email;
     logInfo(`login request for ${readerEmail}`);
