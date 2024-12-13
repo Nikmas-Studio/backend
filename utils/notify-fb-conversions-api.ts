@@ -75,6 +75,7 @@ export async function notifyFbConversionsApi({
         },
       },
     ],
+    "test_event_code": "TEST61779"
   };
   
   const accessToken = Deno.env.get('CONVERSIONS_API_ACCESS_TOKEN');
