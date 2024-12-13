@@ -37,6 +37,7 @@ export class AuthController {
     await verifyCaptcha(payload.captchaToken);
     
     logInfo(`user agent: ${c.req.header("user-agent")}`);
+    logInfo(`env: ${Deno.env.get('ENV')}`);
 
     const readerEmail = payload.email;
     logInfo(`login request for ${readerEmail}`);
