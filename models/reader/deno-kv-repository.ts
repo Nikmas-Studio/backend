@@ -3,7 +3,7 @@ import {
   ReaderNotFoundError,
   RemoveReaderError,
 } from '../../errors.ts';
-import { Email } from '../../global-types.ts';
+import { Email } from '../../types/global-types.ts';
 import { generateUUID } from '../../utils/generate-uuid.ts';
 import { logDebug, logError, logInfo } from '../../utils/logger.ts';
 import { ReaderRepository } from './repository-interface.ts';

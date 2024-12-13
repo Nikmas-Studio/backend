@@ -1,5 +1,6 @@
 export type UUID = string;
 export type Email = string;
+export type Phone = string;
 
 declare const __brand: unique symbol;
 type Brand<B> = { [__brand]: B };

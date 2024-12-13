@@ -1,4 +1,4 @@
-import { Email } from '../../global-types.ts';
+import { Email } from '../../types/global-types.ts';
 import {
   CreateOrUpdateReaderProfileDTO,
   CreateReaderDTO,

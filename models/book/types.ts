@@ -1,4 +1,4 @@
-import { Branded, UUID } from '../../global-types.ts';
+import { Branded, UUID } from '../../types/global-types.ts';
 
 export type BookId = Branded<UUID, 'BookId'>;
 export type BookTitle = string;

@@ -1,4 +1,4 @@
-import { Branded, UUID } from '../../global-types.ts';
+import { Branded, UUID } from '../../types/global-types.ts';
 import { BookId } from '../book/types.ts';
 import { ReaderId } from '../reader/types.ts';
 
