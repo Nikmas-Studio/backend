@@ -6,7 +6,6 @@ import {
   MASTER_GIT_AND_GITHUB_BOOK_PROMO_PAGE_URL,
 } from '../constants.ts';
 import { AuthRepository } from '../models/auth/repository-interface.ts';
-import { AuthToken, AuthTokenId } from '../models/auth/types.ts';
 import { BookRepository } from '../models/book/repository-interface.ts';
 import { ReaderRepository } from '../models/reader/repository-interface.ts';
 import { SubscriptionRepository } from '../models/subscription/repository-interface.ts';
@@ -21,20 +20,16 @@ import { EmailService } from '../services/email/email-service-interface.ts';
 import { LinkType } from '../services/email/types.ts';
 import { PaymentService } from '../services/payment/payment-service-interface.ts';
 import { isPurchaseBookGuestInitiator } from '../services/payment/types.ts';
-import { generateBookReadUrl } from '../utils/generate-book-read-url.ts';
+import { ActionSource, EventName } from '../types/fb-conversions-api.ts';
+import { Env } from '../types/global-types.ts';
 import { generateHMACMD5 } from '../utils/generate-hmac-md5.ts';
-import { generatePaymentAuthenticatedReturnURL } from '../utils/generate-payment-authenticated-return-url.ts';
-import { generatePaymentGuestReturnURL } from '../utils/generate-payment-guest-return-url.ts';
 import { generateUUID } from '../utils/generate-uuid.ts';
 import { generateWfpServiceUrl } from '../utils/generate-wfp-service-url.ts';
 import { getAndValidateSession } from '../utils/get-and-validate-session.ts';
 import { logError, logInfo } from '../utils/logger.ts';
-import { validateAuthTokenAndCreateSession } from '../utils/validate-auth-token-and-create-session.ts';
+import { notifyFbConversionsApi } from '../utils/notify-fb-conversions-api.ts';
 import { verifyCaptcha } from '../utils/verify-captcha.ts';
 import { verifyHoneypot } from '../utils/verify-honeypot.ts';
-import { notifyFbConversionsApi } from '../utils/notify-fb-conversions-api.ts';
-import { ActionSource, EventName } from '../types/fb-conversions-api.ts';
-import { Env } from '../types/global-types.ts';
 
 export class PurchaseBookController {
   constructor(
@@ -120,11 +115,6 @@ export class PurchaseBookController {
       }
     }
 
-    let authToken: AuthToken | null = null;
-    if (isPurchaseBookGuestInitiator(purchaseBookDTO)) {
-      authToken = await this.authRepository.createAuthToken(reader.id);
-    }
-
     const orderId = generateUUID() as OrderId;
 
     const book = await this.bookRepository.getBookByURI(bookURI);
@@ -136,10 +126,6 @@ export class PurchaseBookController {
       });
     }
 
-    const returnURL = isPurchaseBookGuestInitiator(purchaseBookDTO)
-      ? generatePaymentGuestReturnURL(orderId, authToken!.id)
-      : generatePaymentAuthenticatedReturnURL(orderId, session!.id);
-
     const serviceURL = new URL(generateWfpServiceUrl());
 
     let paymentLink: URL;
@@ -148,7 +134,6 @@ export class PurchaseBookController {
         readerEmail: reader.email,
         orderId,
         book,
-        returnURL,
         serviceURL,
       });
     } catch (_) {
@@ -205,65 +190,42 @@ export class PurchaseBookController {
     const wfpOrderReference = body?.orderReference ?? null;
     const transactionStatus = body?.transactionStatus ?? null;
 
-    if (transactionStatus !== null) {
-      if (transactionStatus !== 'Approved') {
-        const responseToWayforpay = {
-          orderReference: wfpOrderReference,
-          status: 'accept',
-          time: Math.floor(Date.now() / 1000),
-        };
-
-        const signature = generateHMACMD5(
-          [
-            responseToWayforpay.orderReference,
-            responseToWayforpay.status,
-            responseToWayforpay.time,
-          ].join(';'),
-          Deno.env.get('MERCHANT_SECRET_KEY')!,
-        );
-
-        logInfo(`payment status: ${transactionStatus}`);
-
-        logInfo(
-          `payment isn't completed (${transactionStatus}) response for Wayforpay: ${
-            JSON.stringify(responseToWayforpay)
-          }`,
-        );
-
-        return c.json({
-          ...responseToWayforpay,
-          signature,
-        }, STATUS_CODE.OK);
-      }
+    if (transactionStatus === null || wfpOrderReference === null) {
+      logError('transaction status or order referense is null');
+      throw new HTTPException(STATUS_CODE.BadRequest);
     }
 
-    const authTokenId = c.req.query('authToken') ?? null;
-    logInfo(`auth token id from query: ${authTokenId}`);
+    if (transactionStatus !== 'Approved') {
+      const responseToWayforpay = {
+        orderReference: wfpOrderReference,
+        status: 'accept',
+        time: Math.floor(Date.now() / 1000),
+      };
 
-    if (authTokenId !== null) {
-      await validateAuthTokenAndCreateSession(
-        c,
-        authTokenId as AuthTokenId,
-        this.authRepository,
+      const signature = generateHMACMD5(
+        [
+          responseToWayforpay.orderReference,
+          responseToWayforpay.status,
+          responseToWayforpay.time,
+        ].join(';'),
+        Deno.env.get('MERCHANT_SECRET_KEY')!,
       );
+
+      logInfo(`payment status: ${transactionStatus}`);
+
+      logInfo(
+        `payment isn't completed (${transactionStatus}) response for Wayforpay: ${
+          JSON.stringify(responseToWayforpay)
+        }`,
+      );
+
+      return c.json({
+        ...responseToWayforpay,
+        signature,
+      }, STATUS_CODE.OK);
     }
 
-    if (authTokenId === null && wfpOrderReference === null) {
-      const sessionId = c.req.query('session');
-      await getAndValidateSession(c, this.authRepository, {
-        sessionId,
-      });
-    }
-
-    let orderId: OrderId;
-
-    if (wfpOrderReference !== null) {
-      orderId = wfpOrderReference as OrderId;
-      logInfo(`wayforpay order reference: ${orderId}`);
-    } else {
-      orderId = c.req.query('order') as OrderId;
-      logInfo(`order id from query: ${orderId}`);
-    }
+    const orderId = wfpOrderReference as OrderId;
 
     const subscription = await this.subscriptionRepository
       .getSubscriptionByOrderId(orderId);
@@ -300,60 +262,56 @@ export class PurchaseBookController {
       }).catch(() => {});
     }
 
-    if (wfpOrderReference !== null) {
-      if (Deno.env.get('ENV') === Env.PRODUCTION) {
-        const payload = {
-          eventName: EventName.PURCHASE,
-          actionSource: ActionSource.WEBSITE,
-          eventId: orderId,
-          eventSourceUrl: new URL(MASTER_GIT_AND_GITHUB_BOOK_PROMO_PAGE_URL),
-          readerEmail: reader!.email,
-          readerPhone: body.phone,
-          readerIpAddress: c.req.header('cf-connecting-ip')!,
-          readerUserAgent: c.req.header('user-agent')!,
-          bookPrice: book!.mainPrice,
-        };
-
-        notifyFbConversionsApi(payload).then(() => {
-          logInfo(
-            `successfully notified fb conversions api: ${
-              JSON.stringify(payload)
-            }`,
-          );
-        }).catch((error) => {
-          logError(
-            `error occured on fb conversions api notification: ${error}; payload: ${payload}`,
-          );
-        });
-      }
-
-      const responseToWayforpay = {
-        orderReference: orderId,
-        status: 'accept',
-        time: Math.floor(Date.now() / 1000),
+    if (Deno.env.get('ENV') === Env.PRODUCTION) {
+      const payload = {
+        eventName: EventName.PURCHASE,
+        actionSource: ActionSource.WEBSITE,
+        eventId: orderId,
+        eventSourceUrl: new URL(MASTER_GIT_AND_GITHUB_BOOK_PROMO_PAGE_URL),
+        readerEmail: reader!.email,
+        readerPhone: body.phone,
+        readerIpAddress: c.req.header('cf-connecting-ip')!,
+        readerUserAgent: c.req.header('user-agent')!,
+        bookPrice: book!.mainPrice,
       };
 
-      const signature = generateHMACMD5(
-        [
-          responseToWayforpay.orderReference,
-          responseToWayforpay.status,
-          responseToWayforpay.time,
-        ].join(';'),
-        Deno.env.get('MERCHANT_SECRET_KEY')!,
-      );
-
-      logInfo(
-        `payment success response for Wayforpay: ${
-          JSON.stringify(responseToWayforpay)
-        }`,
-      );
-
-      return c.json({
-        ...responseToWayforpay,
-        signature,
-      }, STATUS_CODE.OK);
-    } else {
-      return c.redirect(generateBookReadUrl(book!.uri, orderId));
+      notifyFbConversionsApi(payload).then(() => {
+        logInfo(
+          `successfully notified fb conversions api: ${
+            JSON.stringify(payload)
+          }`,
+        );
+      }).catch((error) => {
+        logError(
+          `error occured on fb conversions api notification: ${error}; payload: ${payload}`,
+        );
+      });
     }
+
+    const responseToWayforpay = {
+      orderReference: orderId,
+      status: 'accept',
+      time: Math.floor(Date.now() / 1000),
+    };
+
+    const signature = generateHMACMD5(
+      [
+        responseToWayforpay.orderReference,
+        responseToWayforpay.status,
+        responseToWayforpay.time,
+      ].join(';'),
+      Deno.env.get('MERCHANT_SECRET_KEY')!,
+    );
+
+    logInfo(
+      `payment success response for Wayforpay: ${
+        JSON.stringify(responseToWayforpay)
+      }`,
+    );
+
+    return c.json({
+      ...responseToWayforpay,
+      signature,
+    }, STATUS_CODE.OK);
   }
 }

@@ -80,13 +80,6 @@ const input = {
           </li>
 
           <li>
-            You're enrolled in&nbsp;the&nbsp;second part <a href="https://www.instagram.com/p/DDcPSorInxH/?igsh=NXRnMXh5cXg4ZWR5">of&nbsp;the&nbsp;contest in&nbsp;honor
-            of&nbsp;the&nbsp;company launch</a>, with&nbsp;a&nbsp;chance to&nbsp;win one of&nbsp;ten free lifetime access
-            passes to&nbsp;all studio books that&nbsp;will&nbsp;ever be&nbsp;published. To&nbsp;maximize your
-            chances of&nbsp;winning, join the&nbsp;first part of&nbsp;the&nbsp;contest as&nbsp;well.
-          </li>
-
-          <li>
             You helped speed&nbsp;up the&nbsp;release of&nbsp;new sections of&nbsp;the&nbsp;book,
             useful and&nbsp;convenient features for&nbsp;reading and&nbsp;better assimilation of&nbsp;the&nbsp;material,
             and&nbsp;also supported the&nbsp;development of&nbsp;other&nbsp;books.

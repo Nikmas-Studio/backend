@@ -14,7 +14,7 @@ import { GeneratePaymentLinkDto } from './types.ts';
 
 export class WayforpayPaymentService implements PaymentService {
   async generatePaymentLink(
-    { readerEmail, book, returnURL, serviceURL, orderId }:
+    { readerEmail, book, serviceURL, orderId }:
       GeneratePaymentLinkDto,
   ): Promise<URL> {
     const orderDate = String(Math.floor(Date.now() / 1000));
@@ -32,7 +32,6 @@ export class WayforpayPaymentService implements PaymentService {
       clientEmail: readerEmail,
       defaultPaymentSystem: DEFAULT_PAYMENT_SYSTEM,
       paymentSystems: PAYMENT_SYSTEMS,
-      returnUrl: returnURL.toString(),
       serviceUrl: serviceURL.toString(),
     };
     
