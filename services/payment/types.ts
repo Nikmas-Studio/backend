@@ -11,7 +11,6 @@ export interface GeneratePaymentLinkDto {
   readerEmail: Email;
   orderId: OrderId;
   book: Book;
-  returnURL: URL;
   serviceURL: URL;
 }
 
