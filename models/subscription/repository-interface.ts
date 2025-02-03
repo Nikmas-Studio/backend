@@ -30,4 +30,5 @@ export interface SubscriptionRepository {
   ): Promise<SubscriptionHistory[]>;
   getAllSubscriptions(): Promise<Subscription[]>;
   removeSubscription(subscription: Subscription): Promise<void>;
+  removeSubscriptionHistory(subscriptionHistory: SubscriptionHistory): Promise<void>;
 }
