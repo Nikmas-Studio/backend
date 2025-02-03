@@ -1,4 +1,8 @@
-import { RemoveSubscriptionError, SubscriptionExistsError } from '../../errors.ts';
+import {
+  RemoveSubscriptionError,
+  RemoveSubscriptionHistoryError,
+  SubscriptionExistsError,
+} from '../../errors.ts';
 import { generateUUID } from '../../utils/generate-uuid.ts';
 import { ReaderId } from '../reader/types.ts';
 import { SubscriptionRepository } from './repository-interface.ts';
@@ -157,13 +161,15 @@ export class SubscriptionDenoKvRepository implements SubscriptionRepository {
   }
 
   async getAllSubscriptions(): Promise<Subscription[]> {
-    const iter = await this.kv.list<Subscription>({ prefix: ['subscriptions'] });
+    const iter = await this.kv.list<Subscription>({
+      prefix: ['subscriptions'],
+    });
 
     const subscriptions: Subscription[] = [];
     for await (const { value } of iter) {
       subscriptions.push(value);
     }
-    
+
     return subscriptions;
   }
 
@@ -175,15 +181,35 @@ export class SubscriptionDenoKvRepository implements SubscriptionRepository {
       subscription.readerId,
       subscription.id,
     ];
-    
+
     const res = await this.kv.atomic()
       .delete(primaryKey)
       .delete(byOrderIdKey)
       .delete(byReaderKey)
       .commit();
-      
+
     if (!res.ok) {
       throw new RemoveSubscriptionError(subscription.id);
+    }
+  }
+
+  async removeSubscriptionHistory(
+    subscriptionHistory: SubscriptionHistory,
+  ): Promise<void> {
+    const primaryKey = ['subscription_histories', subscriptionHistory.id];
+    const bySubscriptionKey = [
+      'subscription_histories_by_subscription',
+      subscriptionHistory.subscriptionId,
+      subscriptionHistory.id,
+    ];
+
+    const res = await this.kv.atomic()
+      .delete(primaryKey)
+      .delete(bySubscriptionKey)
+      .commit();
+
+    if (!res.ok) {
+      throw new RemoveSubscriptionHistoryError(subscriptionHistory.id);
     }
   }
 }

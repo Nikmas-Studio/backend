@@ -80,9 +80,11 @@ const input = {
           </li>
 
           <li>
-            You helped speed&nbsp;up the&nbsp;release of&nbsp;new sections of&nbsp;the&nbsp;book,
-            useful and&nbsp;convenient features for&nbsp;reading and&nbsp;better assimilation of&nbsp;the&nbsp;material,
-            and&nbsp;also supported the&nbsp;development of&nbsp;other&nbsp;books.
+              You provided the&nbsp;essential initial boost, directly
+              accelerating the&nbsp;release of&nbsp;new book sections,
+              enhancing features for&nbsp;a&nbsp;more seamless
+              and&nbsp;immersive reading experience, and&nbsp;supporting
+              the&nbsp;creation of&nbsp;future books.
           </li>
         </ul>
 
