@@ -53,7 +53,8 @@ export async function getAndValidateSession(
           REUSE_DETECTION_THRESHOLD
       ) {
         logError(
-          `malicious activity detected: session access token mismatch for reader ${session.readerId}`,
+          `malicious activity detected: session access token mismatch for reader ${session.readerId};
+           session.access_token: ${session.accessToken}; session_access_token_cookie: ${sessionAccessToken}`,
         );
         await authRepository.removeSession(session.id, session.readerId);
         throw new HTTPException(STATUS_CODE.Unauthorized);
