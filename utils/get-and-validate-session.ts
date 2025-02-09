@@ -46,21 +46,22 @@ export async function getAndValidateSession(
     throw new HTTPException(STATUS_CODE.Unauthorized);
   }
 
-  if (bySessionId === undefined) {
-    if (session.accessToken !== sessionAccessToken) {
-      if (
-        (Date.now() - session.updatedAt.getTime()) >
-          REUSE_DETECTION_THRESHOLD
-      ) {
-        logError(
-          `malicious activity detected: session access token mismatch for reader ${session.readerId};
-           session.access_token: ${session.accessToken}; session_access_token_cookie: ${sessionAccessToken}`,
-        );
-        await authRepository.removeSession(session.id, session.readerId);
-        throw new HTTPException(STATUS_CODE.Unauthorized);
-      }
-    }
-  }
+  // TODO: Fix occasional improper triggering of malicious activity detection for auth tokens
+  // if (bySessionId === undefined) {
+  //   if (session.accessToken !== sessionAccessToken) {
+  //     if (
+  //       (Date.now() - session.updatedAt.getTime()) >
+  //         REUSE_DETECTION_THRESHOLD
+  //     ) {
+  //       logError(
+  //         `malicious activity detected: session access token mismatch for reader ${session.readerId};
+  //          session.access_token: ${session.accessToken}; session_access_token_cookie: ${sessionAccessToken}`,
+  //       );
+  //       await authRepository.removeSession(session.id, session.readerId);
+  //       throw new HTTPException(STATUS_CODE.Unauthorized);
+  //     }
+  //   }
+  // }
 
   if (bySessionId === undefined) {
     if ((Date.now() - session.updatedAt.getTime()) > SESSION_ACCESS_TOKEN_TTL) {
