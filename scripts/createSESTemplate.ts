@@ -66,17 +66,8 @@ const input = {
           </li>
 
           <li>
-            Enjoy your&nbsp;investor status:
-            <ul>
-              <li>
-                the&nbsp;20% lifetime discount on&nbsp;all studio books that&nbsp;will&nbsp;ever be&nbsp;published;
-              </li>
-
-              <li>
-                the&nbsp;investor badge, available in&nbsp;the&nbsp;profile window on&nbsp;the&nbsp;<a href="https://nikmas.studio">nikmas.studio</a>
-                website when you click the&nbsp;profile icon in&nbsp;the&nbsp;top-right corner.
-              </li>
-            </ul>
+            Enjoy your&nbsp;investor badge, available in&nbsp;the&nbsp;profile window on&nbsp;the&nbsp;<a href="https://nikmas.studio">nikmas.studio</a>
+            website when you click the&nbsp;profile icon in&nbsp;the&nbsp;top-right corner.
           </li>
 
           <li>
