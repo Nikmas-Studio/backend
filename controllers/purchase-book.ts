@@ -9,10 +9,7 @@ import { AuthRepository } from '../models/auth/repository-interface.ts';
 import { BookRepository } from '../models/book/repository-interface.ts';
 import { ReaderRepository } from '../models/reader/repository-interface.ts';
 import { SubscriptionRepository } from '../models/subscription/repository-interface.ts';
-import {
-  OrderId,
-  SubscriptionStatus,
-} from '../models/subscription/types.ts';
+import { OrderId, SubscriptionStatus } from '../models/subscription/types.ts';
 import { PurchaseBookAuthenticatedDTO } from '../routes-dtos/purchase-book-authenticated.ts';
 import { PurchaseBookGuestDTO } from '../routes-dtos/purchase-book-guest.ts';
 import { EmailService } from '../services/email/email-service-interface.ts';
@@ -251,32 +248,32 @@ export class PurchaseBookController {
       this.emailService.sendOrderSuccessLetter({
         readerEmail: reader!.email,
       }).catch(() => {});
-    }
 
-    if (Deno.env.get('ENV') === Env.PRODUCTION) {
-      const payload = {
-        eventName: EventName.PURCHASE,
-        actionSource: ActionSource.WEBSITE,
-        eventId: orderId,
-        eventSourceUrl: new URL(MASTER_GIT_AND_GITHUB_BOOK_PROMO_PAGE_URL),
-        readerEmail: reader!.email,
-        readerPhone: body.phone,
-        readerIpAddress: c.req.header('cf-connecting-ip')!,
-        readerUserAgent: c.req.header('user-agent')!,
-        bookPrice: book!.mainPrice,
-      };
+      if (Deno.env.get('ENV') === Env.PRODUCTION) {
+        const payload = {
+          eventName: EventName.PURCHASE,
+          actionSource: ActionSource.WEBSITE,
+          eventId: orderId,
+          eventSourceUrl: new URL(MASTER_GIT_AND_GITHUB_BOOK_PROMO_PAGE_URL),
+          readerEmail: reader!.email,
+          readerPhone: body.phone,
+          readerIpAddress: c.req.header('cf-connecting-ip')!,
+          readerUserAgent: c.req.header('user-agent')!,
+          bookPrice: book!.mainPrice,
+        };
 
-      notifyFbConversionsApi(payload).then(() => {
-        logInfo(
-          `successfully notified fb conversions api: ${
-            JSON.stringify(payload)
-          }`,
-        );
-      }).catch((error) => {
-        logError(
-          `error occured on fb conversions api notification: ${error}; payload: ${payload}`,
-        );
-      });
+        notifyFbConversionsApi(payload).then(() => {
+          logInfo(
+            `successfully notified fb conversions api: ${
+              JSON.stringify(payload)
+            }`,
+          );
+        }).catch((error) => {
+          logError(
+            `error occured on fb conversions api notification: ${error}; payload: ${payload}`,
+          );
+        });
+      }
     }
 
     const responseToWayforpay = {
