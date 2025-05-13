@@ -11,7 +11,6 @@ import { ReaderRepository } from '../models/reader/repository-interface.ts';
 import { SubscriptionRepository } from '../models/subscription/repository-interface.ts';
 import {
   OrderId,
-  Subscription,
   SubscriptionStatus,
 } from '../models/subscription/types.ts';
 import { PurchaseBookAuthenticatedDTO } from '../routes-dtos/purchase-book-authenticated.ts';
@@ -91,7 +90,6 @@ export class PurchaseBookController {
       }`,
     );
 
-    let existingPendingSubscription: Subscription | null = null;
     for (const subscription of readerSubscriptions) {
       const book = await this.bookRepository.getBookById(subscription.bookId);
       logInfo(`subscription book: ${JSON.stringify(book)}`);
@@ -105,13 +103,6 @@ export class PurchaseBookController {
         throw new HTTPException(STATUS_CODE.BadRequest, {
           message: `reader already has access to the book: ${bookURI}`,
         });
-      }
-
-      if (
-        book!.uri === bookURI &&
-        subscription.status === SubscriptionStatus.PENDING
-      ) {
-        existingPendingSubscription = subscription;
       }
     }
 
@@ -146,7 +137,7 @@ export class PurchaseBookController {
         bookId: book.id,
         status: SubscriptionStatus.PENDING,
         orderId,
-      }, existingPendingSubscription ?? undefined);
+      });
 
     logInfo(
       `pending subscription for reader ${reader.email} created: ${
