@@ -11,7 +11,6 @@ import {
 export interface SubscriptionRepository {
   createSubscription(
     createSubscriptionDTO: CreateSubscriptionDTO,
-    existingPendingSubscription?: Subscription,
   ): Promise<Subscription>;
   getSubscriptionById(
     subscriptionId: SubscriptionId,

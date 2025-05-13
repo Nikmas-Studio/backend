@@ -3,7 +3,6 @@ import { Context } from 'hono';
 import { getCookie, setCookie } from 'hono/cookie';
 import { HTTPException } from 'hono/http-exception';
 import {
-  REUSE_DETECTION_THRESHOLD,
   SESSION_ACCESS_TOKEN_COOKIE_NAME,
   SESSION_ACCESS_TOKEN_TTL,
   SESSION_ID_COOKIE_NAME,
@@ -12,7 +11,7 @@ import {
 import { AuthRepository } from '../models/auth/repository-interface.ts';
 import { Session, SessionId } from '../models/auth/types.ts';
 import { generateUUID } from './generate-uuid.ts';
-import { logError, logInfo } from './logger.ts';
+import { logInfo } from './logger.ts';
 
 export async function getAndValidateSession(
   c: Context,
