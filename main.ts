@@ -9,6 +9,7 @@ import { LogErrorController } from './controllers/log-error.ts';
 import { OrdersController } from './controllers/orders.ts';
 import { PurchaseBookController } from './controllers/purchase-book.ts';
 import { ReadersController } from './controllers/readers.ts';
+import { TranslationController } from './controllers/translation.ts';
 import { removeExpiredPendingSubscriptions } from './cron/remove-expired-pending-subscriptions.ts';
 import { removeUnconfirmedReaders } from './cron/remove-unconfirmed-readers.ts';
 import { AuthDenoKvRepository } from './models/auth/deno-kv-repository.ts';
@@ -19,6 +20,7 @@ import { LogDTOSchema } from './routes-dtos/log-error.ts';
 import { LoginDTOSchema } from './routes-dtos/login.ts';
 import { PurchaseBookAuthenticatedDTOSchema } from './routes-dtos/purchase-book-authenticated.ts';
 import { PurchaseBookGuestDTOSchema } from './routes-dtos/purchase-book-guest.ts';
+import { TranslateDTOSchema } from './routes-dtos/translate.ts';
 import { UpdateReaderFullNameDTOSchema } from './routes-dtos/update-reader-full-name.ts';
 import {
   ValidateAuthTokenDTOSchema,
@@ -26,7 +28,9 @@ import {
 import { VerifyOrderIdDTOSchema } from './routes-dtos/verify-order-id.ts';
 import { AWSSESEmailService } from './services/email/aws-ses-email-service.ts';
 import { WayforpayPaymentService } from './services/payment/wayforpay-payment-service.ts';
+import { OpenaiDeeplTranslationService } from './services/translation/openai-deepl-translation-service.ts';
 import { logDebug } from './utils/logger.ts';
+import { TranslationDenoKvRepository } from './models/translation/deno-kv-repository.ts';
 
 const app = new Hono();
 
@@ -36,9 +40,11 @@ const readerRepository = new ReaderDenoKvRepository(denoKv);
 const authRepository = new AuthDenoKvRepository(denoKv);
 const bookRepository = new BookDenoKvRepository(denoKv);
 const subscriptionRepository = new SubscriptionDenoKvRepository(denoKv);
+const translationRepository = new TranslationDenoKvRepository(denoKv);
 
 const emailService = new AWSSESEmailService();
 const paymentService = new WayforpayPaymentService();
+const translationService = new OpenaiDeeplTranslationService();
 
 const authController = new AuthController(
   authRepository,
@@ -65,6 +71,11 @@ const booksController = new BooksController(
 const readersController = new ReadersController(
   readerRepository,
   authRepository,
+);
+
+const translationController = new TranslationController(
+  translationService,
+  translationRepository,
 );
 
 const ordersController = new OrdersController(subscriptionRepository);
@@ -188,6 +199,10 @@ app.post('/log-error', zValidator('json', LogDTOSchema), (c) => {
 
 app.post('/log-info', zValidator('json', LogDTOSchema), (c) => {
   return logController.logInfo(c, c.req.valid('json'));
+});
+
+app.post('/translate', zValidator('json', TranslateDTOSchema), (c) => {
+  return translationController.translate(c, c.req.valid('json'));
 });
 
 Deno.cron(

@@ -77,3 +77,12 @@ export class RemoveSubscriptionHistoryError extends Error {
     this.name = 'RemoveSubscriptionHistoryError';
   }
 }
+
+export class TranslationError extends Error {
+  constructor(message: string, originalError?: Error) {
+    super(message, {
+      cause: originalError,
+    });
+    this.name = 'TranslationError';
+  }
+}

@@ -16,7 +16,8 @@ export const CAPTCHA_VERIFICATION_URL =
 export const UNCONFIRMED_READER_TTL = 27; // in days
 export const PEDNDING_SUBSCRIPTION_TTL = 27; // in days
 export const READER_FULL_NAME_MAX_LENGTH = 50;
-export const MASTER_GIT_AND_GITHUB_BOOK_PROMO_PAGE_URL = 'https://nikmas.studio/book-master-git-and-github'
+export const MASTER_GIT_AND_GITHUB_BOOK_PROMO_PAGE_URL =
+  'https://nikmas.studio/book-master-git-and-github';
 
 // payment
 export const MERCHANT_ACCOUNT = 'MERCHANT_ACCOUNT';
@@ -30,3 +31,42 @@ export const WAYFORPAY_GENERATE_PAYMENT_LINK_URL =
   'https://secure.wayforpay.com/pay';
 export const WAYFORPAY_SERVICE_URL =
   'https://api.nikmas.studio/payment-success-wayforpay';
+export const MAX_TRANSLATION_FRAGMENT_LENGTH = 500;
+
+// translation
+export const LANGUAGE_MAPPINGS: Record<string, string> = {
+  'French': 'FR',
+  'Spanish': 'ES',
+  'Portuguese (Portugal)': 'PT-PT',
+  'Portuguese (Brazil)': 'PT-BR',
+  'Italian': 'IT',
+  'German': 'DE',
+  'Dutch': 'NL',
+  'Danish': 'DA',
+  'Finnish': 'FI',
+  'Norwegian (Bokmål)': 'NB',
+  'Swedish': 'SV',
+  'Ukrainian': 'UK',
+  'Russian': 'RU',
+  'Estonian': 'ET',
+  'Latvian': 'LV',
+  'Lithuanian': 'LT',
+  'Slovenian': 'SL',
+  'Polish': 'PL',
+  'Czech': 'CS',
+  'Slovak': 'SK',
+  'Hungarian': 'HU',
+  'Romanian': 'RO',
+  'Bulgarian': 'BG',
+  'Greek': 'EL',
+  'Turkish': 'TR',
+  'Arabic': 'AR',
+  'Hebrew': 'HE',
+  'Japanese': 'JA',
+  'Korean': 'KO',
+  'Chinese (Simplified)': 'ZH-HANS',
+  'Chinese (Traditional)': 'ZH-HANT',
+  'Thai': 'TH',
+  'Indonesian': 'ID',
+  'Vietnamese': 'VI',
+};
