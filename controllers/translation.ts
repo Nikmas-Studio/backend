@@ -18,6 +18,7 @@ export class TranslationController {
       targetLanguage,
       context,
       fragment,
+      story,
     }: TranslateDTO,
   ): Promise<TypedResponse> {
     let translationObj = await this.translationRepository
@@ -26,6 +27,7 @@ export class TranslationController {
         targetLanguage,
         fragment,
         context,
+        story,
       });
 
     if (translationObj === null) {
@@ -41,13 +43,13 @@ export class TranslationController {
           targetLanguage,
           context,
           fragment,
+          story,
           translation: newTranslation,
         });
+        
       } catch (_) {
         throw new HTTPException(STATUS_CODE.InternalServerError);
       }
-    } else {
-      console.log('Cache hit for translation:', translationObj);
     }
 
     return c.json({

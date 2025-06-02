@@ -11,7 +11,7 @@ export class TranslationDenoKvRepository implements TranslationRepository {
   constructor(private kv: Deno.Kv) {}
 
   async addTranslation(
-    { bookURI, targetLanguage, fragment, context, translation }:
+    { bookURI, targetLanguage, fragment, context, story, translation }:
       AddTranslationDTO,
   ): Promise<Translation> {
     const newTranslationObj: Translation = {
@@ -20,6 +20,7 @@ export class TranslationDenoKvRepository implements TranslationRepository {
       targetLanguage,
       fragment,
       context,
+      story,
       translation,
       lastQualityCheckAt: null,
       numberOfQualityChecks: 0,
@@ -33,6 +34,7 @@ export class TranslationDenoKvRepository implements TranslationRepository {
       targetLanguage,
       fragment,
       context,
+      story,
     ];
 
     const res = await this.kv.atomic()
@@ -40,13 +42,14 @@ export class TranslationDenoKvRepository implements TranslationRepository {
       .set(primaryKey, newTranslationObj)
       .set(byDetailsKey, newTranslationObj.id)
       .commit();
-
+      
     if (!res.ok) {
       const existingTranslationObj = await this.getTranslationByDetails({
         bookURI,
         targetLanguage,
         context,
         fragment,
+        story,
       });
       return existingTranslationObj!;
     }
@@ -55,7 +58,7 @@ export class TranslationDenoKvRepository implements TranslationRepository {
   }
 
   async getTranslationByDetails(
-    { bookURI, targetLanguage, context, fragment }: GetTranslationDTO,
+    { bookURI, targetLanguage, context, fragment, story }: GetTranslationDTO,
   ): Promise<Translation | null> {
     const translationId = await this.kv.get<TranslationId>([
       'translations_by_details',
@@ -63,6 +66,7 @@ export class TranslationDenoKvRepository implements TranslationRepository {
       targetLanguage,
       fragment,
       context,
+      story,
     ]);
 
     if (translationId.value === null) {
