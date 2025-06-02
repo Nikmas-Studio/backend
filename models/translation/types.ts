@@ -1,3 +1,4 @@
+import { Branded, UUID } from '../../types/global-types.ts';
 import { BookURI } from '../book/types.ts';
 
 export interface AddTranslationDTO {
@@ -15,12 +16,15 @@ export interface GetTranslationDTO {
   fragment: string;
 }
 
+export type TranslationId = Branded<UUID, 'TranslationId'>;
+
 export interface Translation {
+  id: TranslationId;
   bookURI: BookURI;
   targetLanguage: string;
   context: string;
   fragment: string;
   translation: string;
-  lastCheckedAt: Date;
+  lastQualityCheckAt: Date | null;
   numberOfQualityChecks: number;
 }

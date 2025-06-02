@@ -20,12 +20,13 @@ export class TranslationController {
       fragment,
     }: TranslateDTO,
   ): Promise<TypedResponse> {
-    let translationObj = await this.translationRepository.getTranslation({
-      bookURI,
-      targetLanguage,
-      fragment,
-      context,
-    });
+    let translationObj = await this.translationRepository
+      .getTranslationByDetails({
+        bookURI,
+        targetLanguage,
+        fragment,
+        context,
+      });
 
     if (translationObj === null) {
       try {

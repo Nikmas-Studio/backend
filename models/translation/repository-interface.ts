@@ -1,6 +1,9 @@
-import { AddTranslationDTO, GetTranslationDTO, Translation } from './types.ts';
+import { AddTranslationDTO, GetTranslationDTO, Translation, TranslationId } from './types.ts';
 
 export interface TranslationRepository {
   addTranslation(addTranslationDTO: AddTranslationDTO): Promise<Translation>;
-  getTranslation(getTranslationDTO: GetTranslationDTO): Promise<Translation | null>; 
+  getTranslationByDetails(
+    getTranslationDTO: GetTranslationDTO,
+  ): Promise<Translation | null>;
+  getTranslationById(translationId: TranslationId): Promise<Translation | null>;
 }
