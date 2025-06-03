@@ -6,7 +6,7 @@ export interface AddTranslationDTO {
   targetLanguage: string;
   context: string;
   fragment: string;
-  story: string;
+  bookPart: string;
   translation: string;
 }
 
@@ -15,7 +15,7 @@ export interface GetTranslationDTO {
   targetLanguage: string;
   context: string;
   fragment: string;
-  story: string;
+  bookPart: string;
 }
 
 export type TranslationId = Branded<UUID, 'TranslationId'>;
@@ -26,7 +26,7 @@ export interface Translation {
   targetLanguage: string;
   context: string;
   fragment: string;
-  story: string;
+  bookPart: string;
   translation: string;
   lastQualityCheckAt: Date | null;
   numberOfQualityChecks: number;

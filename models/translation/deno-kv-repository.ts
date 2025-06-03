@@ -11,7 +11,7 @@ export class TranslationDenoKvRepository implements TranslationRepository {
   constructor(private kv: Deno.Kv) {}
 
   async addTranslation(
-    { bookURI, targetLanguage, fragment, context, story, translation }:
+    { bookURI, targetLanguage, fragment, context, bookPart, translation }:
       AddTranslationDTO,
   ): Promise<Translation> {
     const newTranslationObj: Translation = {
@@ -20,7 +20,7 @@ export class TranslationDenoKvRepository implements TranslationRepository {
       targetLanguage,
       fragment,
       context,
-      story,
+      bookPart,
       translation,
       lastQualityCheckAt: null,
       numberOfQualityChecks: 0,
@@ -34,7 +34,7 @@ export class TranslationDenoKvRepository implements TranslationRepository {
       targetLanguage,
       fragment,
       context,
-      story,
+      bookPart,
     ];
 
     const res = await this.kv.atomic()
@@ -42,14 +42,14 @@ export class TranslationDenoKvRepository implements TranslationRepository {
       .set(primaryKey, newTranslationObj)
       .set(byDetailsKey, newTranslationObj.id)
       .commit();
-      
+
     if (!res.ok) {
       const existingTranslationObj = await this.getTranslationByDetails({
         bookURI,
         targetLanguage,
         context,
         fragment,
-        story,
+        bookPart,
       });
       return existingTranslationObj!;
     }
@@ -58,7 +58,7 @@ export class TranslationDenoKvRepository implements TranslationRepository {
   }
 
   async getTranslationByDetails(
-    { bookURI, targetLanguage, context, fragment, story }: GetTranslationDTO,
+    { bookURI, targetLanguage, context, fragment, bookPart }: GetTranslationDTO,
   ): Promise<Translation | null> {
     const translationId = await this.kv.get<TranslationId>([
       'translations_by_details',
@@ -66,7 +66,7 @@ export class TranslationDenoKvRepository implements TranslationRepository {
       targetLanguage,
       fragment,
       context,
-      story,
+      bookPart,
     ]);
 
     if (translationId.value === null) {

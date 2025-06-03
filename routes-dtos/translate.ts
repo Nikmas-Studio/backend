@@ -6,7 +6,7 @@ export const TranslateDTOSchema = z.object({
   targetLanguage: z.string(),
   context: z.string().trim(),
   fragment: z.string().trim().max(MAX_TRANSLATION_FRAGMENT_LENGTH),
-  story: z.string(),
+  bookPart: z.string(),
 });
 
 export type TranslateDTO = z.infer<typeof TranslateDTOSchema>;
