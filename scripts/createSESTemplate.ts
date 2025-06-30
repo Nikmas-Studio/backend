@@ -62,7 +62,7 @@ const input = {
 
           <li>
             <a href="https://nikmas.studio/book-master-git-and-github">Read the&nbsp;book</a> as&nbsp;we gradually publish new sections. 
-            Now, instead of the "Try demo" button, you'll find the "Read" button, which takes you to the latest full version of the book.
+            We’ll notify you by email and on our social media as soon as the first sections of the book are available.
           </li>
 
           <li>
@@ -80,14 +80,13 @@ const input = {
         </ul>
 
         <p style="margin-bottom:0">
-          To&nbsp;stay updated on&nbsp;everything happening around The&nbsp;Studio and&nbsp;find&nbsp;out
-          when new sections of&nbsp;the&nbsp;book are&nbsp;released, follow us on&nbsp;social&nbsp;media:
+          To&nbsp;stay updated on&nbsp;everything happening around The&nbsp;Studio, follow us on&nbsp;social&nbsp;media:
         </p>
 
         <ul style="margin-top:0">
           <li><a href="https://t.me/nikmas_studio">Telegram</a></li>
-          <li><a href="https://www.instagram.com/nikmas.studio">Instagram</a></li>
-          <li><a href="https://www.facebook.com/nikmas.studio">Facebook</a></li>
+          <li><a href="https://www.instagram.com/nikmas_studio">Instagram</a></li>
+          <li><a href="https://www.facebook.com/nikmastudio">Facebook</a></li>
           <li><a href="https://www.linkedin.com/company/nikmas-studio">LinkedIn</a></li>
         </ul>
 
