@@ -30,4 +30,5 @@ export interface SubscriptionRepository {
   getAllSubscriptions(): Promise<Subscription[]>;
   removeSubscription(subscription: Subscription): Promise<void>;
   removeSubscriptionHistory(subscriptionHistory: SubscriptionHistory): Promise<void>;
+  markSubscriptionOrderAsMetaPixelNotified(orderId: OrderId): Promise<{ wasAlreadyNotified: boolean }>;
 }

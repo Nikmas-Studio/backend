@@ -302,4 +302,39 @@ export class PurchaseBookController {
       signature,
     }, STATUS_CODE.OK);
   }
+
+  async notifyMetaPixelOfPurchase(c: Context): Promise<TypedResponse> {
+    const bookURI = c.req.param('bookUri');
+    const session = await getAndValidateSession(c, this.authRepository);
+
+    const readerSubscriptions = await this.subscriptionRepository
+      .getSubscriptionsByReaderId(session.readerId);
+
+    let subscriptionDetails = null;
+    for (const subscription of readerSubscriptions) {
+      const book = await this.bookRepository.getBookById(subscription.bookId);
+      if (book !== null) {
+        if (
+          book.uri === bookURI
+        ) {
+          subscriptionDetails = subscription
+        }
+      }
+    }
+    
+    if (subscriptionDetails === null) {
+      logError(`subscription not found for book: ${bookURI}`);
+      throw new HTTPException(STATUS_CODE.BadRequest, {
+        message: `subscription not found for book: ${bookURI}`,
+      });
+    }
+    
+    
+    const { wasAlreadyNotified } = await this.subscriptionRepository.markSubscriptionOrderAsMetaPixelNotified(subscriptionDetails.orderId);
+
+    return c.json({
+      orderId: subscriptionDetails.orderId,
+      wasAlreadyNotified
+    }, STATUS_CODE.OK);
+  }
 }

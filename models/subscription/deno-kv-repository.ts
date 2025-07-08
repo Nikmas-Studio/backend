@@ -212,4 +212,20 @@ export class SubscriptionDenoKvRepository implements SubscriptionRepository {
       throw new RemoveSubscriptionHistoryError(subscriptionHistory.id);
     }
   }
+
+  async markSubscriptionOrderAsMetaPixelNotified(
+    orderId: OrderId,
+  ): Promise<{ wasAlreadyNotified: boolean }> {
+    const key = ['meta_pixel_notified_orders', orderId];
+
+    const existingNotifiedOrder = await this.kv.get(key);
+
+    if (existingNotifiedOrder.value !== null) {
+      return { wasAlreadyNotified: true };
+    }
+
+    await this.kv.set(key, true);
+    
+    return { wasAlreadyNotified: false };
+  }
 }

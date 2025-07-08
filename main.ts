@@ -177,6 +177,10 @@ app.post('/orders/verify', zValidator('json', VerifyOrderIdDTOSchema), (c) => {
   return ordersController.verifyOrder(c, c.req.valid('json'));
 });
 
+app.post('/notify-meta-pixel-of-purchase/:bookUri', (c) => {
+  return purchaseBookController.notifyMetaPixelOfPurchase(c);
+})
+
 app.get('/session', (c) => {
   return authController.getSession(c);
 });
