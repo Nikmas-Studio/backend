@@ -24,11 +24,11 @@ export class TranslationController {
   ): Promise<TypedResponse> {
     fragment = fragment.replaceAll(/[\n\r]/g, ' ').trim().replace(/ {2,}/g, ' ')
       .replace(/”“/g, '” “').replace(/\u00A0/g, ' ').replace(/\.“/g, '. “')
-      .replace(/”(\S)/g, '” $1').replace(/\.([a-zA-Z])/g, '. $1');
+      .replace(/”(\S)/g, '” $1').replace(/\.([a-zA-Z])/g, '. $1').replace(/\u2060/g, '');
 
     context = context.replaceAll(/[\n\r]/g, ' ').trim().replace(/ {2,}/g, ' ')
       .replace(/”“/g, '” “').replace(/\u00A0/g, ' ').replace(/\.“/g, '. “')
-      .replace(/”(\S)/g, '” $1').replace(/\.([a-zA-Z])/g, '. $1');
+      .replace(/”(\S)/g, '” $1').replace(/\.([a-zA-Z])/g, '. $1').replace(/\u2060/g, '');
 
     let translationObj = await this.translationRepository
       .getTranslationByDetails({
@@ -77,11 +77,11 @@ export class TranslationController {
   ): Promise<TypedResponse> {
     fragment = fragment.replaceAll(/[\n\r]/g, ' ').trim().replace(/ {2,}/g, ' ')
       .replace(/”“/g, '” “').replace(/\u00A0/g, ' ').replace(/\.“/g, '. “')
-      .replace(/”(\S)/g, '” $1').replace(/\.([a-zA-Z])/g, '. $1');
+      .replace(/”(\S)/g, '” $1').replace(/\.([a-zA-Z])/g, '. $1').replace(/\u2060/g, '');
 
     context = context.replaceAll(/[\n\r]/g, ' ').trim().replace(/ {2,}/g, ' ')
       .replace(/”“/g, '” “').replace(/\u00A0/g, ' ').replace(/\.“/g, '. “')
-      .replace(/”(\S)/g, '” $1').replace(/\.([a-zA-Z])/g, '. $1');
+      .replace(/”(\S)/g, '” $1').replace(/\.([a-zA-Z])/g, '. $1').replace(/\u2060/g, '');
 
     if (
       !allowTranslation({

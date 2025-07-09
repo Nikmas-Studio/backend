@@ -1,9 +1,9 @@
 import OpenAI from 'openai';
 import { TranslationError } from '../../errors.ts';
+import { deeplTranslate } from '../../utils/deepl-translate.ts';
 import { logError } from '../../utils/logger.ts';
 import { TranslationService } from './translation-service-interface.ts';
 import { TranslateDTO, Translation } from './types.ts';
-import { deeplTranslate } from '../../utils/deepl-translate.ts';
 
 export class OpenaiDeeplTranslationService implements TranslationService {
   private openai: OpenAI;
@@ -54,7 +54,7 @@ export class OpenaiDeeplTranslationService implements TranslationService {
           context,
           fragment,
         });
-        
+
         return reply;
       } catch (e) {
         logError(`DeepL translation error: ${e}`);

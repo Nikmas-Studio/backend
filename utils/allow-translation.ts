@@ -18,10 +18,6 @@ export function allowTranslation(
     return false;
   }
 
-  console.log('context:', context);
-  console.log('fragment:', fragment);
-  // console.log('ALLOWED_TEXT:', ALLOWED_TEXT);
-
   if (bookURI === BOOK_MASTER_ENGLISH_WITH_SHERLOCK_HOLMES_URI) {
     if (
       ALLOWED_TEXT.includes(fragment) &&

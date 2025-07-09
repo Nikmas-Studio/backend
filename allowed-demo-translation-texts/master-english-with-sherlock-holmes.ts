@@ -614,4 +614,4 @@ companion. \
 Right, sir.” \
 He clicked his heels together, raised his hand in a salute, and \
 was gone. \
-`
+`;
