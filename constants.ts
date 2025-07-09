@@ -32,6 +32,8 @@ export const WAYFORPAY_GENERATE_PAYMENT_LINK_URL =
 export const WAYFORPAY_SERVICE_URL =
   'https://api.nikmas.studio/payment-success-wayforpay';
 export const MAX_TRANSLATION_FRAGMENT_LENGTH = 500;
+export const BOOK_MASTER_ENGLISH_WITH_SHERLOCK_HOLMES_URI =
+  'book-master-english-with-sherlock-holmes';
 
 // translation
 export const LANGUAGE_MAPPINGS: Record<string, string> = {

@@ -209,6 +209,10 @@ app.post('/translate', zValidator('json', TranslateDTOSchema), (c) => {
   return translationController.translate(c, c.req.valid('json'));
 });
 
+app.post('/translate-demo', zValidator('json', TranslateDTOSchema), (c) => {
+  return translationController.translateDemo(c, c.req.valid('json'));
+});
+
 Deno.cron(
   'remove unconfirmed readers',
   '0 0 1 * *', // Run on the first of the month at midnight
