@@ -328,7 +328,7 @@ existence. Under these circumstances, I eagerly hailed the little \
 mystery which hung around my companion, and spent much of my time \
 in endeavouring to unravel it. \
 He was not studying medicine. He had himself, in reply to a \
-question, confirmed Stamford&apos;s opinion upon that point. \
+question, confirmed Stamford’s opinion upon that point. \
 Neither did he appear to have pursued any course of reading which \
 might fit him for a degree in science or any other recognized \
 portal which would give him an entrance into the learned world. \
@@ -354,7 +354,7 @@ hardly realize it. \
 of surprise. “Now that I do know it I shall do my best to forget \
 it.” \
 “To forget it!” \
-“You see,” he explained, “I consider that a man&apos;s brain \
+“You see,” he explained, “I consider that a man’s brain \
 originally is like a little empty attic, and you have to stock it \
 with such furniture as you choose. A fool takes in all the lumber \
 of every sort that he comes across, so that the knowledge which \
@@ -410,7 +410,7 @@ I see that I have alluded above to his powers upon the violin. \
 These were very remarkable, but as eccentric as all his other \
 accomplishments. That he could play pieces, and difficult pieces, \
 I knew well, because at my request he has played me some of \
-Mendelssohn&apos;s Lieder, and other favourites. When left to \
+Mendelssohn’s Lieder, and other favourites. When left to \
 himself, however, he would seldom produce any music or attempt any \
 recognized air. Leaning back in his arm-chair of an evening, he \
 would close his eyes and scrape carelessly at the fiddle which was \
@@ -463,7 +463,7 @@ It struck me as being a remarkable mixture of shrewdness and of \
 absurdity. The reasoning was close and intense, but the deductions \
 appeared to me to be far-fetched and exaggerated. The writer \
 claimed by a momentary expression, a twitch of a muscle or a \
-glance of an eye, to fathom a man&apos;s inmost thoughts. Deceit, \
+glance of an eye, to fathom a man’s inmost thoughts. Deceit, \
 according to him, was an impossibility in the case of one trained \
 to observation and analysis. His conclusions were as infallible as \
 so many propositions of Euclid. So startling would his results \
@@ -484,10 +484,10 @@ problems. Let him, on meeting a fellow-mortal, learn at a glance \
 to distinguish the history of the man, and the trade or profession \
 to which he belongs. Puerile as such an exercise may seem, it \
 sharpens the faculties of observation, and teaches one where to \
-look and what to look for. By a man&apos;s finger nails, by his \
+look and what to look for. By a man’s finger nails, by his \
 coat-sleeve, by his boot, by his trouser knees, by the callosities \
 of his forefinger and thumb, by his expression, by his shirt \
-cuffs—by each of these things a man&apos;s calling is plainly \
+cuffs—by each of these things a man’s calling is plainly \
 revealed. That all united should fail to enlighten the competent \
 enquirer in any case is almost inconceivable.” \
 “What ineffable twaddle!” I cried, slapping the magazine down on \
@@ -495,7 +495,7 @@ the table, “I never read such rubbish in my life.” \
 “What is it?” asked Sherlock Holmes. \
 “Why, this article,” I said, pointing at it with my egg spoon as I \
 sat down to my breakfast. “I see that you have read it since you \
-have marked it. I don&apos;t deny that it is smartly written. It \
+have marked it. I don’t deny that it is smartly written. It \
 irritates me though. It is evidently the theory of some arm-chair \
 lounger who evolves all these neat little paradoxes in the \
 seclusion of his own study. It is not practical. I should like to \
@@ -511,7 +511,7 @@ be so chimerical are really extremely practical—so practical that \
 I depend upon them for my bread and cheese.” \
 “And how?” I asked involuntarily. \
 “Well, I have a trade of my own. I suppose I am the only one in \
-the world. I&apos;m a consulting detective, if you can understand \
+the world. I’m a consulting detective, if you can understand \
 what that is. Here in London we have lots of Government detectives \
 and lots of private ones. When these fellows are at fault they \
 come to me, and I manage to put them on the right scent. They lay \
@@ -519,7 +519,7 @@ all the evidence before me, and I am generally able, by the help \
 of my knowledge of the history of crime, to set them straight. \
 There is a strong family resemblance about misdeeds, and if you \
 have all the details of a thousand at your finger ends, it is odd \
-if you can&apos;t unravel the thousand and first. Lestrade is a \
+if you can’t unravel the thousand and first. Lestrade is a \
 well-known detective. He got himself into a fog recently over a \
 forgery case, and that was what brought him here.” \
 “And these other people?” \
@@ -555,17 +555,17 @@ hardship and got his arm wounded? Clearly in Afghanistan.’ The \
 whole train of thought did not occupy a second. I then remarked \
 that you came from Afghanistan, and you were astonished.” \
 “It is simple enough as you explain it,” I said, smiling. “You \
-remind me of Edgar Allen Poe&apos;s Dupin. I had no idea that such \
+remind me of Edgar Allen Poe’s Dupin. I had no idea that such \
 individuals did exist outside of stories.” \
 Sherlock Holmes rose and lit his pipe. “No doubt you think that \
 you are complimenting me in comparing me to Dupin,” he observed. \
 “Now, in my opinion, Dupin was a very inferior fellow. That trick \
-of his of breaking in on his friends&apos; thoughts with an \
-apropos remark after a quarter of an hour&apos;s silence is really \
+of his of breaking in on his friends’ thoughts with an \
+apropos remark after a quarter of an hour’s silence is really \
 very showy and superficial. He had some analytical genius, no \
 doubt; but he was by no means such a phenomenon as Poe appeared to \
 imagine.” \
-“Have you read Gaboriau&apos;s works?” I asked. “Does Lecoq come \
+“Have you read Gaboriau’s works?” I asked. “Does Lecoq come \
 up to your idea of a detective?” \
 Sherlock Holmes sniffed sardonically. “Lecoq was a miserable \
 bungler,” he said, in an angry voice; “he had only one thing to \
