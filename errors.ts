@@ -1,8 +1,12 @@
 import { Email } from './types/global-types.ts';
 import { SessionId } from './models/auth/types.ts';
-import { BookURI } from './models/book/types.ts';
+import { BookId, BookURI } from './models/book/types.ts';
 import { ReaderId } from './models/reader/types.ts';
-import { OrderId, SubscriptionHistoryId, SubscriptionId } from './models/subscription/types.ts';
+import {
+  OrderId,
+  SubscriptionHistoryId,
+  SubscriptionId,
+} from './models/subscription/types.ts';
 
 export class ReaderExistsError extends Error {
   constructor(email: Email) {
@@ -73,7 +77,9 @@ export class RemoveSubscriptionError extends Error {
 
 export class RemoveSubscriptionHistoryError extends Error {
   constructor(subscriptionHistoryId: SubscriptionHistoryId) {
-    super(`subscription history with id ${subscriptionHistoryId} wasn't removed`);
+    super(
+      `subscription history with id ${subscriptionHistoryId} wasn't removed`,
+    );
     this.name = 'RemoveSubscriptionHistoryError';
   }
 }
@@ -84,5 +90,23 @@ export class TranslationError extends Error {
       cause: originalError,
     });
     this.name = 'TranslationError';
+  }
+}
+
+export class SubscriptionNotFoundError extends Error {
+  constructor(subscriptionId: SubscriptionId) {
+    super(`subscription with id ${subscriptionId} not found`);
+    this.name = 'SubscriptionNotFoundError';
+  }
+}
+
+export class TranslationCreditsObjectNotFoundError extends Error {
+  constructor(
+    connection: SubscriptionId | { readerId: ReaderId; bookId: BookId },
+  ) {
+    super(
+      `translation credits object for connection ${JSON.stringify(connection)} not found`,
+    );
+    this.name = 'TranslationCreditsObjectNotFoundError';
   }
 }

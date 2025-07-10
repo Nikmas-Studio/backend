@@ -2,8 +2,11 @@ import {
   RemoveSubscriptionError,
   RemoveSubscriptionHistoryError,
   SubscriptionExistsError,
+  SubscriptionNotFoundError,
+  TranslationCreditsObjectNotFoundError,
 } from '../../errors.ts';
 import { generateUUID } from '../../utils/generate-uuid.ts';
+import { BookId } from '../book/types.ts';
 import { ReaderId } from '../reader/types.ts';
 import { SubscriptionRepository } from './repository-interface.ts';
 import {
@@ -225,7 +228,102 @@ export class SubscriptionDenoKvRepository implements SubscriptionRepository {
     }
 
     await this.kv.set(key, true);
-    
+
     return { wasAlreadyNotified: false };
+  }
+
+  async setTranslationCredits(
+    connection: SubscriptionId | { readerId: ReaderId; bookId: BookId },
+    creditsGranted: number,
+  ): Promise<void> {
+    let primaryKey;
+    let updateAt;
+
+    if ('readerId' in connection) {
+      primaryKey = [
+        'translation_credits',
+        connection.readerId,
+        connection.bookId,
+      ];
+      updateAt = new Date(
+        new Date().setFullYear(new Date().getFullYear() + 1),
+      );
+    } else {
+      const subscription = await this.getSubscriptionById(connection);
+      if (subscription === null) {
+        throw new SubscriptionNotFoundError(connection);
+      }
+
+      primaryKey = ['translation_credits', connection];
+      updateAt = subscription.accessExpiresAt;
+    }
+
+    const value = {
+      creditsGranted,
+      updateAt,
+    };
+
+    await this.kv.set(primaryKey, value);
+  }
+
+  async checkAndUpdateTranslationCredits(
+    connection: SubscriptionId | { readerId: ReaderId; bookId: BookId },
+    translationPrice: number,
+    creditsToGrantOnUpdate: number,
+  ): Promise<{ enoughCredits: boolean }> {
+    const key = 'readerId' in connection
+      ? [
+        'translation_credits',
+        connection.readerId,
+        connection.bookId,
+      ]
+      : ['translation_credits', connection];
+
+    const credits = await this.kv.get<
+      { creditsGranted: number; updateAt: Date }
+    >(key);
+
+    let creditsValue = credits.value;
+
+    if (creditsValue === null) {
+      throw new TranslationCreditsObjectNotFoundError(connection);
+    }
+
+    if (new Date() >= creditsValue.updateAt) {
+      let subscription = null;
+      if (!('readerId' in connection)) {
+        subscription = await this.getSubscriptionById(connection);
+        if (subscription === null) {
+          throw new SubscriptionNotFoundError(connection);
+        }
+      }
+
+      const updateAt =
+        subscription !== null && subscription.accessExpiresAt !== undefined &&
+          subscription.accessExpiresAt > creditsValue.updateAt
+          ? subscription.accessExpiresAt
+          : new Date(
+            new Date(creditsValue.updateAt).setFullYear(
+              new Date(creditsValue.updateAt).getFullYear() + 1,
+            ),
+          );
+
+      const newCredits = {
+        creditsGranted: creditsToGrantOnUpdate,
+        updateAt,
+      };
+
+      creditsValue = newCredits;
+
+      await this.kv.set(key, newCredits);
+    }
+
+    if (creditsValue.creditsGranted >= translationPrice) {
+      creditsValue.creditsGranted -= translationPrice;
+      await this.kv.set(key, creditsValue);
+      return { enoughCredits: true };
+    }
+
+    return { enoughCredits: false };
   }
 }

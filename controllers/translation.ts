@@ -5,11 +5,23 @@ import { TranslationRepository } from '../models/translation/repository-interfac
 import { TranslateDTO } from '../routes-dtos/translate.ts';
 import { TranslationService } from '../services/translation/translation-service-interface.ts';
 import { allowTranslation } from '../utils/allow-translation.ts';
+import { normalizeTranslationPiece } from '../utils/normalize-translation-piece.ts';
+import { hasAccessToBook } from '../utils/hasAccessToBook.ts';
+import { AuthRepository } from '../models/auth/repository-interface.ts';
+import { SubscriptionRepository } from '../models/subscription/repository-interface.ts';
+import { BookRepository } from '../models/book/repository-interface.ts';
+import { ReaderRepository } from '../models/reader/repository-interface.ts';
+import { checkAndUpdateTranslationCredits } from '../utils/checkAndUpdateTranslationCredits.ts';
+import { TRANSLATION_CREDITS_TO_GRANT_ON_UPDATE_MASTER_ENGLISH_WITH_SHERLOCK_HOLMES } from '../constants.ts';
 
 export class TranslationController {
   constructor(
     private translationService: TranslationService,
     private translationRepository: TranslationRepository,
+    private authRepository: AuthRepository,
+    private subscriptionRepository: SubscriptionRepository,
+    private bookRepository: BookRepository,
+    private readerRepository: ReaderRepository,
   ) {}
 
   async translate(
@@ -22,19 +34,45 @@ export class TranslationController {
       bookPart,
     }: TranslateDTO,
   ): Promise<TypedResponse> {
-    fragment = fragment.replaceAll(/[\n\r]/g, ' ').trim().replace(/ {2,}/g, ' ')
-      .replace(/”“/g, '” “').replace(/\u00A0/g, ' ').replace(/\.“/g, '. “')
-      .replace(/”(\S)/g, '” $1').replace(/\.([a-zA-Z])/g, '. $1').replace(
-        /\u2060/g,
-        '',
-      );
+    const { accessGranted, subscription, readerId } = await hasAccessToBook(
+      c,
+      bookURI,
+      this.authRepository,
+      this.readerRepository,
+      this.subscriptionRepository,
+      this.bookRepository,
+    );
 
-    context = context.replaceAll(/[\n\r]/g, ' ').trim().replace(/ {2,}/g, ' ')
-      .replace(/”“/g, '” “').replace(/\u00A0/g, ' ').replace(/\.“/g, '. “')
-      .replace(/”(\S)/g, '” $1').replace(/\.([a-zA-Z])/g, '. $1').replace(
-        /\u2060/g,
-        '',
+    if (!accessGranted) {
+      throw new HTTPException(
+        STATUS_CODE.Forbidden,
+        {
+          message: 'Access to book is forbidden',
+        },
       );
+    }
+
+    const book = await this.bookRepository.getBookByURI(bookURI);
+    if (book === null) {
+      throw new HTTPException(
+        STATUS_CODE.NotFound,
+        {
+          message: 'Book not found',
+        },
+      );
+    }
+
+    checkAndUpdateTranslationCredits(
+      fragment,
+      context,
+      targetLanguage,
+      subscription === undefined ? { readerId, bookId: book.id } : subscription.id,
+      this.subscriptionRepository,
+      TRANSLATION_CREDITS_TO_GRANT_ON_UPDATE_MASTER_ENGLISH_WITH_SHERLOCK_HOLMES,
+    );
+
+    fragment = normalizeTranslationPiece(fragment);
+    context = normalizeTranslationPiece(context);
 
     let translationObj = await this.translationRepository
       .getTranslationByDetails({
@@ -81,19 +119,8 @@ export class TranslationController {
       bookPart,
     }: TranslateDTO,
   ): Promise<TypedResponse> {
-    fragment = fragment.replaceAll(/[\n\r]/g, ' ').trim().replace(/ {2,}/g, ' ')
-      .replace(/”“/g, '” “').replace(/\u00A0/g, ' ').replace(/\.“/g, '. “')
-      .replace(/”(\S)/g, '” $1').replace(/\.([a-zA-Z])/g, '. $1').replace(
-        /\u2060/g,
-        '',
-      );
-
-    context = context.replaceAll(/[\n\r]/g, ' ').trim().replace(/ {2,}/g, ' ')
-      .replace(/”“/g, '” “').replace(/\u00A0/g, ' ').replace(/\.“/g, '. “')
-      .replace(/”(\S)/g, '” $1').replace(/\.([a-zA-Z])/g, '. $1').replace(
-        /\u2060/g,
-        '',
-      );
+    fragment = normalizeTranslationPiece(fragment);
+    context = normalizeTranslationPiece(context);
 
     if (
       !allowTranslation({

@@ -35,6 +35,8 @@ export const MAX_TRANSLATION_FRAGMENT_LENGTH = 500;
 export const BOOK_MASTER_ENGLISH_WITH_SHERLOCK_HOLMES_URI =
   'book-master-english-with-sherlock-holmes';
 
+export const TRANSLATION_CREDITS_TO_GRANT_ON_UPDATE_MASTER_ENGLISH_WITH_SHERLOCK_HOLMES = 10;
+
 // translation
 export const LANGUAGE_MAPPINGS: Record<string, string> = {
   'French': 'FR',

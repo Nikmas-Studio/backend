@@ -1,3 +1,4 @@
+import { BookId } from '../book/types.ts';
 import { ReaderId } from '../reader/types.ts';
 import {
   CreateSubscriptionDTO,
@@ -29,6 +30,19 @@ export interface SubscriptionRepository {
   ): Promise<SubscriptionHistory[]>;
   getAllSubscriptions(): Promise<Subscription[]>;
   removeSubscription(subscription: Subscription): Promise<void>;
-  removeSubscriptionHistory(subscriptionHistory: SubscriptionHistory): Promise<void>;
-  markSubscriptionOrderAsMetaPixelNotified(orderId: OrderId): Promise<{ wasAlreadyNotified: boolean }>;
+  removeSubscriptionHistory(
+    subscriptionHistory: SubscriptionHistory,
+  ): Promise<void>;
+  markSubscriptionOrderAsMetaPixelNotified(
+    orderId: OrderId,
+  ): Promise<{ wasAlreadyNotified: boolean }>;
+  setTranslationCredits(
+    connection: SubscriptionId | { readerId: ReaderId; bookId: BookId },
+    creditsGranted: number,
+  ): Promise<void>;
+  checkAndUpdateTranslationCredits(
+    connection: SubscriptionId | { readerId: ReaderId; bookId: BookId },
+    translationPrice: number,
+    creditsToGrantOnUpdate: number,
+  ): Promise<{ enoughCredits: boolean }>;
 }
