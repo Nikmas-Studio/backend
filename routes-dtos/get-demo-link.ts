@@ -1,9 +1,9 @@
 import { z } from 'zod';
 
-export const PurchaseBookGuestDTOSchema = z.object({
+export const GetDemoLinkDTOSchema = z.object({
   email: z.string().email(),
   captchaToken: z.string().min(1),
   readerName: z.string().optional(),
 });
 
-export type PurchaseBookGuestDTO = z.infer<typeof PurchaseBookGuestDTOSchema>;
+export type GetDemoLinkDTO = z.infer<typeof GetDemoLinkDTOSchema>;

@@ -3,10 +3,13 @@ import {
   DEFAULT_PAYMENT_SYSTEM,
   MERCHANT_ACCOUNT,
   MERCHANT_DOMAIN_NAME,
+  MERCHANT_PASSWORD,
   PAYMENT_SYSTEMS,
   WAYFORPAY_GENERATE_PAYMENT_LINK_URL,
+  WAYFORPAY_REGULAR_API_URL,
 } from '../../constants.ts';
 import { PaymentLinkGenerationError } from '../../errors.ts';
+import { OrderId } from '../../models/subscription/types.ts';
 import { generateHMACMD5 } from '../../utils/generate-hmac-md5.ts';
 import { logError, logInfo } from '../../utils/logger.ts';
 import { PaymentService } from './payment-service-interface.ts';
@@ -14,28 +17,32 @@ import { GeneratePaymentLinkDto } from './types.ts';
 
 export class WayforpayPaymentService implements PaymentService {
   async generatePaymentLink(
-    { readerEmail, book, serviceURL, orderId }:
-      GeneratePaymentLinkDto,
+    { readerEmail, book, serviceURL, orderId, regular }: GeneratePaymentLinkDto,
   ): Promise<URL> {
     const orderDate = String(Math.floor(Date.now() / 1000));
 
-    const params = {
+    const params: Record<string, string> = {
       merchantAccount: Deno.env.get(MERCHANT_ACCOUNT)!,
       merchantDomainName: MERCHANT_DOMAIN_NAME,
       orderReference: orderId,
       orderDate,
-      amount: String(book.mainPrice),
+      amount: String(book.price),
       currency: CURRENCY,
-      'productName[]': `[Early Access] Interactive E-Book «${book.title}»`,
+      'productName[]': `Interactive E-Book «${book.title}»`,
       'productCount[]': '1',
-      'productPrice[]': String(book.mainPrice),
+      'productPrice[]': String(book.price),
       clientEmail: readerEmail,
       defaultPaymentSystem: DEFAULT_PAYMENT_SYSTEM,
       paymentSystems: PAYMENT_SYSTEMS,
       serviceUrl: serviceURL.toString(),
     };
-    
-    console.log(params);
+
+    if (regular) {
+      params.regularBehavior = 'preset';
+      params.regularMode = 'yearly';
+      params.regularAmount = String(book.price);
+      params.regularOn = '1';
+    }
 
     const message = [
       params.merchantAccount,
@@ -48,24 +55,16 @@ export class WayforpayPaymentService implements PaymentService {
       params['productCount[]'],
       params['productPrice[]'],
     ].join(';');
-    
-    console.log(message);
-    
-    console.log(Deno.env.get('MERCHANT_SECRET_KEY'));
 
     const signature = generateHMACMD5(
       message,
       Deno.env.get('MERCHANT_SECRET_KEY')!,
     );
-    
-    console.log(signature);
 
     const formData = new URLSearchParams({
       ...params,
       merchantSignature: signature,
     });
-    
-    console.log(formData);
 
     let res;
     try {
@@ -85,9 +84,6 @@ export class WayforpayPaymentService implements PaymentService {
       );
     }
 
-    console.log(res.body);
-    console.log(res.status);
-    console.log(res.headers);
     const paymentLink = res.headers.get('Location');
 
     if (!paymentLink) {
@@ -102,5 +98,50 @@ export class WayforpayPaymentService implements PaymentService {
     );
 
     return new URL(paymentLink);
+  }
+
+  async removeRegularPayment(orderId: OrderId): Promise<void> {
+    await fetch(WAYFORPAY_REGULAR_API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        requestType: 'REMOVE',
+        merchantAccount: Deno.env.get(MERCHANT_ACCOUNT)!,
+        merchantPassword: Deno.env.get(MERCHANT_PASSWORD)!,
+        orderReference: orderId,
+      }),
+    });
+  }
+
+  async suspendRegularPayment(orderId: OrderId): Promise<void> {
+    await fetch(WAYFORPAY_REGULAR_API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        requestType: 'SUSPEND',
+        merchantAccount: Deno.env.get(MERCHANT_ACCOUNT)!,
+        merchantPassword: Deno.env.get(MERCHANT_PASSWORD)!,
+        orderReference: orderId,
+      }),
+    });
+  }
+
+  async resumeRegularPayment(orderId: OrderId): Promise<void> {
+    await fetch(WAYFORPAY_REGULAR_API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        requestType: 'RESUME',
+        merchantAccount: Deno.env.get(MERCHANT_ACCOUNT)!,
+        merchantPassword: Deno.env.get(MERCHANT_PASSWORD)!,
+        orderReference: orderId,
+      }),
+    });
   }
 }

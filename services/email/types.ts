@@ -13,6 +13,12 @@ export interface SendOrderSuccessLetterDTO {
   readerEmail: Email;
 }
 
+export interface AddReaderToListDTO {
+  readerEmail: Email;
+  listId: number;
+  tagId: number;
+}
+
 export enum LinkType {
   LOGIN = 'LOGIN',
   PAYMENT = 'PAYMENT',

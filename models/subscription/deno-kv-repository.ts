@@ -103,9 +103,11 @@ export class SubscriptionDenoKvRepository implements SubscriptionRepository {
 
   async createSubscriptionHistory(
     subscriptionId: SubscriptionId,
+    orderId: OrderId,
   ): Promise<SubscriptionHistory> {
     const subscriptionHistory: SubscriptionHistory = {
       id: generateUUID() as SubscriptionHistoryId,
+      orderId,
       subscriptionId,
       activatedAt: new Date(),
     };
@@ -156,11 +158,50 @@ export class SubscriptionDenoKvRepository implements SubscriptionRepository {
     return subscriptionHistories;
   }
 
+  async makeSubscriptionPending(subscription: Subscription): Promise<void> {
+    await this.kv.set(['subscriptions', subscription.id], {
+      ...subscription,
+      status: SubscriptionStatus.PENDING,
+    });
+  }
+
+  async updateSubscriptionOrderId(
+    subscription: Subscription,
+    newOrderId: OrderId,
+  ): Promise<void> {
+    await this.kv.set(['subscriptions', subscription.id], {
+      ...subscription,
+      orderId: newOrderId,
+    });
+  }
+
   async activateSubscription(subscription: Subscription): Promise<void> {
     await this.kv.set(['subscriptions', subscription.id], {
       ...subscription,
       status: SubscriptionStatus.ACTIVE,
     });
+    await this.createSubscriptionHistory(subscription.id, subscription.orderId);
+  }
+
+  async cancelSubscription(subscription: Subscription): Promise<void> {
+    await this.kv.set(['subscriptions', subscription.id], {
+      ...subscription,
+      status: SubscriptionStatus.CANCELED,
+    });
+
+    const subscriptionHistories = await this
+      .getSubscriptionHistoriesBySubscriptionId(
+        subscription.id,
+      );
+
+    for (const history of subscriptionHistories) {
+      if (history.canceledAt === undefined) {
+        await this.kv.set(['subscription_histories', history.id], {
+          ...history,
+          canceledAt: new Date(),
+        });
+      }
+    }
   }
 
   async getAllSubscriptions(): Promise<Subscription[]> {
@@ -286,6 +327,19 @@ export class SubscriptionDenoKvRepository implements SubscriptionRepository {
     let creditsValue = credits.value;
 
     if (creditsValue === null) {
+      if ('readerId' in connection) {
+        const creditsForFullAccessReader = {
+          creditsGranted: creditsToGrantOnUpdate,
+          updateAt: new Date(
+            new Date().setFullYear(
+              new Date().getFullYear() + 1,
+            ),
+          ),
+        };
+
+        await this.kv.set(key, creditsForFullAccessReader);
+        creditsValue = creditsForFullAccessReader;
+      }
       throw new TranslationCreditsObjectNotFoundError(connection);
     }
 

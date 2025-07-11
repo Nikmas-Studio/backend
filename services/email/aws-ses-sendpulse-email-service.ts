@@ -3,19 +3,25 @@ import {
   LOGIN_LINK_TEMPLATE_NAME,
   ORDER_SUCCESS_TEMPLATE_NAME,
   PAYMENT_LINK_TEMPLATE_NAME,
+  SENDPULSE_AUTH_URL,
   STUDIO_EMAIL,
 } from '../../constants.ts';
 import { SendLinkEmailError } from '../../errors.ts';
 import { getAWSSESClientConfig } from '../../utils/get-aws-ses-client-config.ts';
-import { EmailService } from './email-service-interface.ts';
-import { LinkType, SendLinkDTO, SendOrderSuccessLetterDTO } from './types.ts';
 import { logError } from '../../utils/logger.ts';
+import { EmailService } from './email-service-interface.ts';
+import {
+  AddReaderToListDTO,
+  LinkType,
+  SendLinkDTO,
+  SendOrderSuccessLetterDTO,
+} from './types.ts';
 
-export class AWSSESEmailService implements EmailService {
-  private client: SESClient;
+export class AWSSESSendPulseEmailService implements EmailService {
+  private awsClient: SESClient;
 
   constructor() {
-    this.client = new SESClient(getAWSSESClientConfig());
+    this.awsClient = new SESClient(getAWSSESClientConfig());
   }
 
   async sendLink(
@@ -50,7 +56,7 @@ export class AWSSESEmailService implements EmailService {
     });
 
     try {
-      const res = await this.client.send(sendEmailCommand);
+      const res = await this.awsClient.send(sendEmailCommand);
       console.log('send email response:', res);
     } catch (e) {
       logError(`Failed to send ${linkType} link email to ${readerEmail}: ${e}`);
@@ -58,7 +64,9 @@ export class AWSSESEmailService implements EmailService {
     }
   }
 
-  async sendOrderSuccessLetter({ readerEmail }: SendOrderSuccessLetterDTO): Promise<void> {
+  async sendOrderSuccessLetter(
+    { readerEmail }: SendOrderSuccessLetterDTO,
+  ): Promise<void> {
     const sendEmailCommand = new SendTemplatedEmailCommand({
       Source: STUDIO_EMAIL,
       Destination: {
@@ -72,11 +80,41 @@ export class AWSSESEmailService implements EmailService {
     });
 
     try {
-      const res = await this.client.send(sendEmailCommand);
+      const res = await this.awsClient.send(sendEmailCommand);
       console.log('send email response:', res);
     } catch (e) {
       logError(`Failed to send order success email to ${readerEmail}: ${e}`);
       throw new SendLinkEmailError(readerEmail, e as Error);
     }
+  }
+
+  async addReaderToList(
+    { readerEmail, listId, tagId }: AddReaderToListDTO,
+  ): Promise<void> {
+    const authResp = await fetch(SENDPULSE_AUTH_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        grant_type: 'client_credentials',
+        client_id: Deno.env.get('SENDPULSE_CLIENT_ID'),
+        client_secret: Deno.env.get('SENDPULSE_CLIENT_SECRET'),
+      }),
+    });
+    const authRespJson = await authResp.json();
+    const accessToken = authRespJson.access_token;
+
+    await fetch(`https://api.sendpulse.com/addressbooks/${listId}/emails`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify({
+        emails: [readerEmail],
+        tags: [tagId],
+      }),
+    });
   }
 }

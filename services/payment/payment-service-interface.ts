@@ -1,3 +1,4 @@
+import { OrderId } from '../../models/subscription/types.ts';
 import { GeneratePaymentLinkDto } from './types.ts';
 
 export interface PaymentService {
@@ -7,4 +8,8 @@ export interface PaymentService {
   generatePaymentLink(
     GeneratePaymentLinkDto: GeneratePaymentLinkDto,
   ): Promise<URL>;
+  
+  removeRegularPayment(orderId: OrderId): Promise<void>;
+  suspendRegularPayment(orderId: OrderId): Promise<void>;
+  resumeRegularPayment(orderId: OrderId): Promise<void>;
 }

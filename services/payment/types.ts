@@ -12,6 +12,7 @@ export interface GeneratePaymentLinkDto {
   orderId: OrderId;
   book: Book;
   serviceURL: URL;
+  regular: boolean;
 }
 
 export enum PaymentSuccessInitiator {

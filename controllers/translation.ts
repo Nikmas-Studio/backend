@@ -4,7 +4,7 @@ import { HTTPException } from 'hono/http-exception';
 import { TranslationRepository } from '../models/translation/repository-interface.ts';
 import { TranslateDTO } from '../routes-dtos/translate.ts';
 import { TranslationService } from '../services/translation/translation-service-interface.ts';
-import { allowTranslation } from '../utils/allow-translation.ts';
+import { allowTranslation } from '../utils/allow-translation-master-english-with-sherlock-holmes.ts';
 import { normalizeTranslationPiece } from '../utils/normalize-translation-piece.ts';
 import { hasAccessToBook } from '../utils/hasAccessToBook.ts';
 import { AuthRepository } from '../models/auth/repository-interface.ts';

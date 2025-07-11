@@ -7,7 +7,6 @@ import { AuthController } from './controllers/auth.ts';
 import { BooksController } from './controllers/books.ts';
 import { LogErrorController } from './controllers/log-error.ts';
 import { OrdersController } from './controllers/orders.ts';
-import { PurchaseBookController } from './controllers/purchase-book.ts';
 import { ReadersController } from './controllers/readers.ts';
 import { TranslationController } from './controllers/translation.ts';
 import { removeExpiredPendingSubscriptions } from './cron/remove-expired-pending-subscriptions.ts';
@@ -16,9 +15,9 @@ import { AuthDenoKvRepository } from './models/auth/deno-kv-repository.ts';
 import { BookDenoKvRepository } from './models/book/deno-kv-repository.ts';
 import { ReaderDenoKvRepository } from './models/reader/deno-kv-repository.ts';
 import { SubscriptionDenoKvRepository } from './models/subscription/deno-kv-repository.ts';
+import { TranslationDenoKvRepository } from './models/translation/deno-kv-repository.ts';
 import { LogDTOSchema } from './routes-dtos/log-error.ts';
 import { LoginDTOSchema } from './routes-dtos/login.ts';
-import { PurchaseBookAuthenticatedDTOSchema } from './routes-dtos/purchase-book-authenticated.ts';
 import { PurchaseBookGuestDTOSchema } from './routes-dtos/purchase-book-guest.ts';
 import { TranslateDTOSchema } from './routes-dtos/translate.ts';
 import { UpdateReaderFullNameDTOSchema } from './routes-dtos/update-reader-full-name.ts';
@@ -26,11 +25,11 @@ import {
   ValidateAuthTokenDTOSchema,
 } from './routes-dtos/validate-auth-token.ts';
 import { VerifyOrderIdDTOSchema } from './routes-dtos/verify-order-id.ts';
-import { AWSSESEmailService } from './services/email/aws-ses-email-service.ts';
+import { AWSSESSendPulseEmailService } from './services/email/aws-ses-sendpulse-email-service.ts';
 import { WayforpayPaymentService } from './services/payment/wayforpay-payment-service.ts';
 import { OpenaiDeeplTranslationService } from './services/translation/openai-deepl-translation-service.ts';
-import { logDebug } from './utils/logger.ts';
-import { TranslationDenoKvRepository } from './models/translation/deno-kv-repository.ts';
+import { GetDemoLinkDTOSchema } from './routes-dtos/get-demo-link.ts';
+import { SENDPULSE_ADDRESSBOOK_ID } from './constants.ts';
 
 const app = new Hono();
 
@@ -42,7 +41,7 @@ const bookRepository = new BookDenoKvRepository(denoKv);
 const subscriptionRepository = new SubscriptionDenoKvRepository(denoKv);
 const translationRepository = new TranslationDenoKvRepository(denoKv);
 
-const emailService = new AWSSESEmailService();
+const emailService = new AWSSESSendPulseEmailService();
 const paymentService = new WayforpayPaymentService();
 const translationService = new OpenaiDeeplTranslationService();
 
@@ -52,20 +51,13 @@ const authController = new AuthController(
   emailService,
 );
 
-const purchaseBookController = new PurchaseBookController(
+const booksController = new BooksController(
   readerRepository,
   authRepository,
   paymentService,
   bookRepository,
   subscriptionRepository,
   emailService,
-);
-
-const booksController = new BooksController(
-  authRepository,
-  subscriptionRepository,
-  bookRepository,
-  readerRepository,
 );
 
 const readersController = new ReadersController(
@@ -76,6 +68,10 @@ const readersController = new ReadersController(
 const translationController = new TranslationController(
   translationService,
   translationRepository,
+  authRepository,
+  subscriptionRepository,
+  bookRepository,
+  readerRepository,
 );
 
 const ordersController = new OrdersController(subscriptionRepository);
@@ -139,33 +135,39 @@ app.post(
 );
 
 app.post(
-  '/purchase-book-guest',
+  '/books/:uri/purchase-guest',
   zValidator('json', PurchaseBookGuestDTOSchema),
   (c) => {
-    logDebug('purchase book guest start');
-    return purchaseBookController.purchaseBook(c, c.req.valid('json'));
+    return booksController.purchaseBook(c, c.req.valid('json'));
   },
 );
 
 app.post(
-  '/purchase-book-authenticated',
-  zValidator('json', PurchaseBookAuthenticatedDTOSchema),
+  '/books/:uri/purchase-authenticated',
   (c) => {
-    return purchaseBookController.purchaseBook(c, c.req.valid('json'));
+    return booksController.purchaseBook(c);
   },
 );
 
 app.post(
   '/payment-success',
   (c) => {
-    return purchaseBookController.paymentSuccess(c);
+    return booksController.paymentSuccess(c);
   },
 );
 
 app.post(
   '/payment-success-wayforpay',
   (c) => {
-    return purchaseBookController.paymentSuccess(c);
+    return booksController.paymentSuccess(c);
+  },
+);
+
+app.post(
+  '/books/:uri/get-demo-link',
+  zValidator('json', GetDemoLinkDTOSchema),
+  (c) => {
+    return booksController.getDemoLink(c, c.req.valid('json'), SENDPULSE_ADDRESSBOOK_ID);
   },
 );
 
@@ -173,13 +175,21 @@ app.get('/books/:uri/access', (c) => {
   return booksController.checkAccessToBook(c);
 });
 
+app.get('/books/:uri/cancel-subscription', (c) => {
+  return booksController.cancelSubscription(c);
+});
+
+app.get('/books/:uri/resume-subscription', (c) => {
+  return booksController.resumeSubscription(c);
+});
+
 app.post('/orders/verify', zValidator('json', VerifyOrderIdDTOSchema), (c) => {
   return ordersController.verifyOrder(c, c.req.valid('json'));
 });
 
 app.post('/notify-meta-pixel-of-purchase/:bookUri', (c) => {
-  return purchaseBookController.notifyMetaPixelOfPurchase(c);
-})
+  return booksController.notifyMetaPixelOfPurchase(c);
+});
 
 app.get('/session', (c) => {
   return authController.getSession(c);

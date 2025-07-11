@@ -19,9 +19,9 @@ export interface SubscriptionRepository {
   getSubscriptionByOrderId(orderId: OrderId): Promise<Subscription | null>;
   getSubscriptionsByReaderId(readerId: ReaderId): Promise<Subscription[]>;
   activateSubscription(subscription: Subscription): Promise<void>;
-  createSubscriptionHistory(
-    subscriptionId: SubscriptionId,
-  ): Promise<SubscriptionHistory>;
+  cancelSubscription(subscription: Subscription): Promise<void>;
+  makeSubscriptionPending(subscription: Subscription): Promise<void>;
+  updateSubscriptionOrderId(subscription: Subscription, newOrderId: OrderId): Promise<void>;
   getSubscriptionHistoryById(
     subscriptionHistoryId: SubscriptionHistoryId,
   ): Promise<SubscriptionHistory | null>;

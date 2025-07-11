@@ -50,7 +50,10 @@ export async function hasAccessToBook(
     if (book !== null) {
       if (
         book.uri === bookURI &&
-        subscription.status === SubscriptionStatus.ACTIVE
+        (subscription.status === SubscriptionStatus.ACTIVE ||
+          (subscription.status === SubscriptionStatus.CANCELED &&
+            subscription.accessExpiresAt !== undefined &&
+            subscription.accessExpiresAt > new Date()))
       ) {
         return {
           readerId: session.readerId,

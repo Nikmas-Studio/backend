@@ -7,12 +7,12 @@ import { Book, BookId, BookURI, CreateBookDTO } from './types.ts';
 export class BookDenoKvRepository implements BookRepository {
   constructor(private kv: Deno.Kv) {}
 
-  async createBook({ title, uri, mainPrice }: CreateBookDTO): Promise<Book> {
+  async createBook({ title, uri, price }: CreateBookDTO): Promise<Book> {
     const book: Book = {
       id: generateUUID() as BookId,
       title,
       uri,
-      mainPrice,
+      price,
       createdAt: new Date(),
     };
 
