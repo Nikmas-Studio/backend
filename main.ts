@@ -29,6 +29,7 @@ import { WayforpayPaymentService } from './services/payment/wayforpay-payment-se
 import { OpenaiDeeplTranslationService } from './services/translation/openai-deepl-translation-service.ts';
 import { GetDemoLinkDTOSchema } from './routes-dtos/get-demo-link.ts';
 import { SENDPULSE_ADDRESSBOOK_ID } from './constants.ts';
+import { logInfo } from './utils/logger.ts';
 
 const app = new Hono();
 
@@ -175,6 +176,7 @@ app.get('/books/:uri/access', (c) => {
 });
 
 app.get('/books/:uri/cancel-subscription', (c) => {
+  logInfo(`Canceling subscription for book: ${c.req.param('uri')}`);
   return booksController.cancelSubscription(c);
 });
 
