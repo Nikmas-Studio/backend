@@ -6,6 +6,7 @@ import {
   TranslationCreditsObjectNotFoundError,
 } from '../../errors.ts';
 import { generateUUID } from '../../utils/generate-uuid.ts';
+import { logInfo } from '../../utils/logger.ts';
 import { BookId } from '../book/types.ts';
 import { ReaderId } from '../reader/types.ts';
 import { SubscriptionRepository } from './repository-interface.ts';
@@ -375,6 +376,7 @@ export class SubscriptionDenoKvRepository implements SubscriptionRepository {
 
     if (creditsValue.creditsGranted >= translationPrice) {
       creditsValue.creditsGranted -= translationPrice;
+      logInfo(`translation credits reduced by $${translationPrice}, remaining: $${creditsValue.creditsGranted}`);
       await this.kv.set(key, creditsValue);
       return { enoughCredits: true };
     }
