@@ -38,10 +38,10 @@ export class WayforpayPaymentService implements PaymentService {
     };
 
     if (regular) {
-      params.regularBehavior = 'preset';
+      // params.regularBehavior = 'preset';
       params.regularMode = 'yearly';
       params.regularAmount = String(book.price);
-      params.regularOn = '1';
+      // params.regularOn = '1';
     }
 
     logInfo(
