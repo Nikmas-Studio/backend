@@ -25,24 +25,23 @@ const client = new SESClient(getAWSSESClientConfig());
 //   },
 // };
 
-// const input = {
-//   Template: {
-//     TemplateName: 'paymentLink',
-//     SubjectPart: 'Your payment link for the Early Access',
-//     HtmlPart: `
-//      <div style="max-width:600px">
-//         <p>Here's your&nbsp;payment link for&nbsp;the&nbsp;Early Access to&nbsp;the&nbsp;Interactive E-Book <strong>«Master Git & GitHub: From&nbsp;Everyday&nbsp;Tasks to&nbsp;Deep&nbsp;Waters»:</strong></p>
-//         <p>
-//           <a href="{{link}}" target="_blank">
-//             {{link}}
-//           </a>
-//         </p>
-//         <p>If you haven't initiated this&nbsp;request, just disregard this&nbsp;message: someone might&nbsp;have&nbsp;entered your&nbsp;email by&nbsp;mistake.</p>
-//         <p>© Nikmas Studio, {{year}}</p>
-//       </div>
-//     `,
-//   },
-// };
+const input = {
+  Template: {
+    TemplateName: 'paymentLink',
+    SubjectPart: 'Your payment link for «{{bookTitle}}»',
+    HtmlPart: `
+     <div style="max-width:600px">
+        <p>Here's your&nbsp;payment link for the&nbsp;Interactive E-Book <strong>«{{bookTitle}}»:</strong><br />
+          <a href="{{link}}" target="_blank">
+            {{link}}
+          </a>
+        </p>
+        <p>If you haven't initiated this&nbsp;request, just disregard this&nbsp;message: someone might&nbsp;have&nbsp;entered your&nbsp;email by&nbsp;mistake.</p>
+        <p>© Nikmas Studio, {{year}}</p>
+      </div>
+    `,
+  },
+};
 
 // const input = {
 //   Template: {
@@ -114,54 +113,54 @@ const client = new SESClient(getAWSSESClientConfig());
 //   },
 // };
 
-const input = {
-  Template: {
-    TemplateName: 'subscriptionSuccess',
-    SubjectPart: 'Thanks for subscribing!',
-    HtmlPart: `
-      <div style="max-width:600px">
-        <h1>Your&nbsp;subscription to «{{bookTitle}}» has&nbsp;been&nbsp;activated!</h1>
+// const input = {
+//   Template: {
+//     TemplateName: 'subscriptionSuccess',
+//     SubjectPart: 'Thanks for subscribing!',
+//     HtmlPart: `
+//       <div style="max-width:600px">
+//         <h1>Your&nbsp;subscription to «{{bookTitle}}» has&nbsp;been&nbsp;activated!</h1>
 
-        <ul style="margin-top:0">
-          <li>Access your&nbsp;library with&nbsp;this&nbsp;email: {{readerEmail}}.</li>
+//         <ul style="margin-top:0">
+//           <li>Access your&nbsp;library with&nbsp;this&nbsp;email: {{readerEmail}}.</li>
 
-          <li>
-            Once you're logged into&nbsp;your library, go <a href="{{promoLink}}">to&nbsp;the&nbsp;book's 
-            promo page</a> and click the "Read" button to access the full version of the book.
-          </li>
+//           <li>
+//             Once you're logged into&nbsp;your library, go <a href="{{promoLink}}">to&nbsp;the&nbsp;book's 
+//             promo page</a> and click the "Read" button to access the full version of the book.
+//           </li>
           
-         <li>
-          Your subscription is active until {{paidUntil}}, and will automatically renew each year
-          when the current billing period ends. To stop recurring payments, simply cancel your subscription.
-         </li>
+//          <li>
+//           Your subscription is active until {{paidUntil}}, and will automatically renew each year
+//           when the current billing period ends. To stop recurring payments, simply cancel your subscription.
+//          </li>
 
-          <li>
-          How to cancel the subscription:<br />
-          If you’re subscribed and logged in, <a href="{{promoLink}}">on&nbsp;the&nbsp;book's promo page</a>
-          you’ll see a check mark on the green button in the bottom right corner: «✓Subscription».
-          Click the green button — a panel will open at the bottom of the page
-          with a «Cancel subscription» button. After you cancel your subscription,
-          once your previously paid annual period ends, the book will become unavailable.
-          Whenever you wish, you can start your subscription again.
-          </li>
-        </ul>
+//           <li>
+//           How to cancel the subscription:<br />
+//           If you’re subscribed and logged in, <a href="{{promoLink}}">on&nbsp;the&nbsp;book's promo page</a>
+//           you’ll see a check mark on the green button in the bottom right corner: «✓Subscription».
+//           Click the green button — a panel will open at the bottom of the page
+//           with a «Cancel subscription» button. After you cancel your subscription,
+//           once your previously paid annual period ends, the book will become unavailable.
+//           Whenever you wish, you can start your subscription again.
+//           </li>
+//         </ul>
 
-        <p style="margin-bottom:0">
-          To&nbsp;stay updated on&nbsp;everything happening around Nikmas&nbsp;Studio, follow us on&nbsp;social&nbsp;media:
-        </p>
+//         <p style="margin-bottom:0">
+//           To&nbsp;stay updated on&nbsp;everything happening around Nikmas&nbsp;Studio, follow us on&nbsp;social&nbsp;media:
+//         </p>
 
-        <ul style="margin-top:0">
-          <li><a href="https://t.me/nikmas_studio">Telegram</a></li>
-          <li><a href="https://www.instagram.com/nikmas_studio">Instagram</a></li>
-          <li><a href="https://www.facebook.com/nikmastudio">Facebook</a></li>
-          <li><a href="https://www.linkedin.com/company/nikmas-studio">LinkedIn</a></li>
-        </ul>
+//         <ul style="margin-top:0">
+//           <li><a href="https://t.me/nikmas_studio">Telegram</a></li>
+//           <li><a href="https://www.instagram.com/nikmas_studio">Instagram</a></li>
+//           <li><a href="https://www.facebook.com/nikmastudio">Facebook</a></li>
+//           <li><a href="https://www.linkedin.com/company/nikmas-studio">LinkedIn</a></li>
+//         </ul>
 
-        <p>© Nikmas&nbsp;Studio, {{year}}</p>
-      </div>
-    `,
-  },
-};
+//         <p>© Nikmas&nbsp;Studio, {{year}}</p>
+//       </div>
+//     `,
+//   },
+// };
 
 const createTemplateCommand = new CreateTemplateCommand(input);
 const createTemplateResponse = await client.send(createTemplateCommand);

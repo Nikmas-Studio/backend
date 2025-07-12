@@ -1,12 +1,20 @@
 import { EmailService } from './email-service-interface.ts';
 import {
   SendDemoLinkDTO,
-  SendLinkDTO,
+  SendLoginLinkDTO,
   SendOneTimePurchaseSuccessLetterDTO,
+  SendPaymentLinkDTO,
   SendSubscriptionSuccessLetterDTO,
 } from './types.ts';
 
 export class TestEmailService implements EmailService {
+  sendLoginLink(_sendLinkDTO: SendLoginLinkDTO): Promise<void> {
+    return Promise.resolve();
+  }
+  sendPaymentLink(_sendPaymentLinkDTO: SendPaymentLinkDTO): Promise<void> {
+    return Promise.resolve();
+  }
+
   sendSubscriptionSuccessLetter(
     _sendSubscriptionSuccessLetterDTO: SendSubscriptionSuccessLetterDTO,
   ): Promise<void> {
@@ -20,10 +28,6 @@ export class TestEmailService implements EmailService {
   sendOneTimePurchaseSuccessLetter(
     _sendOrderSuccessLetterDTO: SendOneTimePurchaseSuccessLetterDTO,
   ): Promise<void> {
-    return Promise.resolve();
-  }
-
-  sendLink(_sendLoginLinkDTO: SendLinkDTO): Promise<void> {
     return Promise.resolve();
   }
 

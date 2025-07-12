@@ -15,7 +15,6 @@ import { OrderId, SubscriptionStatus } from '../models/subscription/types.ts';
 import { GetDemoLinkDTO } from '../routes-dtos/get-demo-link.ts';
 import { PurchaseBookGuestDTO } from '../routes-dtos/purchase-book-guest.ts';
 import { EmailService } from '../services/email/email-service-interface.ts';
-import { LinkType } from '../services/email/types.ts';
 import { PaymentService } from '../services/payment/payment-service-interface.ts';
 import { ActionSource, EventName } from '../types/fb-conversions-api.ts';
 import { Env } from '../types/global-types.ts';
@@ -24,7 +23,6 @@ import { generateHMACMD5 } from '../utils/generate-hmac-md5.ts';
 import { generateUUID } from '../utils/generate-uuid.ts';
 import { generateWfpServiceUrl } from '../utils/generate-wfp-service-url.ts';
 import { getAndValidateSession } from '../utils/get-and-validate-session.ts';
-import { getTagIdForBookDemo } from '../utils/get-tag-id-for-book-demo.ts';
 import { hasAccessToBook } from '../utils/has-access-to-book.ts';
 import { logError, logInfo } from '../utils/logger.ts';
 import { notifyFbConversionsApi } from '../utils/notify-fb-conversions-api.ts';
@@ -179,10 +177,10 @@ export class BooksController {
     if (purchaseBookDTO !== undefined) {
       logInfo(`sending payment link to ${reader.email}`);
       try {
-        await this.emailService.sendLink({
+        await this.emailService.sendPaymentLink({
           readerEmail: reader.email,
           link: paymentLink,
-          linkType: LinkType.PAYMENT,
+          bookTitle: book.title,
         });
 
         return c.json({
@@ -534,7 +532,6 @@ export class BooksController {
       await this.emailService.addReaderToList({
         readerEmail,
         listId,
-        tagId: getTagIdForBookDemo(bookURI),
       });
 
       await this.bookRepository.startDemoFlow(bookURI, reader.id);

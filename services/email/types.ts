@@ -3,10 +3,15 @@ import { Email } from '../../types/global-types.ts';
 export type EmailSubject = string;
 export type EmailBody = string;
 
-export interface SendLinkDTO {
+export interface SendLoginLinkDTO {
   readerEmail: Email;
   link: URL;
-  linkType: LinkType;
+}
+
+export interface SendPaymentLinkDTO {
+  readerEmail: Email;
+  link: URL;
+  bookTitle: string;
 }
 
 export interface SendDemoLinkDTO {
@@ -30,9 +35,4 @@ export interface SendSubscriptionSuccessLetterDTO {
 export interface AddReaderToListDTO {
   readerEmail: Email;
   listId: number;
-}
-
-export enum LinkType {
-  LOGIN = 'LOGIN',
-  PAYMENT = 'PAYMENT',
 }

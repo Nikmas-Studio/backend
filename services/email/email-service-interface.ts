@@ -1,16 +1,16 @@
 import {
   AddReaderToListDTO,
   SendDemoLinkDTO,
-  SendLinkDTO,
+  SendLoginLinkDTO,
   SendOneTimePurchaseSuccessLetterDTO,
+  SendPaymentLinkDTO,
   SendSubscriptionSuccessLetterDTO,
 } from './types.ts';
 
 export interface EmailService {
-  /**
-   * @throws {SendLinkEmailError} if the email could not be sent
-   */
-  sendLink(sendLinkDTO: SendLinkDTO): Promise<void>;
+  sendLoginLink(sendLinkDTO: SendLoginLinkDTO): Promise<void>;
+
+  sendPaymentLink(sendPaymentLinkDTO: SendPaymentLinkDTO): Promise<void>;
 
   sendDemoLink(sendDemoLinkDTO: SendDemoLinkDTO): Promise<void>;
 
