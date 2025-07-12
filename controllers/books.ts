@@ -539,7 +539,7 @@ export class BooksController {
 
       if (book === null) {
         logError(`book not found: ${bookURI}`);
-        throw new HTTPException(STATUS_CODE.InternalServerError, {
+        throw new HTTPException(STATUS_CODE.NotFound, {
           message: `book not found: ${bookURI}`,
         });
       }

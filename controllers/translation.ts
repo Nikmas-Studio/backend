@@ -62,7 +62,7 @@ export class TranslationController {
       );
     }
 
-    checkAndUpdateTranslationCredits(
+    const { enoughCredits } = await checkAndUpdateTranslationCredits(
       fragment,
       context,
       targetLanguage,
@@ -70,6 +70,15 @@ export class TranslationController {
       this.subscriptionRepository,
       TRANSLATION_CREDITS_TO_GRANT_ON_UPDATE_MASTER_ENGLISH_WITH_SHERLOCK_HOLMES,
     );
+    
+    if (!enoughCredits) {
+      throw new HTTPException(
+        STATUS_CODE.PaymentRequired,
+        {
+          message: 'Not enough translation credits',
+        },
+      );
+    }
 
     fragment = normalizeTranslationPiece(fragment);
     context = normalizeTranslationPiece(context);

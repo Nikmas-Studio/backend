@@ -10,7 +10,6 @@ import { OrdersController } from './controllers/orders.ts';
 import { ReadersController } from './controllers/readers.ts';
 import { TranslationController } from './controllers/translation.ts';
 import { removeExpiredPendingSubscriptions } from './cron/remove-expired-pending-subscriptions.ts';
-import { removeUnconfirmedReaders } from './cron/remove-unconfirmed-readers.ts';
 import { AuthDenoKvRepository } from './models/auth/deno-kv-repository.ts';
 import { BookDenoKvRepository } from './models/book/deno-kv-repository.ts';
 import { ReaderDenoKvRepository } from './models/reader/deno-kv-repository.ts';
@@ -222,12 +221,6 @@ app.post('/translate', zValidator('json', TranslateDTOSchema), (c) => {
 app.post('/translate-demo', zValidator('json', TranslateDTOSchema), (c) => {
   return translationController.translateDemo(c, c.req.valid('json'));
 });
-
-Deno.cron(
-  'remove unconfirmed readers',
-  '0 0 1 * *', // Run on the first of the month at midnight
-  () => removeUnconfirmedReaders(readerRepository),
-);
 
 Deno.cron(
   'remove expired pending subscriptions',
