@@ -6,12 +6,12 @@ import { TranslateDTO } from '../routes-dtos/translate.ts';
 import { TranslationService } from '../services/translation/translation-service-interface.ts';
 import { allowTranslation } from '../utils/allow-translation-master-english-with-sherlock-holmes.ts';
 import { normalizeTranslationPiece } from '../utils/normalize-translation-piece.ts';
-import { hasAccessToBook } from '../utils/hasAccessToBook.ts';
+import { hasAccessToBook } from '../utils/has-access-to-book.ts';
 import { AuthRepository } from '../models/auth/repository-interface.ts';
 import { SubscriptionRepository } from '../models/subscription/repository-interface.ts';
 import { BookRepository } from '../models/book/repository-interface.ts';
 import { ReaderRepository } from '../models/reader/repository-interface.ts';
-import { checkAndUpdateTranslationCredits } from '../utils/checkAndUpdateTranslationCredits.ts';
+import { checkAndUpdateTranslationCredits } from '../utils/check-and-update-translation-credits.ts';
 import { TRANSLATION_CREDITS_TO_GRANT_ON_UPDATE_MASTER_ENGLISH_WITH_SHERLOCK_HOLMES } from '../constants.ts';
 
 export class TranslationController {

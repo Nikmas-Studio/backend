@@ -1,6 +1,7 @@
 import { BookExistsError } from '../../errors.ts';
 import { generateUUID } from '../../utils/generate-uuid.ts';
 import { logInfo } from '../../utils/logger.ts';
+import { ReaderId } from '../reader/types.ts';
 import { BookRepository } from './repository-interface.ts';
 import { Book, BookId, BookURI, CreateBookDTO } from './types.ts';
 
@@ -47,5 +48,19 @@ export class BookDenoKvRepository implements BookRepository {
     }
 
     return this.getBookById(bookId.value);
+  }
+
+  async startDemoFlow(bookURI: BookURI, readerId: ReaderId): Promise<void> {
+    const key = ['demo_flow_started', bookURI, readerId];
+    await this.kv.set(key, true);
+  }
+
+  async demoFlowStarted(
+    bookURI: BookURI,
+    readerId: ReaderId,
+  ): Promise<boolean> {
+    const key = ['demo_flow_started', bookURI, readerId];
+    const res = await this.kv.get<boolean>(key);
+    return res.value === null ? false : res.value;
   }
 }

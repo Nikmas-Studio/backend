@@ -9,8 +9,22 @@ export interface SendLinkDTO {
   linkType: LinkType;
 }
 
-export interface SendOrderSuccessLetterDTO {
+export interface SendDemoLinkDTO {
   readerEmail: Email;
+  demoLink: URL;
+  promoLink: URL;
+  bookTitle: string;
+}
+
+export interface SendOneTimePurchaseSuccessLetterDTO {
+  readerEmail: Email;
+}
+
+export interface SendSubscriptionSuccessLetterDTO {
+  readerEmail: Email;
+  bookTitle: string;
+  promoLink: URL;
+  paidUntil: string;
 }
 
 export interface AddReaderToListDTO {

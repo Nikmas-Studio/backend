@@ -6,7 +6,7 @@ import { getAWSSESClientConfig } from '../utils/get-aws-ses-client-config.ts';
 
 const client = new SESClient(getAWSSESClientConfig());
 
-const template = 'orderSuccess';
+const template = 'demoLink';
 const deleteTemplateCommand = new DeleteTemplateCommand({
   TemplateName: template,
 });

@@ -1,4 +1,10 @@
-import { AddReaderToListDTO, SendLinkDTO, SendOrderSuccessLetterDTO } from './types.ts';
+import {
+  AddReaderToListDTO,
+  SendDemoLinkDTO,
+  SendLinkDTO,
+  SendOneTimePurchaseSuccessLetterDTO,
+  SendSubscriptionSuccessLetterDTO,
+} from './types.ts';
 
 export interface EmailService {
   /**
@@ -6,9 +12,15 @@ export interface EmailService {
    */
   sendLink(sendLinkDTO: SendLinkDTO): Promise<void>;
 
-  sendOrderSuccessLetter(
-    sendOrderSuccessLetterDTO: SendOrderSuccessLetterDTO,
+  sendDemoLink(sendDemoLinkDTO: SendDemoLinkDTO): Promise<void>;
+
+  sendOneTimePurchaseSuccessLetter(
+    sendOneTimePurchaseLetterDTO: SendOneTimePurchaseSuccessLetterDTO,
   ): Promise<void>;
   
+  sendSubscriptionSuccessLetter(
+    sendSubscriptionSuccessLetterDTO: SendSubscriptionSuccessLetterDTO,
+  ): Promise<void>;
+
   addReaderToList(addReaderToListDTO: AddReaderToListDTO): Promise<void>;
 }

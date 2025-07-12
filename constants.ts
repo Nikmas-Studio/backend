@@ -1,7 +1,9 @@
 export const AUTH_TOKEN_TTL = 30 * 60 * 1000; // 30 minutes (in milliseconds)
 export const LOGIN_LINK_TEMPLATE_NAME = 'loginLink';
-export const ORDER_SUCCESS_TEMPLATE_NAME = 'orderSuccess';
+export const ONE_TIME_PURCHASE_SUCCESS_TEMPLATE_NAME = 'orderSuccess';
+export const SUBSCRIPTION_SUCCESS_TEMPLATE_NAME = 'subscriptionSuccess';
 export const PAYMENT_LINK_TEMPLATE_NAME = 'paymentLink';
+export const DEMO_LINK_TEMPLATE_NAME = 'demoLink';
 export const STUDIO_EMAIL = '"Nikmas Studio" <team@nikmas.studio>';
 export const MAX_READER_SESSIONS = 3;
 export const REUSE_DETECTION_THRESHOLD = 5 * 60 * 1000; // 5 minute (in milliseconds)
@@ -36,14 +38,16 @@ export const BOOK_MASTER_ENGLISH_WITH_SHERLOCK_HOLMES_URI =
 
 export const BOOK_MASTER_GIT_AND_GITHUB_URI = 'book-master-git-and-github';
 
-export const TRANSLATION_CREDITS_TO_GRANT_ON_UPDATE_MASTER_ENGLISH_WITH_SHERLOCK_HOLMES = 10;
+export const TRANSLATION_CREDITS_TO_GRANT_ON_UPDATE_MASTER_ENGLISH_WITH_SHERLOCK_HOLMES =
+  10;
 
 export const BOOKS_WITHOUT_REGULAR_PAYMENT = [
   BOOK_MASTER_GIT_AND_GITHUB_URI,
 ];
 
 // email
-export const SENDPULSE_AUTH_URL = 'https://api.sendpulse.com/oauth/access_token';
+export const SENDPULSE_AUTH_URL =
+  'https://api.sendpulse.com/oauth/access_token';
 export const SENDPULSE_ADDRESSBOOK_ID = 322969;
 export const SENDPULSE_DEMO_MASTER_ENGLISH_WITH_SHERLOCK_HOLMES_TAG_ID = 2566;
 

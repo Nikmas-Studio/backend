@@ -1,24 +1,22 @@
 import { STATUS_CODE } from '@std/http';
 import { Context, TypedResponse } from 'hono';
-import { AuthRepository } from '../models/auth/repository-interface.ts';
-import { BookRepository } from '../models/book/repository-interface.ts';
-import { ReaderRepository } from '../models/reader/repository-interface.ts';
-import { SubscriptionRepository } from '../models/subscription/repository-interface.ts';
-import { OrderId, SubscriptionStatus } from '../models/subscription/types.ts';
-import { hasAccessToBook } from '../utils/hasAccessToBook.ts';
 import { HTTPException } from 'hono/http-exception';
-import { logError, logInfo } from '../utils/logger.ts';
-import { PaymentService } from '../services/payment/payment-service-interface.ts';
-import { EmailService } from '../services/email/email-service-interface.ts';
 import {
   BOOK_MASTER_ENGLISH_WITH_SHERLOCK_HOLMES_URI,
   BOOK_MASTER_GIT_AND_GITHUB_URI,
   BOOKS_WITHOUT_REGULAR_PAYMENT,
   TRANSLATION_CREDITS_TO_GRANT_ON_UPDATE_MASTER_ENGLISH_WITH_SHERLOCK_HOLMES,
 } from '../constants.ts';
-import { PurchaseBookGuestDTO } from '../routes-dtos/purchase-book-guest.ts';
+import { AuthRepository } from '../models/auth/repository-interface.ts';
+import { BookRepository } from '../models/book/repository-interface.ts';
+import { ReaderRepository } from '../models/reader/repository-interface.ts';
+import { SubscriptionRepository } from '../models/subscription/repository-interface.ts';
+import { OrderId, SubscriptionStatus } from '../models/subscription/types.ts';
 import { GetDemoLinkDTO } from '../routes-dtos/get-demo-link.ts';
+import { PurchaseBookGuestDTO } from '../routes-dtos/purchase-book-guest.ts';
+import { EmailService } from '../services/email/email-service-interface.ts';
 import { LinkType } from '../services/email/types.ts';
+import { PaymentService } from '../services/payment/payment-service-interface.ts';
 import { isPurchaseBookGuestInitiator } from '../services/payment/types.ts';
 import { ActionSource, EventName } from '../types/fb-conversions-api.ts';
 import { Env } from '../types/global-types.ts';
@@ -27,10 +25,15 @@ import { generateHMACMD5 } from '../utils/generate-hmac-md5.ts';
 import { generateUUID } from '../utils/generate-uuid.ts';
 import { generateWfpServiceUrl } from '../utils/generate-wfp-service-url.ts';
 import { getAndValidateSession } from '../utils/get-and-validate-session.ts';
+import { getTagIdForBookDemo } from '../utils/get-tag-id-for-book-demo.ts';
+import { hasAccessToBook } from '../utils/has-access-to-book.ts';
+import { logError, logInfo } from '../utils/logger.ts';
 import { notifyFbConversionsApi } from '../utils/notify-fb-conversions-api.ts';
 import { verifyCaptcha } from '../utils/verify-captcha.ts';
 import { verifyHoneypot } from '../utils/verify-honeypot.ts';
-import { getTagIdForBookDemo } from '../utils/get-tag-id-for-book-demo.ts';
+import { formatDate } from '../utils/format-date.ts';
+import { getDemoLinkByBookURI } from '../utils/get-demo-link-by-book-uri.ts';
+import { getPromoLinkByBookURI } from '../utils/get-promo-link-by-book-uri.ts';
 
 export class BooksController {
   constructor(
@@ -77,7 +80,6 @@ export class BooksController {
         session.readerId,
       );
 
-
       if (foundReader === null) {
         throw new HTTPException(STATUS_CODE.Unauthorized);
       }
@@ -86,7 +88,6 @@ export class BooksController {
 
       reader = foundReader;
     }
-
 
     const readerSubscriptions = await this.subscriptionRepository
       .getSubscriptionsByReaderId(reader.id);
@@ -283,7 +284,17 @@ export class BooksController {
     );
 
     if (subscription.status === SubscriptionStatus.PENDING) {
-      await this.subscriptionRepository.activateSubscription(subscription);
+      let accessExpiresAt: Date | undefined;
+
+      if (book!.uri !== BOOK_MASTER_GIT_AND_GITHUB_URI) {
+        accessExpiresAt = new Date();
+        accessExpiresAt.setFullYear(accessExpiresAt.getFullYear() + 1);
+      }
+
+      await this.subscriptionRepository.activateSubscription(
+        subscription,
+        accessExpiresAt,
+      );
 
       if (book!.uri === BOOK_MASTER_GIT_AND_GITHUB_URI) {
         await this.readerRepository.setInvestorStatus(
@@ -299,9 +310,18 @@ export class BooksController {
       );
 
       logInfo(`sending order success letter to ${reader!.email}`);
-      this.emailService.sendOrderSuccessLetter({
-        readerEmail: reader!.email,
-      }).catch(() => {});
+      if (book!.uri === BOOK_MASTER_GIT_AND_GITHUB_URI) {
+        this.emailService.sendOneTimePurchaseSuccessLetter({
+          readerEmail: reader!.email,
+        }).catch(() => {});
+      } else {
+        this.emailService.sendSubscriptionSuccessLetter({
+          readerEmail: reader!.email,
+          bookTitle: book!.title,
+          promoLink: buildPromoPageUrl(book!.uri),
+          paidUntil: formatDate(accessExpiresAt as Date),
+        });
+      }
 
       if (Deno.env.get('ENV') === Env.PRODUCTION) {
         const payload = {
@@ -500,17 +520,53 @@ export class BooksController {
 
     logInfo(`get demo link request for ${bookURI} for ${readerEmail}`);
 
-    await this.readerRepository.getOrCreateReader({
+    const reader = await this.readerRepository.getOrCreateReader({
       email: readerEmail,
       isInvestor: false,
       hasFullAccess: false,
     });
+
+    const demoFlowStarted = await this.bookRepository.demoFlowStarted(
+      bookURI,
+      reader.id,
+    );
+
+    if (demoFlowStarted) {
+      logInfo(
+        `demo flow already started for book: ${bookURI} and reader: ${readerEmail}, sending transactional email`,
+      );
+
+      const book = await this.bookRepository.getBookByURI(bookURI);
+
+      if (book === null) {
+        logError(`book not found: ${bookURI}`);
+        throw new HTTPException(STATUS_CODE.InternalServerError, {
+          message: `book not found: ${bookURI}`,
+        });
+      }
+
+      await this.emailService.sendDemoLink({
+        readerEmail,
+        demoLink: new URL(getDemoLinkByBookURI(bookURI)),
+        promoLink: new URL(getPromoLinkByBookURI(bookURI)),
+        bookTitle: book.title,
+      });
+
+      return c.json({
+        message: 'demo link sent successfully',
+      }, STATUS_CODE.OK);
+    }
 
     await this.emailService.addReaderToList({
       readerEmail,
       listId,
       tagId: getTagIdForBookDemo(bookURI),
     });
+
+    await this.bookRepository.startDemoFlow(bookURI, reader.id);
+    logInfo(
+      `demo flow is successfully started for book: ${bookURI} and reader: ${readerEmail}`,
+    );
 
     return c.json({
       message: 'demo link sent successfully',

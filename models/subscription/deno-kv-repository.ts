@@ -175,9 +175,10 @@ export class SubscriptionDenoKvRepository implements SubscriptionRepository {
     });
   }
 
-  async activateSubscription(subscription: Subscription): Promise<void> {
+  async activateSubscription(subscription: Subscription, accessExpiresAt?: Date): Promise<void> {
     await this.kv.set(['subscriptions', subscription.id], {
       ...subscription,
+      accessExpiresAt,
       status: SubscriptionStatus.ACTIVE,
     });
     await this.createSubscriptionHistory(subscription.id, subscription.orderId);
