@@ -44,6 +44,12 @@ export class WayforpayPaymentService implements PaymentService {
       params.regularOn = '1';
     }
 
+    logInfo(
+      `generating payment link for reader: ${readerEmail}, regular: ${regular} book: ${book.title}, orderId: ${orderId}, params: ${
+        JSON.stringify(params)
+      }`,
+    );
+
     const message = [
       params.merchantAccount,
       params.merchantDomainName,

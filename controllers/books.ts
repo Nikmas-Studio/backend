@@ -136,6 +136,9 @@ export class BooksController {
     }
 
     const serviceURL = new URL(generateWfpServiceUrl());
+    logInfo(
+      `service URL for Wayforpay: ${serviceURL.toString()}`,
+    );
 
     let paymentLink: URL;
     try {
