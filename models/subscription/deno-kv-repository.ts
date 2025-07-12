@@ -281,7 +281,7 @@ export class SubscriptionDenoKvRepository implements SubscriptionRepository {
     let primaryKey;
     let updateAt;
 
-    if ('readerId' in connection) {
+    if (typeof connection !== 'string') {
       primaryKey = [
         'translation_credits',
         connection.readerId,
@@ -313,7 +313,7 @@ export class SubscriptionDenoKvRepository implements SubscriptionRepository {
     translationPrice: number,
     creditsToGrantOnUpdate: number,
   ): Promise<{ enoughCredits: boolean }> {
-    const key = 'readerId' in connection
+    const key = typeof connection !== 'string'
       ? [
         'translation_credits',
         connection.readerId,
@@ -328,7 +328,7 @@ export class SubscriptionDenoKvRepository implements SubscriptionRepository {
     let creditsValue = credits.value;
 
     if (creditsValue === null) {
-      if ('readerId' in connection) {
+      if (typeof connection !== 'string') {
         const creditsForFullAccessReader = {
           creditsGranted: creditsToGrantOnUpdate,
           updateAt: new Date(
@@ -346,7 +346,7 @@ export class SubscriptionDenoKvRepository implements SubscriptionRepository {
 
     if (new Date() >= creditsValue.updateAt) {
       let subscription = null;
-      if (!('readerId' in connection)) {
+      if (typeof connection === 'string') {
         subscription = await this.getSubscriptionById(connection);
         if (subscription === null) {
           throw new SubscriptionNotFoundError(connection);

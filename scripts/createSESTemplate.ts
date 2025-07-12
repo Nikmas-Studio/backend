@@ -6,42 +6,42 @@ import { getAWSSESClientConfig } from '../utils/get-aws-ses-client-config.ts';
 
 const client = new SESClient(getAWSSESClientConfig());
 
-// const input = {
-//   Template: {
-//     TemplateName: 'loginLink',
-//     SubjectPart: 'Link to your library',
-//     HtmlPart: `
-//       <div style="max-width:600px">
-//         <p>Here's a&nbsp;link to&nbsp;access your&nbsp;library:</p>
-//         <p>
-//           <a href="{{link}}" target="_blank">
-//             {{link}}
-//           </a>
-//         </p>
-//         <p>If you haven't initiated this&nbsp;request, just disregard this&nbsp;message: someone might&nbsp;have&nbsp;entered your&nbsp;email by&nbsp;mistake.</p>
-//         <p>© Nikmas&nbsp;Studio, {{year}}</p>
-//       </div>
-//     `,
-//   },
-// };
-
 const input = {
   Template: {
-    TemplateName: 'paymentLink',
-    SubjectPart: 'Your payment link for «{{bookTitle}}»',
+    TemplateName: 'loginLink',
+    SubjectPart: 'Link to your library',
     HtmlPart: `
-     <div style="max-width:600px">
-        <p>Here's your&nbsp;payment link for the&nbsp;Interactive E-Book <strong>«{{bookTitle}}»:</strong><br />
+      <div style="max-width:600px">
+        <p>Here's a&nbsp;link to&nbsp;access your&nbsp;library:</p>
+        <p>
           <a href="{{link}}" target="_blank">
             {{link}}
           </a>
         </p>
         <p>If you haven't initiated this&nbsp;request, just disregard this&nbsp;message: someone might&nbsp;have&nbsp;entered your&nbsp;email by&nbsp;mistake.</p>
-        <p>© Nikmas Studio, {{year}}</p>
+        <p>© Nikmas&nbsp;Studio, {{year}}</p>
       </div>
     `,
   },
 };
+
+// const input = {
+//   Template: {
+//     TemplateName: 'paymentLink',
+//     SubjectPart: 'Your payment link for «{{bookTitle}}»',
+//     HtmlPart: `
+//      <div style="max-width:600px">
+//         <p>Here's your&nbsp;payment link for the&nbsp;Interactive E-Book <strong>«{{bookTitle}}»:</strong><br />
+//           <a href="{{link}}" target="_blank">
+//             {{link}}
+//           </a>
+//         </p>
+//         <p>If you haven't initiated this&nbsp;request, just disregard this&nbsp;message: someone might&nbsp;have&nbsp;entered your&nbsp;email by&nbsp;mistake.</p>
+//         <p>© Nikmas Studio, {{year}}</p>
+//       </div>
+//     `,
+//   },
+// };
 
 // const input = {
 //   Template: {
