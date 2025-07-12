@@ -149,13 +149,6 @@ app.post(
 );
 
 app.post(
-  '/payment-success',
-  (c) => {
-    return booksController.paymentHappened(c);
-  },
-);
-
-app.post(
   '/payment-happened-wayforpay',
   (c) => {
     return booksController.paymentHappened(c);
