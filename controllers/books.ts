@@ -244,13 +244,17 @@ export class BooksController {
 
     const subscription = await this.subscriptionRepository
       .getSubscriptionByOrderId(orderId);
+    logInfo(
+      `subscription for orderId ${orderId}: ${JSON.stringify(subscription)}`,
+    );
     if (
       subscription === null ||
       subscription.status === SubscriptionStatus.CANCELED
     ) {
       logError(`subscription with orderId ${orderId} not found or is canceled`);
       throw new HTTPException(STATUS_CODE.BadRequest, {
-        message: `subscription with orderId ${orderId} not found or is canceled`,
+        message:
+          `subscription with orderId ${orderId} not found or is canceled`,
       });
     }
 
