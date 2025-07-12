@@ -170,7 +170,10 @@ export class SubscriptionDenoKvRepository implements SubscriptionRepository {
     subscription: Subscription,
     newOrderId: OrderId,
   ): Promise<void> {
-    const byOrderIdKeyToRemove = ['subscriptions_by_order_id', subscription.orderId];
+    const byOrderIdKeyToRemove = [
+      'subscriptions_by_order_id',
+      subscription.orderId,
+    ];
     const byOrderIdKeyToSet = ['subscriptions_by_order_id', newOrderId];
     const updatedSubscription = {
       ...subscription,
@@ -184,7 +187,10 @@ export class SubscriptionDenoKvRepository implements SubscriptionRepository {
       .commit();
   }
 
-  async activateSubscription(subscription: Subscription, accessExpiresAt?: Date): Promise<void> {
+  async activateSubscription(
+    subscription: Subscription,
+    accessExpiresAt?: Date,
+  ): Promise<void> {
     await this.kv.set(['subscriptions', subscription.id], {
       ...subscription,
       accessExpiresAt,
@@ -349,8 +355,9 @@ export class SubscriptionDenoKvRepository implements SubscriptionRepository {
 
         await this.kv.set(key, creditsForFullAccessReader);
         creditsValue = creditsForFullAccessReader;
+      } else {
+        throw new TranslationCreditsObjectNotFoundError(connection);
       }
-      throw new TranslationCreditsObjectNotFoundError(connection);
     }
 
     if (new Date() >= creditsValue.updateAt) {
@@ -384,7 +391,9 @@ export class SubscriptionDenoKvRepository implements SubscriptionRepository {
 
     if (creditsValue.creditsGranted >= translationPrice) {
       creditsValue.creditsGranted -= translationPrice;
-      logInfo(`translation credits reduced by $${translationPrice}, remaining: $${creditsValue.creditsGranted}`);
+      logInfo(
+        `translation credits reduced by $${translationPrice}, remaining: $${creditsValue.creditsGranted}`,
+      );
       await this.kv.set(key, creditsValue);
       return { enoughCredits: true };
     }
