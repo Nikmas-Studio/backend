@@ -19,18 +19,18 @@ import { PaymentService } from '../services/payment/payment-service-interface.ts
 import { ActionSource, EventName } from '../types/fb-conversions-api.ts';
 import { Env } from '../types/global-types.ts';
 import { buildPromoPageUrl } from '../utils/build-promo-page-url.ts';
+import { formatDate } from '../utils/format-date.ts';
 import { generateHMACMD5 } from '../utils/generate-hmac-md5.ts';
 import { generateUUID } from '../utils/generate-uuid.ts';
 import { generateWfpServiceUrl } from '../utils/generate-wfp-service-url.ts';
 import { getAndValidateSession } from '../utils/get-and-validate-session.ts';
+import { getDemoLinkByBookURI } from '../utils/get-demo-link-by-book-uri.ts';
+import { getPromoLinkByBookURI } from '../utils/get-promo-link-by-book-uri.ts';
 import { hasAccessToBook } from '../utils/has-access-to-book.ts';
 import { logError, logInfo } from '../utils/logger.ts';
 import { notifyFbConversionsApi } from '../utils/notify-fb-conversions-api.ts';
 import { verifyCaptcha } from '../utils/verify-captcha.ts';
 import { verifyHoneypot } from '../utils/verify-honeypot.ts';
-import { formatDate } from '../utils/format-date.ts';
-import { getDemoLinkByBookURI } from '../utils/get-demo-link-by-book-uri.ts';
-import { getPromoLinkByBookURI } from '../utils/get-promo-link-by-book-uri.ts';
 
 export class BooksController {
   constructor(
@@ -199,7 +199,7 @@ export class BooksController {
     }
   }
 
-  async paymentSuccess(
+  async paymentHappened(
     c: Context,
   ): Promise<TypedResponse> {
     let body;
@@ -209,7 +209,7 @@ export class BooksController {
       body = null;
     }
 
-    logInfo(`payment success body: ${JSON.stringify(body)}`);
+    logInfo(`payment happened body: ${JSON.stringify(body)}`);
     let wfpOrderReference = body?.orderReference ?? null;
     const transactionStatus = body?.transactionStatus ?? null;
 
@@ -404,16 +404,25 @@ export class BooksController {
     }, STATUS_CODE.OK);
   }
 
-  async checkAccessToBook(c: Context): Promise<TypedResponse> {
+  async checkAccessToBookAndHandleRegularPayment(
+    c: Context,
+  ): Promise<TypedResponse> {
     const bookURI = c.req.param('uri');
-    const { accessGranted, subscription } = await hasAccessToBook(
-      c,
-      bookURI,
-      this.authRepository,
-      this.readerRepository,
-      this.subscriptionRepository,
-      this.bookRepository,
-    );
+    const { accessGranted, subscription, orderIdToRemoveRegularPayment } =
+      await hasAccessToBook(
+        c,
+        bookURI,
+        this.authRepository,
+        this.readerRepository,
+        this.subscriptionRepository,
+        this.bookRepository,
+      );
+
+    if (orderIdToRemoveRegularPayment !== undefined) {
+      await this.paymentService.removeRegularPayment(
+        orderIdToRemoveRegularPayment,
+      );
+    }
 
     const response = {
       accessGranted,
@@ -441,6 +450,7 @@ export class BooksController {
       subscription.status !== SubscriptionStatus.CANCELED
     ) {
       await this.subscriptionRepository.cancelSubscription(subscription);
+      await this.paymentService.suspendRegularPayment(subscription.orderId);
 
       logInfo(
         `subscription ${subscription} is cancelled`,
@@ -477,7 +487,11 @@ export class BooksController {
       accessGranted && subscription !== undefined &&
       subscription.status === SubscriptionStatus.CANCELED
     ) {
-      await this.subscriptionRepository.activateSubscription(subscription);
+      await this.subscriptionRepository.activateSubscription(
+        subscription,
+        subscription.accessExpiresAt,
+      );
+      await this.paymentService.resumeRegularPayment(subscription.orderId);
 
       logInfo(
         `subscription ${subscription} is resumed`,

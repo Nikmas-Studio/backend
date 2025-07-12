@@ -2,6 +2,7 @@ import { zValidator } from '@hono/zod-validator';
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { requestId } from 'hono/request-id';
+import { SENDPULSE_ADDRESSBOOK_ID } from './constants.ts';
 import { asyncLocalStorage } from './context.ts';
 import { AuthController } from './controllers/auth.ts';
 import { BooksController } from './controllers/books.ts';
@@ -15,6 +16,7 @@ import { BookDenoKvRepository } from './models/book/deno-kv-repository.ts';
 import { ReaderDenoKvRepository } from './models/reader/deno-kv-repository.ts';
 import { SubscriptionDenoKvRepository } from './models/subscription/deno-kv-repository.ts';
 import { TranslationDenoKvRepository } from './models/translation/deno-kv-repository.ts';
+import { GetDemoLinkDTOSchema } from './routes-dtos/get-demo-link.ts';
 import { LogDTOSchema } from './routes-dtos/log-error.ts';
 import { LoginDTOSchema } from './routes-dtos/login.ts';
 import { PurchaseBookGuestDTOSchema } from './routes-dtos/purchase-book-guest.ts';
@@ -27,9 +29,6 @@ import { VerifyOrderIdDTOSchema } from './routes-dtos/verify-order-id.ts';
 import { AWSSESSendPulseEmailService } from './services/email/aws-ses-sendpulse-email-service.ts';
 import { WayforpayPaymentService } from './services/payment/wayforpay-payment-service.ts';
 import { OpenaiDeeplTranslationService } from './services/translation/openai-deepl-translation-service.ts';
-import { GetDemoLinkDTOSchema } from './routes-dtos/get-demo-link.ts';
-import { SENDPULSE_ADDRESSBOOK_ID } from './constants.ts';
-import { logInfo } from './utils/logger.ts';
 
 const app = new Hono();
 
@@ -152,14 +151,14 @@ app.post(
 app.post(
   '/payment-success',
   (c) => {
-    return booksController.paymentSuccess(c);
+    return booksController.paymentHappened(c);
   },
 );
 
 app.post(
-  '/payment-success-wayforpay',
+  '/payment-happened-wayforpay',
   (c) => {
-    return booksController.paymentSuccess(c);
+    return booksController.paymentHappened(c);
   },
 );
 
@@ -167,12 +166,16 @@ app.post(
   '/books/:uri/get-demo-link',
   zValidator('json', GetDemoLinkDTOSchema),
   (c) => {
-    return booksController.getDemoLink(c, c.req.valid('json'), SENDPULSE_ADDRESSBOOK_ID);
+    return booksController.getDemoLink(
+      c,
+      c.req.valid('json'),
+      SENDPULSE_ADDRESSBOOK_ID,
+    );
   },
 );
 
 app.get('/books/:uri/access', (c) => {
-  return booksController.checkAccessToBook(c);
+  return booksController.checkAccessToBookAndHandleRegularPayment(c);
 });
 
 app.post('/books/:uri/cancel-subscription', (c) => {

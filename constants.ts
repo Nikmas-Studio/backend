@@ -30,8 +30,6 @@ export const PAYMENT_SYSTEMS = 'card;googlePay;applePay';
 export const WAYFORPAY_GENERATE_PAYMENT_LINK_URL =
   'https://secure.wayforpay.com/pay';
 export const WAYFORPAY_REGULAR_API_URL = 'https://api.wayforpay.com/regularApi';
-export const WAYFORPAY_SERVICE_URL =
-  'https://api.nikmas.studio/payment-success-wayforpay';
 export const MAX_TRANSLATION_FRAGMENT_LENGTH = 500;
 export const BOOK_MASTER_ENGLISH_WITH_SHERLOCK_HOLMES_URI =
   'book-master-english-with-sherlock-holmes';
