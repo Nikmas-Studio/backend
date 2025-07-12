@@ -430,7 +430,8 @@ export class BooksController {
     const response = {
       accessGranted,
       paidUntil: subscription?.accessExpiresAt,
-      subscriptionIsActive: subscription?.status === SubscriptionStatus.ACTIVE,
+      subscriptionIsActive: (subscription === undefined && accessGranted) ||
+        subscription?.status === SubscriptionStatus.ACTIVE,
     };
 
     return c.json(response, STATUS_CODE.OK);
