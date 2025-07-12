@@ -42,7 +42,6 @@ export class WayforpayPaymentService implements PaymentService {
       params.regularMode = 'yearly';
       params.regularAmount = String(book.price);
       params.regularOn = '1';
-      params.recTokenOn = '1';
     }
 
     logInfo(
@@ -72,6 +71,8 @@ export class WayforpayPaymentService implements PaymentService {
       ...params,
       merchantSignature: signature,
     });
+    
+    logInfo(`formData: ${formData.toString()}`);
 
     let res;
     try {
