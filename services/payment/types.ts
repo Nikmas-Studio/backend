@@ -4,8 +4,6 @@ import { OrderId } from '../../models/subscription/types.ts';
 import { PaymentSuccessAuthenticatedDTO } from '../../routes-dtos/payment-success-authenticated.ts';
 import { PaymentSuccessGuestDTO } from '../../routes-dtos/payment-success-guest.ts';
 import { PaymentSuccessWayforpayDTO } from '../../routes-dtos/payment-success-wayforpay.ts';
-import { PurchaseBookAuthenticatedDTO } from '../../routes-dtos/purchase-book-authenticated.ts';
-import { PurchaseBookGuestDTO } from '../../routes-dtos/purchase-book-guest.ts';
 
 export interface GeneratePaymentLinkDto {
   readerEmail: Email;
@@ -19,18 +17,6 @@ export enum PaymentSuccessInitiator {
   GUEST = 'GUEST',
   AUTHENTICATED = 'AUTHENTICATED',
   PAYMENT_SERVICE = 'PAYMENT_SERVICE',
-}
-
-export function isPurchaseBookGuestInitiator(
-  dto: PurchaseBookGuestDTO | PurchaseBookAuthenticatedDTO,
-): dto is PurchaseBookGuestDTO {
-  return 'email' in dto;
-}
-
-export function isPurchaseBookAuthenticatedInitiator(
-  dto: PurchaseBookGuestDTO | PurchaseBookAuthenticatedDTO,
-): dto is PurchaseBookAuthenticatedDTO {
-  return !('email' in dto);
 }
 
 export function isPaymentSuccessGuestInitiator(

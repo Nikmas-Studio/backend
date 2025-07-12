@@ -17,7 +17,6 @@ import { PurchaseBookGuestDTO } from '../routes-dtos/purchase-book-guest.ts';
 import { EmailService } from '../services/email/email-service-interface.ts';
 import { LinkType } from '../services/email/types.ts';
 import { PaymentService } from '../services/payment/payment-service-interface.ts';
-import { isPurchaseBookGuestInitiator } from '../services/payment/types.ts';
 import { ActionSource, EventName } from '../types/fb-conversions-api.ts';
 import { Env } from '../types/global-types.ts';
 import { buildPromoPageUrl } from '../utils/build-promo-page-url.ts';
@@ -177,7 +176,7 @@ export class BooksController {
       );
     }
 
-    if (isPurchaseBookGuestInitiator(purchaseBookDTO)) {
+    if (purchaseBookDTO !== undefined) {
       logInfo(`sending payment link to ${reader.email}`);
       try {
         await this.emailService.sendLink({
