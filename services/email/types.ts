@@ -30,7 +30,6 @@ export interface SendSubscriptionSuccessLetterDTO {
 export interface AddReaderToListDTO {
   readerEmail: Email;
   listId: number;
-  tagId: number;
 }
 
 export enum LinkType {

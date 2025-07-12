@@ -530,42 +530,38 @@ export class BooksController {
       reader.id,
     );
 
-    if (demoFlowStarted) {
-      logInfo(
-        `demo flow already started for book: ${bookURI} and reader: ${readerEmail}, sending transactional email`,
-      );
-
-      const book = await this.bookRepository.getBookByURI(bookURI);
-
-      if (book === null) {
-        logError(`book not found: ${bookURI}`);
-        throw new HTTPException(STATUS_CODE.NotFound, {
-          message: `book not found: ${bookURI}`,
-        });
-      }
-
-      await this.emailService.sendDemoLink({
+    if (!demoFlowStarted) {
+      await this.emailService.addReaderToList({
         readerEmail,
-        demoLink: new URL(getDemoLinkByBookURI(bookURI)),
-        promoLink: new URL(getPromoLinkByBookURI(bookURI)),
-        bookTitle: book.title,
+        listId,
+        tagId: getTagIdForBookDemo(bookURI),
       });
 
-      return c.json({
-        message: 'demo link sent successfully',
-      }, STATUS_CODE.OK);
+      await this.bookRepository.startDemoFlow(bookURI, reader.id);
+      logInfo(
+        `demo flow is successfully started for book: ${bookURI} and reader: ${readerEmail}`,
+      );
     }
 
-    await this.emailService.addReaderToList({
-      readerEmail,
-      listId,
-      tagId: getTagIdForBookDemo(bookURI),
-    });
-
-    await this.bookRepository.startDemoFlow(bookURI, reader.id);
     logInfo(
-      `demo flow is successfully started for book: ${bookURI} and reader: ${readerEmail}`,
+      `demo flow already started for book: ${bookURI} and reader: ${readerEmail}`,
     );
+
+    const book = await this.bookRepository.getBookByURI(bookURI);
+
+    if (book === null) {
+      logError(`book not found: ${bookURI}`);
+      throw new HTTPException(STATUS_CODE.NotFound, {
+        message: `book not found: ${bookURI}`,
+      });
+    }
+
+    await this.emailService.sendDemoLink({
+      readerEmail,
+      demoLink: new URL(getDemoLinkByBookURI(bookURI)),
+      promoLink: new URL(getPromoLinkByBookURI(bookURI)),
+      bookTitle: book.title,
+    });
 
     return c.json({
       message: 'demo link sent successfully',

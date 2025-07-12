@@ -151,7 +151,7 @@ export class AWSSESSendPulseEmailService implements EmailService {
   }
 
   async addReaderToList(
-    { readerEmail, listId, tagId }: AddReaderToListDTO,
+    { readerEmail, listId }: AddReaderToListDTO,
   ): Promise<void> {
     let authResp;
     try {
@@ -183,7 +183,6 @@ export class AWSSESSendPulseEmailService implements EmailService {
         },
         body: JSON.stringify({
           emails: [readerEmail],
-          tags: [tagId],
         }),
       });
     } catch (e) {
