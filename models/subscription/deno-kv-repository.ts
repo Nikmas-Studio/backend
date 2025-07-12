@@ -170,10 +170,18 @@ export class SubscriptionDenoKvRepository implements SubscriptionRepository {
     subscription: Subscription,
     newOrderId: OrderId,
   ): Promise<void> {
-    await this.kv.set(['subscriptions', subscription.id], {
+    const byOrderIdKeyToRemove = ['subscriptions_by_order_id', subscription.orderId];
+    const byOrderIdKeyToSet = ['subscriptions_by_order_id', newOrderId];
+    const updatedSubscription = {
       ...subscription,
       orderId: newOrderId,
-    });
+    };
+
+    await this.kv.atomic()
+      .delete(byOrderIdKeyToRemove)
+      .set(byOrderIdKeyToSet, subscription.id)
+      .set(['subscriptions', subscription.id], updatedSubscription)
+      .commit();
   }
 
   async activateSubscription(subscription: Subscription, accessExpiresAt?: Date): Promise<void> {

@@ -252,10 +252,10 @@ export class BooksController {
       subscription.status === SubscriptionStatus.CANCELED
     ) {
       logError(`subscription with orderId ${orderId} not found or is canceled`);
-      throw new HTTPException(STATUS_CODE.BadRequest, {
-        message:
-          `subscription with orderId ${orderId} not found or is canceled`,
-      });
+      return c.json({
+        ...responseToWayforpay,
+        signature,
+      }, STATUS_CODE.OK);
     }
 
     if (transactionStatus !== 'Approved') {
