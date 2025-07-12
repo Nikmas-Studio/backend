@@ -175,12 +175,11 @@ app.get('/books/:uri/access', (c) => {
   return booksController.checkAccessToBook(c);
 });
 
-app.get('/books/:uri/cancel-subscription', (c) => {
-  logInfo(`Canceling subscription for book: ${c.req.param('uri')}`);
+app.post('/books/:uri/cancel-subscription', (c) => {
   return booksController.cancelSubscription(c);
 });
 
-app.get('/books/:uri/resume-subscription', (c) => {
+app.post('/books/:uri/resume-subscription', (c) => {
   return booksController.resumeSubscription(c);
 });
 
