@@ -42,7 +42,7 @@ export class WayforpayPaymentService implements PaymentService {
       params.regularMode = 'yearly';
       params.regularAmount = String(book.price);
       params.regularOn = '1';
-      params.regularCount = '100000';
+      params.regularCount = '1000';
     }
 
     logInfo(
