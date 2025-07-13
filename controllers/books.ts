@@ -86,6 +86,19 @@ export class BooksController {
       reader = foundReader;
     }
 
+    const readerStatuses = await this.readerRepository.getReaderStatuses(
+      reader.id,
+    );
+
+    if (readerStatuses !== null && readerStatuses.hasFullAccess) {
+      logError(
+        `reader ${reader.id} already has access to the book: ${bookURI} as they are full access reader`,
+      );
+      throw new HTTPException(STATUS_CODE.BadRequest, {
+        message: `reader ${reader.id} already has access to the book: ${bookURI}`,
+      });
+    }
+
     const readerSubscriptions = await this.subscriptionRepository
       .getSubscriptionsByReaderId(reader.id);
 

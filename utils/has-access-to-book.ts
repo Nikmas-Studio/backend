@@ -1,6 +1,4 @@
-import { STATUS_CODE } from '@std/http/status';
 import { Context } from 'hono';
-import { HTTPException } from 'hono/http-exception';
 import { AuthRepository } from '../models/auth/repository-interface.ts';
 import { BookRepository } from '../models/book/repository-interface.ts';
 import { ReaderRepository } from '../models/reader/repository-interface.ts';
@@ -12,7 +10,6 @@ OrderId,
   SubscriptionStatus,
 } from '../models/subscription/types.ts';
 import { getAndValidateSession } from './get-and-validate-session.ts';
-import { logError } from './logger.ts';
 
 export async function hasAccessToBook(
   c: Context,
@@ -32,12 +29,7 @@ export async function hasAccessToBook(
     session.readerId,
   );
 
-  if (readerStatuses === null) {
-    logError(`Reader statuses not found for readerId: ${session.readerId}`);
-    throw new HTTPException(STATUS_CODE.InternalServerError);
-  }
-
-  if (readerStatuses.hasFullAccess) {
+  if (readerStatuses !== null && readerStatuses.hasFullAccess) {
     return {
       accessGranted: true,
       readerId: session.readerId,
