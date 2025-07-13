@@ -72,7 +72,7 @@ export class WayforpayPaymentService implements PaymentService {
       ...params,
       merchantSignature: signature,
     });
-    
+
     logInfo(`formData: ${formData.toString()}`);
 
     let res;

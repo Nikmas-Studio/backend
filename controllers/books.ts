@@ -213,11 +213,6 @@ export class BooksController {
     let wfpOrderReference = body?.orderReference ?? null;
     const transactionStatus = body?.transactionStatus ?? null;
 
-    if (transactionStatus === null || wfpOrderReference === null) {
-      logError('transaction status or order referense is null');
-      throw new HTTPException(STATUS_CODE.BadRequest);
-    }
-
     let isRegularPayment = false;
     const parts = wfpOrderReference.split('_Regular');
     wfpOrderReference = parts[0];
@@ -241,6 +236,14 @@ export class BooksController {
       ].join(';'),
       Deno.env.get('MERCHANT_SECRET_KEY')!,
     );
+
+    if (transactionStatus === null || wfpOrderReference === null) {
+      logError('transaction status or order referense is null');
+      return c.json({
+        ...responseToWayforpay,
+        signature,
+      }, STATUS_CODE.OK);
+    }
 
     const subscription = await this.subscriptionRepository
       .getSubscriptionByOrderId(orderId);

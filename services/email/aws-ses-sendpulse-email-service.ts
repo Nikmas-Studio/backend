@@ -5,6 +5,7 @@ import {
   ONE_TIME_PURCHASE_SUCCESS_TEMPLATE_NAME,
   PAYMENT_LINK_TEMPLATE_NAME,
   SENDPULSE_AUTH_URL,
+  SENDPULSE_DEMO_MASTER_ENGLISH_WITH_SHERLOCK_HOLMES_TAG_ID,
   STUDIO_EMAIL,
   SUBSCRIPTION_SUCCESS_TEMPLATE_NAME,
 } from '../../constants.ts';
@@ -196,6 +197,7 @@ export class AWSSESSendPulseEmailService implements EmailService {
         },
         body: JSON.stringify({
           emails: [readerEmail],
+          tags: [SENDPULSE_DEMO_MASTER_ENGLISH_WITH_SHERLOCK_HOLMES_TAG_ID],
         }),
       });
     } catch (e) {
