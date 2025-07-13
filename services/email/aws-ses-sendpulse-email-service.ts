@@ -197,6 +197,17 @@ export class AWSSESSendPulseEmailService implements EmailService {
         },
         body: JSON.stringify({
           emails: [readerEmail],
+        }),
+      });
+
+      await fetch(`https://api.sendpulse.com/tags/pin/email`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({
+          email: readerEmail,
           tags: [SENDPULSE_DEMO_MASTER_ENGLISH_WITH_SHERLOCK_HOLMES_TAG_ID],
         }),
       });
