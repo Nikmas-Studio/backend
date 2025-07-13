@@ -1,6 +1,6 @@
 import { encodeHex } from '@std/encoding/hex';
 import { CURRENCY } from '../constants.ts';
-import { BookMainPrice } from '../models/book/types.ts';
+import { BookPrice } from '../models/book/types.ts';
 import {
   ActionSource,
   ClientIpAddress,
@@ -19,7 +19,7 @@ export interface ConversionsApiNotificationPayload {
   readerPhone: Phone;
   readerIpAddress: ClientIpAddress;
   readerUserAgent: ClientUserAgent;
-  bookPrice: BookMainPrice;
+  bookPrice: BookPrice;
 }
 
 export async function notifyFbConversionsApi({

@@ -12,7 +12,6 @@ import { ReaderRepository } from '../models/reader/repository-interface.ts';
 import { LoginDTO } from '../routes-dtos/login.ts';
 import { ValidateAuthTokenDTO } from '../routes-dtos/validate-auth-token.ts';
 import { EmailService } from '../services/email/email-service-interface.ts';
-import { LinkType } from '../services/email/types.ts';
 import { generateLoginLink } from '../utils/generate-login-link.ts';
 import { getAndValidateSession } from '../utils/get-and-validate-session.ts';
 import { logInfo } from '../utils/logger.ts';
@@ -49,10 +48,9 @@ export class AuthController {
 
     try {
       logInfo(`sending login link to ${readerEmail}`);
-      await this.emailService.sendLink({
+      await this.emailService.sendLoginLink({
         readerEmail,
         link: loginLink,
-        linkType: LinkType.LOGIN,
       });
     } catch (_) {
       throw new HTTPException(STATUS_CODE.InternalServerError);

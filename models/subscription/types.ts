@@ -27,6 +27,7 @@ export type SubscriptionHistoryId = Branded<UUID, 'SubscriptionHistoryId'>;
 export interface SubscriptionHistory {
   id: SubscriptionHistoryId;
   subscriptionId: SubscriptionId;
+  orderId: OrderId;
   activatedAt: Date;
   canceledAt?: Date;
 }

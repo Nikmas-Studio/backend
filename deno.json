@@ -28,6 +28,7 @@
     "hono": "npm:hono@^4.6.9",
     "@aws-sdk/client-ses": "https://esm.sh/@aws-sdk/client-ses@3.687.0",
     "@std/uuid": "jsr:@std/uuid",
+    "openai": "npm:openai@^4.103.0",
     "zod": "npm:zod@^3.23.8"
   },
   "fmt": {

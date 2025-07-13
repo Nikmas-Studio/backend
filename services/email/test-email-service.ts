@@ -1,11 +1,37 @@
 import { EmailService } from './email-service-interface.ts';
-import { SendLinkDTO, SendOrderSuccessLetterDTO } from './types.ts';
+import {
+  SendDemoLinkDTO,
+  SendLoginLinkDTO,
+  SendOneTimePurchaseSuccessLetterDTO,
+  SendPaymentLinkDTO,
+  SendSubscriptionSuccessLetterDTO,
+} from './types.ts';
 
 export class TestEmailService implements EmailService {
-  sendOrderSuccessLetter(_sendOrderSuccessLetterDTO: SendOrderSuccessLetterDTO): Promise<void> {
+  sendLoginLink(_sendLinkDTO: SendLoginLinkDTO): Promise<void> {
     return Promise.resolve();
   }
-  sendLink(_sendLoginLinkDTO: SendLinkDTO): Promise<void> {
+  sendPaymentLink(_sendPaymentLinkDTO: SendPaymentLinkDTO): Promise<void> {
+    return Promise.resolve();
+  }
+
+  sendSubscriptionSuccessLetter(
+    _sendSubscriptionSuccessLetterDTO: SendSubscriptionSuccessLetterDTO,
+  ): Promise<void> {
+    return Promise.resolve();
+  }
+
+  sendDemoLink(_sendDemoLinkDTO: SendDemoLinkDTO): Promise<void> {
+    return Promise.resolve();
+  }
+
+  sendOneTimePurchaseSuccessLetter(
+    _sendOrderSuccessLetterDTO: SendOneTimePurchaseSuccessLetterDTO,
+  ): Promise<void> {
+    return Promise.resolve();
+  }
+
+  addReaderToList(): Promise<void> {
     return Promise.resolve();
   }
 }

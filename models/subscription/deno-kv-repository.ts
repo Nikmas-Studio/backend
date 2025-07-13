@@ -2,8 +2,12 @@ import {
   RemoveSubscriptionError,
   RemoveSubscriptionHistoryError,
   SubscriptionExistsError,
+  SubscriptionNotFoundError,
+  TranslationCreditsObjectNotFoundError,
 } from '../../errors.ts';
 import { generateUUID } from '../../utils/generate-uuid.ts';
+import { logInfo } from '../../utils/logger.ts';
+import { BookId } from '../book/types.ts';
 import { ReaderId } from '../reader/types.ts';
 import { SubscriptionRepository } from './repository-interface.ts';
 import {
@@ -100,9 +104,11 @@ export class SubscriptionDenoKvRepository implements SubscriptionRepository {
 
   async createSubscriptionHistory(
     subscriptionId: SubscriptionId,
+    orderId: OrderId,
   ): Promise<SubscriptionHistory> {
     const subscriptionHistory: SubscriptionHistory = {
       id: generateUUID() as SubscriptionHistoryId,
+      orderId,
       subscriptionId,
       activatedAt: new Date(),
     };
@@ -153,11 +159,65 @@ export class SubscriptionDenoKvRepository implements SubscriptionRepository {
     return subscriptionHistories;
   }
 
-  async activateSubscription(subscription: Subscription): Promise<void> {
+  async makeSubscriptionPending(subscription: Subscription): Promise<void> {
     await this.kv.set(['subscriptions', subscription.id], {
       ...subscription,
+      status: SubscriptionStatus.PENDING,
+    });
+  }
+
+  async updateSubscriptionOrderId(
+    subscription: Subscription,
+    newOrderId: OrderId,
+  ): Promise<void> {
+    const byOrderIdKeyToRemove = [
+      'subscriptions_by_order_id',
+      subscription.orderId,
+    ];
+    const byOrderIdKeyToSet = ['subscriptions_by_order_id', newOrderId];
+    const updatedSubscription = {
+      ...subscription,
+      orderId: newOrderId,
+    };
+
+    await this.kv.atomic()
+      .delete(byOrderIdKeyToRemove)
+      .set(byOrderIdKeyToSet, subscription.id)
+      .set(['subscriptions', subscription.id], updatedSubscription)
+      .commit();
+  }
+
+  async activateSubscription(
+    subscription: Subscription,
+    accessExpiresAt?: Date,
+  ): Promise<void> {
+    await this.kv.set(['subscriptions', subscription.id], {
+      ...subscription,
+      accessExpiresAt,
       status: SubscriptionStatus.ACTIVE,
     });
+    await this.createSubscriptionHistory(subscription.id, subscription.orderId);
+  }
+
+  async cancelSubscription(subscription: Subscription): Promise<void> {
+    await this.kv.set(['subscriptions', subscription.id], {
+      ...subscription,
+      status: SubscriptionStatus.CANCELED,
+    });
+
+    const subscriptionHistories = await this
+      .getSubscriptionHistoriesBySubscriptionId(
+        subscription.id,
+      );
+
+    for (const history of subscriptionHistories) {
+      if (history.canceledAt === undefined) {
+        await this.kv.set(['subscription_histories', history.id], {
+          ...history,
+          canceledAt: new Date(),
+        });
+      }
+    }
   }
 
   async getAllSubscriptions(): Promise<Subscription[]> {
@@ -211,5 +271,133 @@ export class SubscriptionDenoKvRepository implements SubscriptionRepository {
     if (!res.ok) {
       throw new RemoveSubscriptionHistoryError(subscriptionHistory.id);
     }
+  }
+
+  async markSubscriptionOrderAsMetaPixelNotified(
+    orderId: OrderId,
+  ): Promise<{ wasAlreadyNotified: boolean }> {
+    const key = ['meta_pixel_notified_orders', orderId];
+
+    const existingNotifiedOrder = await this.kv.get(key);
+
+    if (existingNotifiedOrder.value !== null) {
+      return { wasAlreadyNotified: true };
+    }
+
+    await this.kv.set(key, true);
+
+    return { wasAlreadyNotified: false };
+  }
+
+  async setTranslationCredits(
+    connection: SubscriptionId | { readerId: ReaderId; bookId: BookId },
+    creditsGranted: number,
+  ): Promise<void> {
+    let primaryKey;
+    let updateAt;
+
+    if (typeof connection !== 'string') {
+      primaryKey = [
+        'translation_credits',
+        connection.readerId,
+        connection.bookId,
+      ];
+      updateAt = new Date(
+        new Date().setFullYear(new Date().getFullYear() + 1),
+      );
+    } else {
+      const subscription = await this.getSubscriptionById(connection);
+      if (subscription === null) {
+        throw new SubscriptionNotFoundError(connection);
+      }
+
+      primaryKey = ['translation_credits', connection];
+      updateAt = subscription.accessExpiresAt;
+    }
+
+    const value = {
+      creditsGranted,
+      updateAt,
+    };
+
+    await this.kv.set(primaryKey, value);
+  }
+
+  async checkAndUpdateTranslationCredits(
+    connection: SubscriptionId | { readerId: ReaderId; bookId: BookId },
+    translationPrice: number,
+    creditsToGrantOnUpdate: number,
+  ): Promise<{ enoughCredits: boolean }> {
+    const key = typeof connection !== 'string'
+      ? [
+        'translation_credits',
+        connection.readerId,
+        connection.bookId,
+      ]
+      : ['translation_credits', connection];
+
+    const credits = await this.kv.get<
+      { creditsGranted: number; updateAt: Date }
+    >(key);
+
+    let creditsValue = credits.value;
+
+    if (creditsValue === null) {
+      if (typeof connection !== 'string') {
+        const creditsForFullAccessReader = {
+          creditsGranted: creditsToGrantOnUpdate,
+          updateAt: new Date(
+            new Date().setFullYear(
+              new Date().getFullYear() + 1,
+            ),
+          ),
+        };
+
+        await this.kv.set(key, creditsForFullAccessReader);
+        creditsValue = creditsForFullAccessReader;
+      } else {
+        throw new TranslationCreditsObjectNotFoundError(connection);
+      }
+    }
+
+    if (new Date() >= creditsValue.updateAt) {
+      let subscription = null;
+      if (typeof connection === 'string') {
+        subscription = await this.getSubscriptionById(connection);
+        if (subscription === null) {
+          throw new SubscriptionNotFoundError(connection);
+        }
+      }
+
+      const updateAt =
+        subscription !== null && subscription.accessExpiresAt !== undefined &&
+          subscription.accessExpiresAt > creditsValue.updateAt
+          ? subscription.accessExpiresAt
+          : new Date(
+            new Date(creditsValue.updateAt).setFullYear(
+              new Date(creditsValue.updateAt).getFullYear() + 1,
+            ),
+          );
+
+      const newCredits = {
+        creditsGranted: creditsToGrantOnUpdate,
+        updateAt,
+      };
+
+      creditsValue = newCredits;
+
+      await this.kv.set(key, newCredits);
+    }
+
+    if (creditsValue.creditsGranted >= translationPrice) {
+      creditsValue.creditsGranted -= translationPrice;
+      logInfo(
+        `translation credits reduced by $${translationPrice}, remaining: $${creditsValue.creditsGranted}`,
+      );
+      await this.kv.set(key, creditsValue);
+      return { enoughCredits: true };
+    }
+
+    return { enoughCredits: false };
   }
 }
