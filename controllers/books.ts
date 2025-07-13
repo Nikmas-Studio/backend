@@ -95,7 +95,8 @@ export class BooksController {
         `reader ${reader.id} already has access to the book: ${bookURI} as they are full access reader`,
       );
       throw new HTTPException(STATUS_CODE.BadRequest, {
-        message: `reader ${reader.id} already has access to the book: ${bookURI}`,
+        message:
+          `reader ${reader.id} already has access to the book: ${bookURI}`,
       });
     }
 
@@ -117,7 +118,12 @@ export class BooksController {
       if (
         book!.uri === bookURI
       ) {
-        if (subscription.status === SubscriptionStatus.ACTIVE) {
+        if (
+          subscription.status === SubscriptionStatus.ACTIVE ||
+          (subscription.status === SubscriptionStatus.CANCELED &&
+            subscription.accessExpiresAt !== undefined &&
+            subscription.accessExpiresAt > new Date())
+        ) {
           logError(
             `reader ${reader.id} already has access to the book: ${bookURI}`,
           );
