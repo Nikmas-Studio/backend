@@ -112,6 +112,10 @@ export class TranslationController {
         throw new HTTPException(STATUS_CODE.InternalServerError);
       }
     }
+    
+    await this.translationRepository.saveReaderTranslation(
+      translationObj.id, readerId,
+    )
 
     return c.json({
       translation: translationObj.translation,

@@ -1,4 +1,5 @@
 import { generateUUID } from '../../utils/generate-uuid.ts';
+import { ReaderId } from '../reader/types.ts';
 import { TranslationRepository } from './repository-interface.ts';
 import {
   AddTranslationDTO,
@@ -85,5 +86,9 @@ export class TranslationDenoKvRepository implements TranslationRepository {
     ]);
 
     return translationObj.value;
+  }
+   
+  async saveReaderTranslation(translationId: TranslationId, readerId: ReaderId): Promise<void> {
+    await this.kv.set(['reader_translations', readerId, translationId], true);
   }
 }
