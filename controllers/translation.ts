@@ -94,6 +94,7 @@ export class TranslationController {
           },
         );
       }
+
       try {
         const newTranslation = await this.translationService.translate({
           targetLanguage,
