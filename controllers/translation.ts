@@ -62,24 +62,6 @@ export class TranslationController {
       );
     }
 
-    const { enoughCredits } = await checkAndUpdateTranslationCredits(
-      fragment,
-      context,
-      targetLanguage,
-      subscription === undefined ? { readerId, bookId: book.id } : subscription.id,
-      this.subscriptionRepository,
-      TRANSLATION_CREDITS_TO_GRANT_ON_UPDATE_MASTER_ENGLISH_WITH_SHERLOCK_HOLMES,
-    );
-    
-    if (!enoughCredits) {
-      throw new HTTPException(
-        STATUS_CODE.PaymentRequired,
-        {
-          message: 'Not enough translation credits',
-        },
-      );
-    }
-
     fragment = normalizeTranslationPiece(fragment);
     context = normalizeTranslationPiece(context);
 
@@ -93,6 +75,25 @@ export class TranslationController {
       });
 
     if (translationObj === null) {
+      const { enoughCredits } = await checkAndUpdateTranslationCredits(
+        fragment,
+        context,
+        targetLanguage,
+        subscription === undefined
+          ? { readerId, bookId: book.id }
+          : subscription.id,
+        this.subscriptionRepository,
+        TRANSLATION_CREDITS_TO_GRANT_ON_UPDATE_MASTER_ENGLISH_WITH_SHERLOCK_HOLMES,
+      );
+
+      if (!enoughCredits) {
+        throw new HTTPException(
+          STATUS_CODE.PaymentRequired,
+          {
+            message: 'Not enough translation credits',
+          },
+        );
+      }
       try {
         const newTranslation = await this.translationService.translate({
           targetLanguage,
@@ -112,10 +113,11 @@ export class TranslationController {
         throw new HTTPException(STATUS_CODE.InternalServerError);
       }
     }
-    
+
     await this.translationRepository.saveReaderTranslation(
-      translationObj.id, readerId,
-    )
+      translationObj.id,
+      readerId,
+    );
 
     return c.json({
       translation: translationObj.translation,
