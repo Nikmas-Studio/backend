@@ -9,12 +9,12 @@ export interface Book {
   id: BookId;
   title: BookTitle;
   uri: BookURI;
-  price: BookPrice;
+  mainPrice: BookPrice;
   createdAt: Date;
 }
 
 export interface CreateBookDTO {
   title: BookTitle;
   uri: BookURI;
-  price: BookPrice;
+  mainPrice: BookPrice;
 }

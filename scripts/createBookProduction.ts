@@ -14,6 +14,6 @@ await asyncLocalStorage.run(new Map(), async () => {
   await bookRepository.createBook({
     title: 'Master Git & GitHub: From Everyday Tasks to Deep Waters',
     uri: 'book-master-git-and-github',
-    price: 23,
+    mainPrice: 23,
   });
 });

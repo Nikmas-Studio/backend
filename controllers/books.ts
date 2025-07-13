@@ -339,7 +339,7 @@ export class BooksController {
           readerPhone: body.phone,
           readerIpAddress: c.req.header('cf-connecting-ip')!,
           readerUserAgent: c.req.header('user-agent')!,
-          bookPrice: book!.price,
+          bookPrice: book!.mainPrice,
         };
 
         notifyFbConversionsApi(payload).then(() => {

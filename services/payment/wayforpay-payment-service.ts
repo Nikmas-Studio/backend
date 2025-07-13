@@ -26,11 +26,11 @@ export class WayforpayPaymentService implements PaymentService {
       merchantDomainName: MERCHANT_DOMAIN_NAME,
       orderReference: orderId,
       orderDate,
-      amount: String(book.price),
+      amount: String(book.mainPrice),
       currency: CURRENCY,
       'productName[]': `Interactive E-Book «${book.title}»`,
       'productCount[]': '1',
-      'productPrice[]': String(book.price),
+      'productPrice[]': String(book.mainPrice),
       clientEmail: readerEmail,
       defaultPaymentSystem: DEFAULT_PAYMENT_SYSTEM,
       paymentSystems: PAYMENT_SYSTEMS,
@@ -40,7 +40,7 @@ export class WayforpayPaymentService implements PaymentService {
     if (regular) {
       params.regularBehavior = 'preset';
       params.regularMode = 'yearly';
-      params.regularAmount = String(book.price);
+      params.regularAmount = String(book.mainPrice);
       params.regularOn = '1';
       params.regularCount = '1000';
     }
