@@ -7,4 +7,6 @@ export interface BookRepository {
   getBookByURI(bookURI: BookURI): Promise<Book | null>;
   startDemoFlow(bookURI: BookURI, readerId: ReaderId): Promise<void>;
   demoFlowStarted(bookURI: BookURI, readerId: ReaderId): Promise<boolean>;
+  assignLastVisitedPage(bookURI: BookURI, readerId: ReaderId, page: string): Promise<void>;
+  getLastVisitedPage(bookURI: BookURI, readerId: ReaderId): Promise<string | null>;
 }

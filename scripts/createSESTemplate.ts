@@ -6,24 +6,24 @@ import { getAWSSESClientConfig } from '../utils/get-aws-ses-client-config.ts';
 
 const client = new SESClient(getAWSSESClientConfig());
 
-const input = {
-  Template: {
-    TemplateName: 'loginLink',
-    SubjectPart: 'Link to your library',
-    HtmlPart: `
-      <div style="max-width:600px">
-        <p>Here's a&nbsp;link to&nbsp;access your&nbsp;library:</p>
-        <p>
-          <a href="{{link}}" target="_blank">
-            {{link}}
-          </a>
-        </p>
-        <p>If you haven't initiated this&nbsp;request, just disregard this&nbsp;message: someone might&nbsp;have&nbsp;entered your&nbsp;email by&nbsp;mistake.</p>
-        <p>© Nikmas&nbsp;Studio, {{year}}</p>
-      </div>
-    `,
-  },
-};
+// const input = {
+//   Template: {
+//     TemplateName: 'loginLink',
+//     SubjectPart: 'Link to your library',
+//     HtmlPart: `
+//       <div style="max-width:600px">
+//         <p>Here's a&nbsp;link to&nbsp;access your&nbsp;library:</p>
+//         <p>
+//           <a href="{{link}}" target="_blank">
+//             {{link}}
+//           </a>
+//         </p>
+//         <p>If you haven't initiated this&nbsp;request, just disregard this&nbsp;message: someone might&nbsp;have&nbsp;entered your&nbsp;email by&nbsp;mistake.</p>
+//         <p>© Nikmas&nbsp;Studio, {{year}}</p>
+//       </div>
+//     `,
+//   },
+// };
 
 // const input = {
 //   Template: {
@@ -43,23 +43,23 @@ const input = {
 //   },
 // };
 
-// const input = {
-//   Template: {
-//     TemplateName: 'demoLink',
-//     SubjectPart: '[Demo] {{bookTitle}}',
-//     HtmlPart: `
-//      <div style="max-width:600px">
-//         <p>Try the&nbsp;book demo for&nbsp;free: <a href="{{demoLink}}" target="_blank">{{demoLink}}</a>
-//         </p>
-//         <p>
-//         If you'd like to&nbsp;subscribe to&nbsp;the&nbsp;full version of&nbsp;the&nbsp;book, you can do&nbsp;this through&nbsp;the&nbsp;book's promo page: <a href="{{promoLink}}" target="_blank">{{promoLink}}</a>
-//         </p>
-//         <p>If you haven't initiated this&nbsp;request, just disregard this&nbsp;message: someone might&nbsp;have&nbsp;entered your&nbsp;email by&nbsp;mistake.</p>
-//         <p>© Nikmas Studio, {{year}}</p>
-//       </div>
-//     `,
-//   },
-// };
+const input = {
+  Template: {
+    TemplateName: 'demoLink',
+    SubjectPart: '[Demo] {{bookTitle}}',
+    HtmlPart: `
+     <div style="max-width:600px">
+        <p>Try the&nbsp;book demo for&nbsp;free: <a target="_blank" rel="noopener noreferrer" href="{{demoLink}}">{{demoLink}}</a>
+        </p>
+        <p>
+        If you'd like to&nbsp;subscribe to&nbsp;the&nbsp;full version of&nbsp;the&nbsp;book, you can do&nbsp;this through&nbsp;the&nbsp;book's promo page: <a href="{{promoLink}}" target="_blank">{{promoLink}}</a>
+        </p>
+        <p>If you haven't initiated this&nbsp;request, just disregard this&nbsp;message: someone might&nbsp;have&nbsp;entered your&nbsp;email by&nbsp;mistake.</p>
+        <p>© Nikmas Studio, {{year}}</p>
+      </div>
+    `,
+  },
+};
 
 // const input = {
 //   Template: {
