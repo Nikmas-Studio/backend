@@ -179,6 +179,10 @@ app.post('/books/:uri/resume-subscription', (c) => {
   return booksController.resumeSubscription(c);
 });
 
+app.post('/books/:uri/assign-last-visited-page/:page', (c) => {
+  return booksController.assignLastVisitedPage(c);
+})
+
 app.post('/orders/verify', zValidator('json', VerifyOrderIdDTOSchema), (c) => {
   return ordersController.verifyOrder(c, c.req.valid('json'));
 });

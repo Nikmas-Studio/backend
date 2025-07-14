@@ -607,4 +607,20 @@ export class BooksController {
       message: 'demo link sent successfully',
     }, STATUS_CODE.OK);
   }
+
+  async assignLastVisitedPage(
+    c: Context,
+  ): Promise<TypedResponse> {
+    const bookURI = c.req.param('uri');
+    const lastVisitedPage = c.req.param('page');
+    const session = await getAndValidateSession(c, this.authRepository);
+    const readerId = session.readerId;
+    
+    await this.bookRepository.assignLastVisitedPage(bookURI, readerId, lastVisitedPage);
+
+    return c.json({
+      message: 'last visited page assigned successfully',
+    }, STATUS_CODE.OK);
+  }
+
 }
