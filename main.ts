@@ -183,6 +183,10 @@ app.post('/books/:uri/assign-last-visited-page/:page', (c) => {
   return booksController.assignLastVisitedPage(c);
 })
 
+app.get('/books/:uri/last-visited-page', (c) => {
+  return booksController.getLastVisitedPage(c);
+});
+
 app.post('/orders/verify', zValidator('json', VerifyOrderIdDTOSchema), (c) => {
   return ordersController.verifyOrder(c, c.req.valid('json'));
 });

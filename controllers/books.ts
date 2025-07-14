@@ -623,4 +623,17 @@ export class BooksController {
     }, STATUS_CODE.OK);
   }
 
+  async getLastVisitedPage(
+    c: Context,
+  ): Promise<TypedResponse> {
+    const bookURI = c.req.param('uri');
+    const session = await getAndValidateSession(c, this.authRepository);
+    const readerId = session.readerId;
+    
+    const lastVisitedPage = await this.bookRepository.getLastVisitedPage(bookURI, readerId);
+
+    return c.json({
+      lastVisitedPage,
+    }, STATUS_CODE.OK);
+  }
 }

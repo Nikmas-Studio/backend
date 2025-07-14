@@ -68,4 +68,10 @@ export class BookDenoKvRepository implements BookRepository {
     const key = ['last_visited_page', bookURI, readerId];
     await this.kv.set(key, page);
   }
+  
+  async getLastVisitedPage(bookURI: BookURI, readerId: ReaderId): Promise<string | null> {
+    const key = ['last_visited_page', bookURI, readerId];
+    const res = await this.kv.get<string>(key);
+    return res.value;
+  }
 }
