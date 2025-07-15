@@ -139,7 +139,8 @@ export class TranslationController {
             numberOfQualityChecks: translationObj.numberOfQualityChecks + 1,
             lastQualityCheckAt: new Date(),
           });
-            
+          
+          translationObj.translation = refinedTranslation;
         } catch (e) {
           logError(`failed to refine or save translation: ${e}`);
           // If refinement fails, we still return the original translation
