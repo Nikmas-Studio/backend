@@ -6,6 +6,7 @@ import {
   GetTranslationDTO,
   Translation,
   TranslationId,
+  UpdateTranslationDTO,
 } from './types.ts';
 
 export class TranslationDenoKvRepository implements TranslationRepository {
@@ -90,5 +91,23 @@ export class TranslationDenoKvRepository implements TranslationRepository {
    
   async saveReaderTranslation(translationId: TranslationId, readerId: ReaderId): Promise<void> {
     await this.kv.set(['reader_translations', readerId, translationId], true);
+  }
+
+  async updateTranslation({ translationId, refinedTranslation, numberOfQualityChecks, lastQualityCheckAt }: UpdateTranslationDTO): Promise<Translation> {
+    const translation = await this.getTranslationById(translationId);
+
+    if (!translation) {
+      throw new Error('Translation not found');
+    }
+
+    const updatedTranslation: Translation = {
+      ...translation,
+      translation: refinedTranslation,
+      numberOfQualityChecks,
+      lastQualityCheckAt,
+    };
+
+    await this.kv.set(['translations', translationId], updatedTranslation);
+    return updatedTranslation;
   }
 }

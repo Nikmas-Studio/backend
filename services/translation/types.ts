@@ -5,3 +5,10 @@ export interface TranslateDTO {
   context: string;
   fragment: string;
 }
+
+export interface RefineTranslationDTO {
+  targetLanguage: string;
+  context: string;
+  fragment: string;
+  translation: string;
+}

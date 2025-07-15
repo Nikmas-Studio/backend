@@ -10,6 +10,13 @@ export interface AddTranslationDTO {
   translation: string;
 }
 
+export interface UpdateTranslationDTO {
+  translationId: TranslationId;
+  refinedTranslation: string;
+  numberOfQualityChecks: number;
+  lastQualityCheckAt: Date;
+}
+
 export interface GetTranslationDTO {
   bookURI: BookURI;
   targetLanguage: string;
