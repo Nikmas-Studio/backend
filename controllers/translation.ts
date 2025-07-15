@@ -88,6 +88,7 @@ export class TranslationController {
           : subscription.id,
         this.subscriptionRepository,
         TRANSLATION_CREDITS_TO_GRANT_ON_UPDATE_MASTER_ENGLISH_WITH_SHERLOCK_HOLMES,
+        false,
       );
 
       if (!enoughCredits) {
@@ -123,6 +124,27 @@ export class TranslationController {
           MAX_NUMBER_OF_TRANSLATION_QUALITY_CHECKS
       ) {
         try {
+          const { enoughCredits } = await checkAndUpdateTranslationCredits(
+            fragment,
+            context,
+            targetLanguage,
+            subscription === undefined
+              ? { readerId, bookId: book.id }
+              : subscription.id,
+            this.subscriptionRepository,
+            TRANSLATION_CREDITS_TO_GRANT_ON_UPDATE_MASTER_ENGLISH_WITH_SHERLOCK_HOLMES,
+            true,
+          );
+
+          if (!enoughCredits) {
+            throw new HTTPException(
+              STATUS_CODE.PaymentRequired,
+              {
+                message: 'Not enough translation credits',
+              },
+            );
+          }
+
           const refinedTranslation = await this.translationService
             .refineTranslation({
               targetLanguage: translationObj.targetLanguage,
@@ -130,16 +152,18 @@ export class TranslationController {
               fragment: translationObj.fragment,
               translation: translationObj.translation,
             });
-            
-          logInfo(`previous translation: ${translationObj.translation}; context: ${translationObj.context}; refined translation: ${refinedTranslation}`);
-            
+
+          logInfo(
+            `previous translation: ${translationObj.translation}; context: ${translationObj.context}; refined translation: ${refinedTranslation}`,
+          );
+
           await this.translationRepository.updateTranslation({
             translationId: translationObj.id,
             refinedTranslation,
             numberOfQualityChecks: translationObj.numberOfQualityChecks + 1,
             lastQualityCheckAt: new Date(),
           });
-          
+
           translationObj.translation = refinedTranslation;
         } catch (e) {
           logError(`failed to refine or save translation: ${e}`);

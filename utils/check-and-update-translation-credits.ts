@@ -7,12 +7,15 @@ function calculateCreditsNeeded(
   fragment: string,
   context: string,
   targetLanguage: string,
+  translationRefinement: boolean,
 ): number {
-  const systemContent =
-    'You are the most precise translation tool. Return ONLY the translation of the given Fragment, using the Context to disambiguate the meaning';
+  const systemContent = translationRefinement
+    ? 'You are the most precise translation checker. If the given Translation is 100% accurate for the Fragment in Context, return it unchanged. Otherwise, return a corrected version ONLY'
+    : 'You are the most precise translation tool. Return ONLY the translation of the given Fragment, using the Context to disambiguate the meaning';
 
-  const userContent =
-    `Fragment: ${fragment}\nContext: ${context}\nTranslate to: ${targetLanguage}`;
+  const userContent = translationRefinement
+    ? `Fragment: ${fragment}\nContext: ${context}\nTranslation: ${fragment}\nTarget language: ${targetLanguage}`
+    : `Fragment: ${fragment}\nContext: ${context}\nTranslate to: ${targetLanguage}`;
 
   const totalInputChars = systemContent.length + userContent.length;
 
@@ -34,11 +37,13 @@ export async function checkAndUpdateTranslationCredits(
   connection: SubscriptionId | { readerId: ReaderId; bookId: BookId },
   subscriptionRepository: SubscriptionRepository,
   creditsToGrantOnUpdate: number,
+  translationRefinement: boolean,
 ): Promise<{ enoughCredits: boolean }> {
   const translationPrice = calculateCreditsNeeded(
     fragment,
     context,
     targetLanguage,
+    translationRefinement,
   );
 
   return await subscriptionRepository.checkAndUpdateTranslationCredits(
