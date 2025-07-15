@@ -1,10 +1,11 @@
-import { TranslateDTO, Translation } from './types.ts';
+import { RefineTranslationDTO, TranslateDTO, Translation } from './types.ts';
 
 export interface TranslationService {
-  /**
-   * @throws {TranslationError}
-   */
   translate(
     translateDTO: TranslateDTO,
+  ): Promise<Translation>;
+
+  refineTranslation(
+    refineTranslationDTO: RefineTranslationDTO,
   ): Promise<Translation>;
 }

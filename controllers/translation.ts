@@ -12,7 +12,11 @@ import { SubscriptionRepository } from '../models/subscription/repository-interf
 import { BookRepository } from '../models/book/repository-interface.ts';
 import { ReaderRepository } from '../models/reader/repository-interface.ts';
 import { checkAndUpdateTranslationCredits } from '../utils/check-and-update-translation-credits.ts';
-import { TRANSLATION_CREDITS_TO_GRANT_ON_UPDATE_MASTER_ENGLISH_WITH_SHERLOCK_HOLMES } from '../constants.ts';
+import {
+  MAX_NUMBER_OF_TRANSLATION_QUALITY_CHECKS,
+  TRANSLATION_CREDITS_TO_GRANT_ON_UPDATE_MASTER_ENGLISH_WITH_SHERLOCK_HOLMES,
+} from '../constants.ts';
+import { logError, logInfo } from '../utils/logger.ts';
 
 export class TranslationController {
   constructor(
@@ -112,6 +116,34 @@ export class TranslationController {
         });
       } catch (_) {
         throw new HTTPException(STATUS_CODE.InternalServerError);
+      }
+    } else {
+      if (
+        translationObj.numberOfQualityChecks <
+          MAX_NUMBER_OF_TRANSLATION_QUALITY_CHECKS
+      ) {
+        try {
+          const refinedTranslation = await this.translationService
+            .refineTranslation({
+              targetLanguage: translationObj.targetLanguage,
+              context: translationObj.context,
+              fragment: translationObj.fragment,
+              translation: translationObj.translation,
+            });
+            
+          logInfo(`previous translation: ${translationObj.translation}; context: ${translationObj.context}; refined translation: ${refinedTranslation}`);
+            
+          await this.translationRepository.updateTranslation({
+            translationId: translationObj.id,
+            refinedTranslation,
+            numberOfQualityChecks: translationObj.numberOfQualityChecks + 1,
+            lastQualityCheckAt: new Date(),
+          });
+            
+        } catch (e) {
+          logError(`failed to refine or save translation: ${e}`);
+          // If refinement fails, we still return the original translation
+        }
       }
     }
 

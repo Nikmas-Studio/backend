@@ -43,6 +43,8 @@ export const BOOKS_WITHOUT_REGULAR_PAYMENT = [
   BOOK_MASTER_GIT_AND_GITHUB_URI,
 ];
 
+export const MAX_NUMBER_OF_TRANSLATION_QUALITY_CHECKS = 2;
+
 // email
 export const SENDPULSE_AUTH_URL =
   'https://api.sendpulse.com/oauth/access_token';
