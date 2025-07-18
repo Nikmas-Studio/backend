@@ -400,4 +400,18 @@ export class SubscriptionDenoKvRepository implements SubscriptionRepository {
 
     return { enoughCredits: false };
   }
+
+  async assignPromoCodeToSubscription(subscriptionId: SubscriptionId, promoCode: string): Promise<void> {
+    const key = ['promo_codes', subscriptionId];
+    await this.kv.set(key, promoCode);
+  }
+
+  async removeSubscriptionPromoCode(subscriptionId: SubscriptionId): Promise<void> {
+    await this.kv.delete(['promo_codes', subscriptionId]);
+  }
+
+  async getSubscriptionPromoCode(subscriptionId: SubscriptionId): Promise<string | null> {
+    const res =  await this.kv.get<string>(['promo_codes', subscriptionId]);
+    return res.value;
+  }
 }

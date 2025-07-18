@@ -29,6 +29,7 @@ import { VerifyOrderIdDTOSchema } from './routes-dtos/verify-order-id.ts';
 import { AWSSESSendPulseEmailService } from './services/email/aws-ses-sendpulse-email-service.ts';
 import { WayforpayPaymentService } from './services/payment/wayforpay-payment-service.ts';
 import { OpenaiDeeplTranslationService } from './services/translation/openai-deepl-translation-service.ts';
+import { PromoCodesController } from './controllers/promo-codes.ts';
 
 const app = new Hono();
 
@@ -76,6 +77,8 @@ const translationController = new TranslationController(
 const ordersController = new OrdersController(subscriptionRepository);
 
 const logController = new LogErrorController();
+
+const promoCodesController = new PromoCodesController();
 
 app.use(
   '*',
@@ -186,6 +189,10 @@ app.post('/books/:uri/assign-last-visited-page/:page', (c) => {
 app.get('/books/:uri/last-visited-page', (c) => {
   return booksController.getLastVisitedPage(c);
 });
+
+app.get('/promo-codes/:promoCode/check-validity', (c) => {
+  return promoCodesController.checkPromoCodeValidity(c);
+})
 
 app.post('/orders/verify', zValidator('json', VerifyOrderIdDTOSchema), (c) => {
   return ordersController.verifyOrder(c, c.req.valid('json'));

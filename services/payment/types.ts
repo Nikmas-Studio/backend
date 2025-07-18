@@ -8,4 +8,5 @@ export interface GeneratePaymentLinkDto {
   book: Book;
   serviceURL: URL;
   regular: boolean;
+  promoCodeDiscount?: number
 }
