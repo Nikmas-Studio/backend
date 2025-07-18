@@ -25,6 +25,7 @@
     "@hono/zod-validator": "npm:@hono/zod-validator@^0.4.1",
     "@std/encoding": "jsr:@std/encoding@^1.0.5",
     "@std/http": "jsr:@std/http@^1.0.9",
+    "airtable": "npm:airtable@^0.12.2",
     "hono": "npm:hono@^4.6.9",
     "@aws-sdk/client-ses": "https://esm.sh/@aws-sdk/client-ses@3.687.0",
     "@std/uuid": "jsr:@std/uuid",

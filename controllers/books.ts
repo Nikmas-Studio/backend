@@ -5,6 +5,7 @@ import {
   BOOK_MASTER_ENGLISH_WITH_SHERLOCK_HOLMES_URI,
   BOOK_MASTER_GIT_AND_GITHUB_URI,
   BOOKS_WITHOUT_REGULAR_PAYMENT,
+  PROMO_CODE_DISCOUNT,
   TRANSLATION_CREDITS_TO_GRANT_ON_UPDATE_MASTER_ENGLISH_WITH_SHERLOCK_HOLMES,
 } from '../constants.ts';
 import { AuthRepository } from '../models/auth/repository-interface.ts';
@@ -31,6 +32,8 @@ import { logError, logInfo } from '../utils/logger.ts';
 import { notifyFbConversionsApi } from '../utils/notify-fb-conversions-api.ts';
 import { verifyCaptcha } from '../utils/verify-captcha.ts';
 import { verifyHoneypot } from '../utils/verify-honeypot.ts';
+import { checkPromoCodeValidityUtil } from '../utils/promo-codes.ts';
+import { addPartnerPurchase } from '../utils/add-partner-purchase.ts';
 
 export class BooksController {
   constructor(
@@ -159,6 +162,17 @@ export class BooksController {
       `service URL for Wayforpay: ${serviceURL.toString()}`,
     );
 
+    let promoCode = null;
+    if (purchaseBookDTO !== undefined) {
+      promoCode = purchaseBookDTO.promoCode ?? null
+    } else {
+      promoCode = c.req.query('promoCode') ?? null;
+    }
+
+    const promoCodeIsValid = promoCode !== null
+      ? checkPromoCodeValidityUtil(promoCode).valid
+      : false;
+
     let paymentLink: URL;
     try {
       paymentLink = await this.paymentService.generatePaymentLink({
@@ -167,6 +181,7 @@ export class BooksController {
         book,
         serviceURL,
         regular: !BOOKS_WITHOUT_REGULAR_PAYMENT.includes(book.uri),
+        promoCodeDiscount: promoCodeIsValid ? PROMO_CODE_DISCOUNT : undefined
       });
     } catch (_) {
       throw new HTTPException(STATUS_CODE.InternalServerError);
@@ -193,6 +208,20 @@ export class BooksController {
         `pending subscription for reader ${reader.email} updated: ${
           JSON.stringify(subscription)
         }`,
+      );
+    }
+
+    await this.subscriptionRepository.removeSubscriptionPromoCode(
+      subscription.id,
+    );
+
+    if (promoCode !== null && promoCodeIsValid) {
+      logInfo(
+        `assigning promo code ${promoCode} to subscription ${subscription.id}`,
+      );
+      await this.subscriptionRepository.assignPromoCodeToSubscription(
+        subscription.id,
+        promoCode,
       );
     }
 
@@ -333,6 +362,15 @@ export class BooksController {
           book!.uri
         } for reader ${subscription.readerId} is activated`,
       );
+      
+      const subscriptionPromoCode = await this.subscriptionRepository.getSubscriptionPromoCode(subscription.id);
+      if (subscriptionPromoCode !== null) {
+        addPartnerPurchase(
+          subscriptionPromoCode,
+          reader!.email,
+          book!.title,
+        )
+      }
 
       logInfo(`sending order success letter to ${reader!.email}`);
       if (book!.uri === BOOK_MASTER_GIT_AND_GITHUB_URI) {
@@ -615,8 +653,12 @@ export class BooksController {
     const lastVisitedPage = c.req.param('page');
     const session = await getAndValidateSession(c, this.authRepository);
     const readerId = session.readerId;
-    
-    await this.bookRepository.assignLastVisitedPage(bookURI, readerId, lastVisitedPage);
+
+    await this.bookRepository.assignLastVisitedPage(
+      bookURI,
+      readerId,
+      lastVisitedPage,
+    );
 
     return c.json({
       message: 'last visited page assigned successfully',
@@ -629,8 +671,11 @@ export class BooksController {
     const bookURI = c.req.param('uri');
     const session = await getAndValidateSession(c, this.authRepository);
     const readerId = session.readerId;
-    
-    const lastVisitedPage = await this.bookRepository.getLastVisitedPage(bookURI, readerId);
+
+    const lastVisitedPage = await this.bookRepository.getLastVisitedPage(
+      bookURI,
+      readerId,
+    );
 
     return c.json({
       lastVisitedPage,

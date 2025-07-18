@@ -45,4 +45,7 @@ export interface SubscriptionRepository {
     translationPrice: number,
     creditsToGrantOnUpdate: number,
   ): Promise<{ enoughCredits: boolean }>;
+  assignPromoCodeToSubscription(subscriptionId: SubscriptionId, promoCode: string): Promise<void>;
+  removeSubscriptionPromoCode(subscriptionId: SubscriptionId): Promise<void>;
+  getSubscriptionPromoCode(subscriptionId: SubscriptionId): Promise<string | null>;
 }

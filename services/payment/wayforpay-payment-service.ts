@@ -17,7 +17,8 @@ import { GeneratePaymentLinkDto } from './types.ts';
 
 export class WayforpayPaymentService implements PaymentService {
   async generatePaymentLink(
-    { readerEmail, book, serviceURL, orderId, regular }: GeneratePaymentLinkDto,
+    { readerEmail, book, serviceURL, orderId, regular, promoCodeDiscount }:
+      GeneratePaymentLinkDto,
   ): Promise<URL> {
     const orderDate = String(Math.floor(Date.now() / 1000));
 
@@ -26,11 +27,19 @@ export class WayforpayPaymentService implements PaymentService {
       merchantDomainName: MERCHANT_DOMAIN_NAME,
       orderReference: orderId,
       orderDate,
-      amount: String(book.mainPrice),
+      amount: String(
+        promoCodeDiscount === undefined
+          ? book.mainPrice
+          : Number((book.mainPrice - promoCodeDiscount).toFixed(1)),
+      ),
       currency: CURRENCY,
       'productName[]': `Interactive E-Book «${book.title}»`,
       'productCount[]': '1',
-      'productPrice[]': String(book.mainPrice),
+      'productPrice[]': String(
+        promoCodeDiscount === undefined
+          ? book.mainPrice
+          : Number((book.mainPrice - promoCodeDiscount).toFixed(1)),
+      ),
       clientEmail: readerEmail,
       defaultPaymentSystem: DEFAULT_PAYMENT_SYSTEM,
       paymentSystems: PAYMENT_SYSTEMS,
@@ -40,7 +49,11 @@ export class WayforpayPaymentService implements PaymentService {
     if (regular) {
       params.regularBehavior = 'preset';
       params.regularMode = 'yearly';
-      params.regularAmount = String(book.mainPrice);
+      params.regularAmount = String(
+        promoCodeDiscount === undefined
+          ? book.mainPrice
+          : Number((book.mainPrice - promoCodeDiscount).toFixed(1)),
+      );
       params.regularOn = '1';
       params.regularCount = '1000';
     }
