@@ -5,5 +5,5 @@ export function checkPromoCodeValidityUtil(promoCode: string): { valid: boolean 
 } 
 
 export function getPromoCodeTableIdUtil(promoCode: string): string | null {
-  return VALID_PROMO_CODES[promoCode.toLocaleLowerCase()] || null;
+  return VALID_PROMO_CODES[promoCode.toLowerCase()] || null;
 }
