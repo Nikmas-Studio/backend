@@ -19,6 +19,7 @@ import { EmailService } from '../services/email/email-service-interface.ts';
 import { PaymentService } from '../services/payment/payment-service-interface.ts';
 import { ActionSource, EventName } from '../types/fb-conversions-api.ts';
 import { Env } from '../types/global-types.ts';
+import { addPartnerPurchase } from '../utils/add-partner-purchase.ts';
 import { buildPromoPageUrl } from '../utils/build-promo-page-url.ts';
 import { formatDate } from '../utils/format-date.ts';
 import { generateHMACMD5 } from '../utils/generate-hmac-md5.ts';
@@ -29,11 +30,11 @@ import { getDemoLinkByBookURI } from '../utils/get-demo-link-by-book-uri.ts';
 import { getPromoLinkByBookURI } from '../utils/get-promo-link-by-book-uri.ts';
 import { hasAccessToBook } from '../utils/has-access-to-book.ts';
 import { logError, logInfo } from '../utils/logger.ts';
+import { notifyFbConversionsApiOfDemoAccess } from '../utils/notify-fb-conversions-api-of-demo-access.ts';
 import { notifyFbConversionsApi } from '../utils/notify-fb-conversions-api.ts';
+import { checkPromoCodeValidityUtil } from '../utils/promo-codes.ts';
 import { verifyCaptcha } from '../utils/verify-captcha.ts';
 import { verifyHoneypot } from '../utils/verify-honeypot.ts';
-import { checkPromoCodeValidityUtil } from '../utils/promo-codes.ts';
-import { addPartnerPurchase } from '../utils/add-partner-purchase.ts';
 
 export class BooksController {
   constructor(
@@ -164,7 +165,7 @@ export class BooksController {
 
     let promoCode = null;
     if (purchaseBookDTO !== undefined) {
-      promoCode = purchaseBookDTO.promoCode ?? null
+      promoCode = purchaseBookDTO.promoCode ?? null;
     } else {
       promoCode = c.req.query('promoCode') ?? null;
     }
@@ -181,7 +182,7 @@ export class BooksController {
         book,
         serviceURL,
         regular: !BOOKS_WITHOUT_REGULAR_PAYMENT.includes(book.uri),
-        promoCodeDiscount: promoCodeIsValid ? PROMO_CODE_DISCOUNT : undefined
+        promoCodeDiscount: promoCodeIsValid ? PROMO_CODE_DISCOUNT : undefined,
       });
     } catch (_) {
       throw new HTTPException(STATUS_CODE.InternalServerError);
@@ -362,14 +363,15 @@ export class BooksController {
           book!.uri
         } for reader ${subscription.readerId} is activated`,
       );
-      
-      const subscriptionPromoCode = await this.subscriptionRepository.getSubscriptionPromoCode(subscription.id);
+
+      const subscriptionPromoCode = await this.subscriptionRepository
+        .getSubscriptionPromoCode(subscription.id);
       if (subscriptionPromoCode !== null) {
         addPartnerPurchase(
           subscriptionPromoCode,
           reader!.email,
           book!.title,
-        )
+        );
       }
 
       logInfo(`sending order success letter to ${reader!.email}`);
@@ -640,6 +642,28 @@ export class BooksController {
       promoLink: new URL(getPromoLinkByBookURI(bookURI)),
       bookTitle: book.title,
     });
+
+    if (Deno.env.get('ENV') === Env.PRODUCTION) {
+      const payload = {
+        actionSource: ActionSource.WEBSITE,
+        eventSourceUrl: buildPromoPageUrl(book!.uri),
+        readerEmail: reader!.email,
+        readerIpAddress: c.req.header('cf-connecting-ip')!,
+        readerUserAgent: c.req.header('user-agent')!,
+      };
+
+      notifyFbConversionsApiOfDemoAccess(payload).then(() => {
+        logInfo(
+          `successfully notified fb conversions api of demo access: ${
+            JSON.stringify(payload)
+          }`,
+        );
+      }).catch((error) => {
+        logError(
+          `error occured on fb conversions api demo access notification: ${error}; payload: ${payload}`,
+        );
+      });
+    }
 
     return c.json({
       message: 'demo link sent successfully',

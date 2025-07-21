@@ -1,5 +1,6 @@
 export enum EventName {
   PURCHASE = 'Purchase',
+  DEMO_ACCESS = 'DemoAccess',
 }
   
 export enum ActionSource {
