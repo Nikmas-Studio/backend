@@ -14,6 +14,7 @@
     "jsr:@std/uuid@*": "1.0.4",
     "npm:@hono/zod-validator@~0.4.1": "0.4.1_hono@4.6.9_zod@3.23.8",
     "npm:@types/node@*": "22.5.4",
+    "npm:airtable@~0.12.2": "0.12.2",
     "npm:hono@^4.6.9": "4.6.9",
     "npm:openai@^4.103.0": "4.103.0_zod@3.23.8",
     "npm:zod@^3.23.8": "3.23.8"
@@ -81,6 +82,9 @@
         "form-data"
       ]
     },
+    "@types/node@14.18.63": {
+      "integrity": "sha512-fAtCfv4jJg+ExtXhvCkCqUKZ+4ok/JQk01qDKhL5BDDoS3AxKXhV5/MAVUZyQnSEd2GT92fkgZl0pz0Q0AzcIQ=="
+    },
     "@types/node@18.19.64": {
       "integrity": "sha512-955mDqvO2vFf/oL7V3WiUtiz+BugyX8uVbaT2H8oj3+8dRyH2FLiNdowe7eNqRM7IOIZvzDH76EoAT+gwm6aIQ==",
       "dependencies": [
@@ -99,10 +103,23 @@
         "event-target-shim"
       ]
     },
+    "abortcontroller-polyfill@1.7.8": {
+      "integrity": "sha512-9f1iZ2uWh92VcrU9Y8x+LdM4DLj75VE0MJB8zuF1iUnroEptStw+DQ8EQPMUdfe5k+PkB1uUfDQfWbhstH8LrQ=="
+    },
     "agentkeepalive@4.6.0": {
       "integrity": "sha512-kja8j7PjmncONqaTsB8fQ+wE2mSU2DJ9D4XKoJ5PFWIdRMa6SLSN1ff4mOr4jCbfRSsxR4keIiySJU0N9T5hIQ==",
       "dependencies": [
         "humanize-ms"
+      ]
+    },
+    "airtable@0.12.2": {
+      "integrity": "sha512-HS3VytUBTKj8A0vPl7DDr5p/w3IOGv6RXL0fv7eczOWAtj9Xe8ri4TAiZRXoOyo+Z/COADCj+oARFenbxhmkIg==",
+      "dependencies": [
+        "@types/node@14.18.63",
+        "abort-controller",
+        "abortcontroller-polyfill",
+        "lodash",
+        "node-fetch"
       ]
     },
     "asynckit@0.4.0": {
@@ -146,6 +163,9 @@
       "dependencies": [
         "ms"
       ]
+    },
+    "lodash@4.17.21": {
+      "integrity": "sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg=="
     },
     "mime-db@1.52.0": {
       "integrity": "sha512-sPU4uV7dYlvtWJxwwxHD0PuihVNiE7TyAbQ5SWxDCB9mUYvOgroQOwYQQOKPJ8CIbE+1ETVlOoK1UC2nU3gYvg=="
@@ -292,6 +312,7 @@
       "jsr:@std/http@^1.0.9",
       "jsr:@std/uuid@*",
       "npm:@hono/zod-validator@~0.4.1",
+      "npm:airtable@~0.12.2",
       "npm:hono@^4.6.9",
       "npm:openai@^4.103.0",
       "npm:zod@^3.23.8"
