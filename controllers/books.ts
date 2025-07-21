@@ -221,7 +221,7 @@ export class BooksController {
       );
       await this.subscriptionRepository.assignPromoCodeToSubscription(
         subscription.id,
-        promoCode,
+        promoCode.toLowerCase(),
       );
     }
 

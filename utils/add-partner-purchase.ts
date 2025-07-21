@@ -8,7 +8,7 @@ export function addPartnerPurchase(
   readerEmail: string,
   bookTitle: string,
 ): void {
-  const table = VALID_PROMO_CODES[promoCode];
+  const table = VALID_PROMO_CODES[promoCode.toLowerCase()];
 
   const base = new Airtable({ apiKey: Deno.env.get('AIRTABLE_API_KEY') }).base(
     AIRTABLE_BASE_ID,
