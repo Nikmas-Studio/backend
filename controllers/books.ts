@@ -364,16 +364,6 @@ export class BooksController {
         } for reader ${subscription.readerId} is activated`,
       );
 
-      const subscriptionPromoCode = await this.subscriptionRepository
-        .getSubscriptionPromoCode(subscription.id);
-      if (subscriptionPromoCode !== null) {
-        addPartnerPurchase(
-          subscriptionPromoCode,
-          reader!.email,
-          book!.title,
-        );
-      }
-
       logInfo(`sending order success letter to ${reader!.email}`);
       if (book!.uri === BOOK_MASTER_GIT_AND_GITHUB_URI) {
         this.emailService.sendOneTimePurchaseSuccessLetter({
@@ -413,6 +403,16 @@ export class BooksController {
           );
         });
       }
+    }
+
+    const subscriptionPromoCode = await this.subscriptionRepository
+      .getSubscriptionPromoCode(subscription.id);
+    if (subscriptionPromoCode !== null) {
+      addPartnerPurchase(
+        subscriptionPromoCode,
+        reader!.email,
+        book!.title,
+      );
     }
 
     if (book!.uri === BOOK_MASTER_ENGLISH_WITH_SHERLOCK_HOLMES_URI) {
