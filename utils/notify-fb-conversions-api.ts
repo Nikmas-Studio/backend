@@ -1,5 +1,5 @@
 import { encodeHex } from '@std/encoding/hex';
-import { CURRENCY } from '../constants.ts';
+import { CURRENCY, PIXEL_ID } from '../constants.ts';
 import { BookPrice } from '../models/book/types.ts';
 import {
   ActionSource,
@@ -80,7 +80,7 @@ export async function notifyFbConversionsApi({
   const accessToken = Deno.env.get('CONVERSIONS_API_ACCESS_TOKEN');
 
   await fetch(
-    `https://graph.facebook.com/v21.0/3555681048062939/events?access_token=${accessToken}`,
+    `https://graph.facebook.com/v21.0/${PIXEL_ID}/events?access_token=${accessToken}`,
     {
       method: 'POST',
       headers: {
