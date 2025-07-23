@@ -5,7 +5,7 @@ import {
   BOOK_MASTER_ENGLISH_WITH_SHERLOCK_HOLMES_URI,
   BOOK_MASTER_GIT_AND_GITHUB_URI,
   BOOKS_WITHOUT_REGULAR_PAYMENT,
-  PROMO_CODE_DISCOUNT,
+  DEFAULT_PROMO_CODE_DISCOUNT,
   TRANSLATION_CREDITS_TO_GRANT_ON_UPDATE_MASTER_ENGLISH_WITH_SHERLOCK_HOLMES,
 } from '../constants.ts';
 import { AuthRepository } from '../models/auth/repository-interface.ts';
@@ -35,6 +35,7 @@ import { notifyFbConversionsApi } from '../utils/notify-fb-conversions-api.ts';
 import { checkPromoCodeValidityUtil } from '../utils/promo-codes.ts';
 import { verifyCaptcha } from '../utils/verify-captcha.ts';
 import { verifyHoneypot } from '../utils/verify-honeypot.ts';
+import { getPromoCodeDiscount } from '../utils/get-promo-code-discount.ts';
 
 export class BooksController {
   constructor(
@@ -182,7 +183,9 @@ export class BooksController {
         book,
         serviceURL,
         regular: !BOOKS_WITHOUT_REGULAR_PAYMENT.includes(book.uri),
-        promoCodeDiscount: promoCodeIsValid ? PROMO_CODE_DISCOUNT : undefined,
+        promoCodeDiscount: promoCodeIsValid
+          ? getPromoCodeDiscount(promoCode!) 
+          : undefined,
       });
     } catch (_) {
       throw new HTTPException(STATUS_CODE.InternalServerError);
