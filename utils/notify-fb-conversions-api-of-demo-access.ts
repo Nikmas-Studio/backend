@@ -6,6 +6,7 @@ import {
   EventName,
 } from '../types/fb-conversions-api.ts';
 import { Email } from '../types/global-types.ts';
+import { PIXEL_ID } from '../constants.ts';
 
 export interface ConversionsApiNotificationPayload {
   actionSource: ActionSource;
@@ -55,7 +56,7 @@ export async function notifyFbConversionsApiOfDemoAccess({
   const accessToken = Deno.env.get('CONVERSIONS_API_ACCESS_TOKEN');
 
   await fetch(
-    `https://graph.facebook.com/v21.0/3555681048062939/events?access_token=${accessToken}`,
+    `https://graph.facebook.com/v21.0/${PIXEL_ID}/events?access_token=${accessToken}`,
     {
       method: 'POST',
       headers: {
