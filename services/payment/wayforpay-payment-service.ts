@@ -33,7 +33,7 @@ export class WayforpayPaymentService implements PaymentService {
           : Number((book.mainPrice - promoCodeDiscount).toFixed(1)),
       ),
       currency: CURRENCY,
-      'productName[]': `Interactive E-Book «${book.title}»`,
+      'productName[]': `Interactive E-Book «${book.title}» ${regular ? '(Yearly Subscription, Cancel Anytime)' : ''}`,
       'productCount[]': '1',
       'productPrice[]': String(
         promoCodeDiscount === undefined
