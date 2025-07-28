@@ -14,12 +14,12 @@ await asyncLocalStorage.run(new Map(), async () => {
   await bookRepository.createBook({
     title: 'Master Git & GitHub: From Everyday Tasks to Deep Waters',
     uri: 'book-master-git-and-github',
-    mainPrice: 9,
+    mainPrice: 4,
   });
 
   await bookRepository.createBook({
     title: 'Master English with Sherlock Holmes',
     uri: 'book-master-english-with-sherlock-holmes',
-    mainPrice: 9,
+    mainPrice: 4,
   });
 });
