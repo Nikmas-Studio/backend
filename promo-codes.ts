@@ -5,4 +5,5 @@ export const VALID_PROMO_CODES: Record<string, string> = {
   'talkytok': 'TalkyTok',
   'ellen': 'Ellen',
   'victoria666': 'Victoria666',
+  'nulp11': 'NULP',
 }
