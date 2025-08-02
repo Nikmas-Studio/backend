@@ -19,7 +19,7 @@ export class OpenaiDeeplTranslationService implements TranslationService {
   ): Promise<Translation> {
     try {
       const systemContent =
-        'You are the most precise translation tool. Return ONLY the translation of the given Fragment, using the Context to disambiguate the meaning';
+        'You are the most precise translation tool. Translate ONLY the given Fragment, using Context SOLELY for disambiguation. Do not include any words outside the Fragment. Output ONLY the translated Fragment';
       const userContent =
         `Fragment: ${fragment}\nContext: ${context}\nTranslate to: ${targetLanguage}`;
 
@@ -68,7 +68,7 @@ export class OpenaiDeeplTranslationService implements TranslationService {
   ): Promise<Translation> {
     try {
       const systemContent =
-        'You are the most precise translation checker. If the given Translation is 100% accurate for the Fragment in Context, return it unchanged. Otherwise, return a corrected version ONLY';
+        'You are the most precise translation checker. If the given Translation is 100% accurate for the Fragment in Context, return it unchanged. Otherwise, return a corrected version — but do not add or remove anything beyond the Fragment’s boundaries';
 
       const userContent =
         `Fragment: ${fragment}\nContext: ${context}\nTranslation: ${translation}\nTarget language: ${targetLanguage}`;
@@ -97,7 +97,10 @@ export class OpenaiDeeplTranslationService implements TranslationService {
       return reply;
     } catch (e) {
       logError(`OpenAI translation refinement error: ${e}`);
-      throw new TranslationError('OpenAI translation refinement error', e as Error);
+      throw new TranslationError(
+        'OpenAI translation refinement error',
+        e as Error,
+      );
     }
   }
 }
