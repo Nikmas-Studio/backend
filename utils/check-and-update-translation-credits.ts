@@ -10,8 +10,8 @@ function calculateCreditsNeeded(
   translationRefinement: boolean,
 ): number {
   const systemContent = translationRefinement
-    ? 'You are the most precise translation checker. If the given Translation is 100% accurate for the Fragment in Context, return it unchanged. Otherwise, return a corrected version ONLY'
-    : 'You are the most precise translation tool. Return ONLY the translation of the given Fragment, using the Context to disambiguate the meaning';
+    ? 'You are the most precise translation checker. If the given Translation is 100% accurate — fully matching ONLY the Fragment within its Context — return it unchanged. Otherwise, return a corrected version — but DO NOT add anything beyond the Fragment’s boundaries'
+    : 'You are the most precise translation tool. Translate ONLY the given Fragment, using Context SOLELY for disambiguation. DO NOT include any words outside the Fragment. Output ONLY the translated Fragment';
 
   const userContent = translationRefinement
     ? `Fragment: ${fragment}\nContext: ${context}\nTranslation: ${fragment}\nTarget language: ${targetLanguage}`

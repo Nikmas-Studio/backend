@@ -19,7 +19,7 @@ export class OpenaiDeeplTranslationService implements TranslationService {
   ): Promise<Translation> {
     try {
       const systemContent =
-        'You are the most precise translation tool. Translate ONLY the given Fragment, using Context SOLELY for disambiguation. Do not include any words outside the Fragment. Output ONLY the translated Fragment';
+        'You are the most precise translation tool. Translate ONLY the given Fragment, using Context SOLELY for disambiguation. DO NOT include any words outside the Fragment. Output ONLY the translated Fragment';
       const userContent =
         `Fragment: ${fragment}\nContext: ${context}\nTranslate to: ${targetLanguage}`;
 
@@ -68,7 +68,7 @@ export class OpenaiDeeplTranslationService implements TranslationService {
   ): Promise<Translation> {
     try {
       const systemContent =
-        'You are the most precise translation checker. If the given Translation is 100% accurate — fully matching only the Fragment within its Context — return it unchanged. Otherwise, return a corrected version — but do not add anything beyond the Fragment’s boundaries';
+        'You are the most precise translation checker. If the given Translation is 100% accurate — fully matching ONLY the Fragment within its Context — return it unchanged. Otherwise, return a corrected version — but DO NOT add anything beyond the Fragment’s boundaries';
 
       const userContent =
         `Fragment: ${fragment}\nContext: ${context}\nTranslation: ${translation}\nTarget language: ${targetLanguage}`;
