@@ -8,7 +8,7 @@
     "entrypoint": "main.ts"
   },
   "tasks": {
-    "dev": "deno run --allow-net --allow-env --env-file --unstable-kv --unstable-cron --watch main.ts",
+    "dev": "deno run --allow-net --allow-read --allow-env --env-file --unstable-kv --unstable-cron --watch main.ts",
     "check_kv_local": "deno run --unstable-kv scripts/checkKvLocal.ts",
     "clean_kv_local": "deno run --unstable-kv scripts/cleanKvLocal.ts",
     "clean_kv_staging": "deno run --unstable-kv --allow-env --env-file --allow-net scripts/cleanKvStaging.ts",

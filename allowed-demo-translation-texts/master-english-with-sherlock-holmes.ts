@@ -1,11 +1,62 @@
 export const ALLOWED_TEXT = `
-A STUDY IN SCARLET \
+How to Use the Book \
 In Settings in the top right corner of the page, choose your preferred theme \
 and set the translation language. With the Book Navigator in the top right corner \
 of the page, explore the book’s structure and find the pages you need; on desktop, \
 click outside or press Escape to hide the navigator. Highlight any text fragment \
 to see the context-aware AI translation; click outside or press Escape \
-to hide the translation block: A Study in Scarlet Part I (Being a reprint from the \
+to hide the translation block: \
+This book is the key to your global success! \
+Full details about this book: \
+https://nikmas.studio/book-master-english-with-sherlock-holmes \
+Proficiency in English gives you access to the highest-paying jobs — \
+because it allows you to operate in global markets, where salaries \
+are significantly higher. Proficiency in English is often a \
+requirement for leadership roles. Proficiency in English lets you \
+travel the world comfortably and confidently, because you can speak \
+fluently with anyone you meet. Proficiency in English opens the door \
+for you to cutting-edge knowledge, most of which is first published \
+in English — and the more of this modern knowledge you have, the \
+more valuable you become — and the more you earn. Proficiency in \
+English is the key to your global success! \
+Reading is the most effective way for mastering a language, \
+because when you read, you encounter more words per minute than with \
+any other method. And if what you're reading is also a fascinating, \
+gripping story, words are remembered far more effectively — because \
+they become tied to vivid moments that stay in your active memory \
+for a long time. \
+However, reading foreign literature comes with its own problems: \
+The frustration from constant switching between a book and an \
+external translator. \
+Constantly switching back and forth between a book and an external \
+translator is the most inconvenient part of reading literature in \
+a foreign language. You’ll quickly get tired of this constant \
+context switching and, in all likelihood, give up reading altogether. \
+An external translator lacks context. \
+When you manually translate a word or phrase using an external \
+translator, it has no idea of the surrounding context — which \
+often results in inaccurate translations. \
+We solved these problems. \
+Our book includes a built-in, highest-quality AI translator that activates \
+instantly when you highlight any fragment — whether it’s a word, a \
+phrase, or even a full sentence. And because it takes the \
+surrounding context into account, the translation is as accurate as \
+possible. Now you can enjoy the smoothest reading and learning flow \
+— and advance toward your global success at full speed! \
+What we offer to read is the complete collection of Sherlock Holmes \
+stories. These stories are not only some of the world’s most \
+thrilling detective tales, but also a treasure trove of rich \
+everyday vocabulary. If you want to truly strengthen your knowledge \
+of any language, you should read Sherlock Holmes translated into \
+that language. The goal of this interactive edition is to help you \
+powerfully boost your English skills, which is why the book is \
+presented in its original version — in English. \
+Sherlock Holmes stories + built-in, context-aware AI translation = \
+English proficiency in record time = \
+Your Global Success. Remember this formula! \
+Even when you have no time. Read the book just 10 minutes a day — \
+and advance toward your global success with joy and ease: \
+A STUDY IN SCARLET A Study in Scarlet Part I (Being a reprint from the \
 reminiscences of John H. Watson, M.D., late of the Army Medical Department.) \
 Chapter I. Mr. Sherlock Holmes In the year 1878 I took my degree of Doctor of Medicine \
 of the University of London, and proceeded to Netley to go through the \
