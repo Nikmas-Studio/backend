@@ -52,7 +52,7 @@ const input = {
         <p>Try the&nbsp;book demo for&nbsp;free: <a target="_blank" rel="noopener noreferrer" href="{{demoLink}}">{{demoLink}}</a>
         </p>
         <p>
-        If you'd like to&nbsp;subscribe to&nbsp;the&nbsp;full version of&nbsp;the&nbsp;book, you can do&nbsp;this through&nbsp;the&nbsp;book's promo page: <a href="{{promoLink}}" target="_blank">{{promoLink}}</a>
+        Full&nbsp;details about&nbsp;the&nbsp;book: <a href="{{promoLink}}" target="_blank">{{promoLink}}</a>
         </p>
         <p>If you haven't initiated this&nbsp;request, just disregard this&nbsp;message: someone might&nbsp;have&nbsp;entered your&nbsp;email by&nbsp;mistake.</p>
         <p>© Nikmas Studio, {{year}}</p>
@@ -125,10 +125,10 @@ const input = {
 //           <li>Access your&nbsp;library with&nbsp;this&nbsp;email: {{readerEmail}}.</li>
 
 //           <li>
-//             Once you're logged into&nbsp;your library, go <a href="{{promoLink}}">to&nbsp;the&nbsp;book's 
+//             Once you're logged into&nbsp;your library, go <a href="{{promoLink}}">to&nbsp;the&nbsp;book's
 //             promo page</a> and click the "Read" button to access the full version of the book.
 //           </li>
-          
+
 //          <li>
 //           Your subscription is active until {{paidUntil}}, and will automatically renew each year
 //           when the current billing period ends. To stop recurring payments, simply cancel your subscription.
