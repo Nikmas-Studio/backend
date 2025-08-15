@@ -6,7 +6,7 @@ of the page, explore the book’s structure and find the pages you need; on desk
 click outside or press Escape to hide the navigator. Highlight any text fragment \
 to see the context-aware AI translation; click outside or press Escape \
 to hide the translation block: \
-This book is the key to your global success! \
+This Book Is the Key to Your Global Success! \
 Full details about this book: \
 https://nikmas.studio/book-master-english-with-sherlock-holmes \
 Proficiency in English gives you access to the highest-paying jobs — \
