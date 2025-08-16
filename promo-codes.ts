@@ -6,4 +6,5 @@ export const VALID_PROMO_CODES: Record<string, string> = {
   'ellen': 'Ellen',
   'victoria666': 'Victoria666',
   'nulp11': 'NULP',
+  'naukma11': 'Naukma',
 }
