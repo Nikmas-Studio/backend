@@ -1,9 +1,9 @@
-import { BookExistsError } from '../../errors.ts';
+import { BookExistsError, BookNotFoundError } from '../../errors.ts';
 import { generateUUID } from '../../utils/generate-uuid.ts';
 import { logInfo } from '../../utils/logger.ts';
 import { ReaderId } from '../reader/types.ts';
 import { BookRepository } from './repository-interface.ts';
-import { Book, BookId, BookURI, CreateBookDTO } from './types.ts';
+import { Book, BookId, BookPrice, BookURI, CreateBookDTO } from './types.ts';
 
 export class BookDenoKvRepository implements BookRepository {
   constructor(private kv: Deno.Kv) {}
@@ -35,6 +35,19 @@ export class BookDenoKvRepository implements BookRepository {
     return book;
   }
 
+  async updateBookPrice(bookURI: BookURI, newPrice: BookPrice): Promise<Book> {
+    const book = await this.getBookByURI(bookURI);
+
+    if (book === null) {
+      throw new BookNotFoundError(bookURI);
+    }
+    
+    const updatedBook: Book = { ...book, mainPrice: newPrice };
+    await this.kv.set(['books', book.id], updatedBook);
+    
+    return updatedBook;
+  }
+
   async getBookById(bookId: BookId): Promise<Book | null> {
     const book = await this.kv.get<Book>(['books', bookId]);
     return book.value;
@@ -64,12 +77,19 @@ export class BookDenoKvRepository implements BookRepository {
     return res.value === null ? false : res.value;
   }
 
-  async assignLastVisitedPage(bookURI: BookURI, readerId: ReaderId, page: string): Promise<void> {
+  async assignLastVisitedPage(
+    bookURI: BookURI,
+    readerId: ReaderId,
+    page: string,
+  ): Promise<void> {
     const key = ['last_visited_page', bookURI, readerId];
     await this.kv.set(key, page);
   }
-  
-  async getLastVisitedPage(bookURI: BookURI, readerId: ReaderId): Promise<string | null> {
+
+  async getLastVisitedPage(
+    bookURI: BookURI,
+    readerId: ReaderId,
+  ): Promise<string | null> {
     const key = ['last_visited_page', bookURI, readerId];
     const res = await this.kv.get<string>(key);
     return res.value;
