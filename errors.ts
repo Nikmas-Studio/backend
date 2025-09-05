@@ -61,6 +61,13 @@ export class BookExistsError extends Error {
   }
 }
 
+export class BookNotFoundError extends Error {
+  constructor(uri: BookURI) {
+    super(`book with URI ${uri} not found`);
+    this.name = 'BookNotFoundError';
+  }
+}
+
 export class SubscriptionExistsError extends Error {
   constructor(orderId: OrderId) {
     super(`subscription with order id ${orderId} already exists`);

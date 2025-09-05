@@ -15,6 +15,6 @@ await asyncLocalStorage.run(new Map(), async () => {
   await bookRepository.createBook({
     title: 'Master English with Sherlock Holmes',
     uri: 'book-master-english-with-sherlock-holmes',
-    mainPrice: 23,
+    mainPrice: 27,
   });
 });

@@ -45,9 +45,9 @@ export const BOOKS_WITHOUT_REGULAR_PAYMENT = [
 
 export const PIXEL_ID = '1174635817619006';
 
-export const DEFAULT_PROMO_CODE_DISCOUNT = 3.5;
-export const IT_CLUB_PROMO_CODE_DISCOUNT = 7;
-export const DEFAULT_BOOK_PRICE = 23;
+export const DEFAULT_PROMO_CODE_DISCOUNT = 4;
+export const IT_CLUB_PROMO_CODE_DISCOUNT = 8;
+export const DEFAULT_BOOK_PRICE = 27;
 
 export const AIRTABLE_BASE_ID = 'appnxQX53kC9bRUcY';
 
